@@ -3,6 +3,7 @@ package com.ikeu.server.controller.admin;
 import com.ikeu.common.constant.MessageConstant;
 import com.ikeu.common.result.PageResult;
 import com.ikeu.common.result.Result;
+import com.ikeu.model.vo.TaskDetailVO;
 import com.ikeu.model.vo.TaskListVO;
 import com.ikeu.server.annotation.OperationLog;
 import com.ikeu.server.annotation.RequireRole;
@@ -28,6 +29,13 @@ public class AdminTaskController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
         return Result.success(adminService.listAllTasks(status, page, size));
+    }
+
+    @RequireRole({1, 2})
+    @Operation(summary = "任务详情")
+    @GetMapping("/tasks/{taskId}")
+    public Result<TaskDetailVO> getTaskDetail(@PathVariable Long taskId) {
+        return Result.success(adminService.getTaskDetail(taskId));
     }
 
     @RequireRole({1})

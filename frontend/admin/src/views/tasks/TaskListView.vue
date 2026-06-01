@@ -15,18 +15,31 @@
 
       <el-table :data="tableData" v-loading="loading" stripe>
         <el-table-column prop="taskNo" label="任务编号" width="160" />
+        <el-table-column label="任务类型" width="120">
+          <template #default="{ row }">
+            <span>{{ row.subType ? row.type + '/' + row.subType : row.type }}</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="publicDesc" label="描述" min-width="200" show-overflow-tooltip />
-        <el-table-column prop="publisherNickname" label="发布者" width="120" />
-        <el-table-column prop="reward" label="报酬" width="100" />
-        <el-table-column label="状态" width="100">
+        <el-table-column prop="publisherNickname" label="发布者" width="100" />
+        <el-table-column label="报酬" width="100">
+          <template #default="{ row }">¥{{ Number(row.reward).toFixed(2) }}</template>
+        </el-table-column>
+        <el-table-column prop="pickupAddress" label="取件地址" width="140" show-overflow-tooltip />
+        <el-table-column label="状态" width="90">
           <template #default="{ row }">
             <el-tag :type="statusTag(row.status)" size="small">{{ TASK_STATUS[row.status as keyof typeof TASK_STATUS] }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="publishTime" label="发布时间" width="180" />
-        <el-table-column label="操作" width="140">
+        <el-table-column prop="publishTime" label="发布时间" width="170" />
+        <el-table-column label="操作" width="180">
           <template #default="{ row }">
-            <el-popconfirm title="确定修改任务状态？" @confirm="updateStatus(row)">
+            <el-button type="primary" link @click="$router.push(`/tasks/${row.taskId}`)">详情</el-button>
+            <el-popconfirm
+              v-if="row.status !== 5 && row.status !== 6"
+              title="确定修改任务状态？"
+              @confirm="updateStatus(row)"
+            >
               <template #reference>
                 <el-button type="warning" link>修改状态</el-button>
               </template>
@@ -85,7 +98,7 @@ function reset() { query.status = undefined; search() }
 
 function updateStatus(row: any) {
   statusDialog.taskId = row.taskId
-  statusDialog.newStatus = 1
+  statusDialog.newStatus = row.status
   statusDialog.visible = true
 }
 

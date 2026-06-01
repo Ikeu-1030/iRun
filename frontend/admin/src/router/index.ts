@@ -52,6 +52,12 @@ const router = createRouter({
           meta: { title: '任务管理', icon: 'List' }
         },
         {
+          path: 'tasks/:id',
+          name: 'TaskDetail',
+          component: () => import('@/views/tasks/TaskDetailView.vue'),
+          meta: { title: '任务详情', hidden: true }
+        },
+        {
           path: 'orders',
           name: 'Orders',
           component: () => import('@/views/orders/OrderListView.vue'),

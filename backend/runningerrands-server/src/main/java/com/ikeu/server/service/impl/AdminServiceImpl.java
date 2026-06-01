@@ -380,6 +380,7 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
             vo.setPublishTime(task.getCreatedAt());
             User pub = publisherMap.get(task.getPublisherId());
             vo.setPublisherNickname(pub != null ? pub.getNickname() : "");
+            vo.setPublisherUsername(pub != null ? pub.getUsername() : "");
             vo.setPublisherAvatar(pub != null ? pub.getAvatarUrl() : "");
             vo.setImageUrls(task.getImageUrls() != null
                     ? JSONUtil.toList(task.getImageUrls(), String.class) : Collections.emptyList());
@@ -488,6 +489,48 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
     }
 
     /**
+     * 获取任务详情（管理端），不脱敏。
+     */
+    @Override
+    public TaskDetailVO getTaskDetail(Long taskId) {
+        Task task = taskMapper.selectById(taskId);
+        if (task == null) throw new NotFoundException(MessageConstant.TASK_NOT_EXIST);
+        User publisher = userMapper.selectById(task.getPublisherId());
+
+        return TaskDetailVO.builder()
+                .taskId(task.getId())
+                .taskNo(task.getTaskNo())
+                .type(task.getType())
+                .subType(task.getSubType())
+                .taskSpecs(task.getTaskSpecs())
+                .publicDesc(task.getPublicDesc())
+                .privateNote(task.getPrivateNote())
+                .reward(task.getReward())
+                .pickupAddress(task.getPickupAddress())
+                .pickupLng(task.getPickupLng())
+                .pickupLat(task.getPickupLat())
+                .deliveryAddress(task.getDeliveryAddress())
+                .deliveryLng(task.getDeliveryLng())
+                .deliveryLat(task.getDeliveryLat())
+                .expireTime(task.getExpireTime())
+                .publishTime(task.getCreatedAt())
+                .publisherNickname(publisher != null ? publisher.getNickname() : "")
+                .publisherUsername(publisher != null ? publisher.getUsername() : "")
+                .publisherAvatar(publisher != null ? publisher.getAvatarUrl() : "")
+                .imageUrls(task.getImageUrls() != null
+                        ? JSONUtil.toList(task.getImageUrls(), String.class) : Collections.emptyList())
+                .pickupCode(task.getPickupCode())
+                .hasPickupCode(task.getPickupCode() != null && !task.getPickupCode().isBlank())
+                .requireSex(task.getRequireSex())
+                .contactName(task.getContactName())
+                .contactPhone(task.getContactPhone())
+                .status(task.getStatus())
+                .cancelReason(task.getCancelReason())
+                .cancelTime(task.getUpdatedAt())
+                .build();
+    }
+
+    /**
      * 强制更新任务状态方法
      *  逻辑：直接更新任务状态为指定值，用于管理员手动调整，清除仪表盘缓存
      *
@@ -500,10 +543,11 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
     public void updateTaskStatus(Long taskId, Integer status) {
         Task task = taskMapper.selectById(taskId);
         if (task == null) throw new NotFoundException(MessageConstant.TASK_NOT_EXIST);
+        com.ikeu.common.enums.TaskStateMachine.validate(task.getStatus(), status, "任务");
         task.setStatus(status);
         task.setUpdatedAt(LocalDateTime.now());
         taskMapper.updateById(task);
-        log.info("管理员强制更新任务 {} 状态为 {}", taskId, status);
+        log.info("管理员强制更新任务 {} 状态为 {} → {}", taskId, task.getStatus(), status);
     }
 
     /**

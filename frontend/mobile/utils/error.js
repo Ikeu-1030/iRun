@@ -7,9 +7,7 @@
  *   - 共享辅助函数消除跨页面的重复弹窗/提示代码
  */
 
-// ═══════════════════════════════════════════
-// ErrorType 枚举
-// ═══════════════════════════════════════════
+import { showToast } from '@/utils/toast'
 
 export const ErrorType = Object.freeze({
   AUTH_EXPIRED: 'AUTH_EXPIRED',       // 401 / token 过期 / refresh 失败
@@ -143,7 +141,7 @@ export function isErrorType(error, type) {
  */
 export function requireCertified(store) {
   if (!store.isCertified) {
-    uni.showToast({ title: '请先完成实名认证', icon: 'none' })
+    showToast('请先完成实名认证')
     uni.navigateTo({ url: '/pages/certify/certify' })
     return false
   }
@@ -209,7 +207,7 @@ export function handlePageError(error, options = {}) {
   // 对未提示过的网络/服务器错误补一刀 toast
   if (classified.type === ErrorType.NETWORK || classified.type === ErrorType.SERVER_ERROR) {
     if (!classified.handled) {
-      uni.showToast({ title: classified.message, icon: 'none' })
+      showToast(classified.message)
     }
   }
 

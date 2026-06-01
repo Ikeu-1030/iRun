@@ -143,6 +143,8 @@ function review(row: any, verifyStatus: number) {
 }
 
 async function submitReview() {
+  const action = dialog.verifyStatus === 2 ? '通过' : '驳回'
+  await ElMessageBox.confirm(`确认${action}该跑腿员的认证？`, '提示', { type: 'warning' })
   await reviewRunnerCert(dialog.profileId, dialog.verifyStatus, dialog.remark || undefined)
   ElMessage.success('审核完成')
   dialog.visible = false

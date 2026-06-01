@@ -113,7 +113,7 @@ async function onRecharge() {
   try {
     await transactionApi.recharge(amount, pw)
     store.updateBalance(store.userInfo.balance + amount)
-    uni.showToast({ title: `已充值 ¥${amount.toFixed(2)}`, icon: 'success' })
+    uni.showToast({ title: '充值成功', icon: 'success' })
     rechargeCustom.value = ''
     rechargeSelected.value = '50'
   } catch (e) {
@@ -139,7 +139,7 @@ async function onWithdraw() {
   try {
     await transactionApi.withdraw(amount, pw)
     store.updateBalance(store.userInfo.balance - amount)
-    uni.showToast({ title: `已提现 ¥${amount.toFixed(2)}`, icon: 'success' })
+    uni.showToast({ title: '提现成功', icon: 'success' })
     withdrawAmount.value = ''
   } catch (e) {
     if (e.message?.includes('请先设置支付密码')) guideToSetPayPassword()
@@ -150,7 +150,7 @@ async function onWithdraw() {
 
 async function onAllWithdraw() {
   if (store.userInfo.balance <= 0) {
-    uni.showToast({ title: '余额为0，无法提现', icon: 'none' })
+    uni.showToast({ title: '无可提现余额', icon: 'none' })
     return
   }
   withdrawAmount.value = store.userInfo.balance.toFixed(2)

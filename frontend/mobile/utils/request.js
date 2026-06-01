@@ -12,6 +12,7 @@
 
 import { BASE_URL } from '@/utils/config'
 import { classifyError } from '@/utils/error'
+import { showToast } from '@/utils/toast'
 
 // ---------- token 持久化 ----------
 
@@ -210,21 +211,21 @@ export function request({
                   const { statusCode: sc, data: retryBody } = retryRes
                   if (sc !== 200) {
                     const err = classifyError(`HTTP ${sc}`, { httpStatus: sc, showError })
-                    if (showError) uni.showToast({ title: err.message, icon: 'none' })
+                    if (showError) showToast(err.message)
                     return reject(err)
                   }
                   if (retryBody.code === 1) {
                     resolve(retryBody.data)
                   } else {
                     const err = classifyError(retryBody.msg, { businessCode: retryBody.code, businessMsg: retryBody.msg, showError })
-                    if (showError) uni.showToast({ title: err.message || '操作失败', icon: 'none' })
+                    if (showError) showToast(err.message || '操作失败')
                     reject(err)
                   }
                 },
                 fail(retryErr) {
                   if (showLoading) uni.hideLoading()
                   const err = classifyError(retryErr, { showError })
-                  if (showError) uni.showToast({ title: err.message, icon: 'none' })
+                  if (showError) showToast(err.message)
                   reject(err)
                 }
               })
@@ -233,7 +234,7 @@ export function request({
               if (showLoading) uni.hideLoading()
               removeToken()
               removeRefreshToken()
-              uni.showToast({ title: '登录已过期，请重新登录', icon: 'none', duration: 2000 })
+              showToast('登录已过期，请重新登录', { duration: 2000 })
               setTimeout(() => {
                 uni.reLaunch({ url: '/pages/login/login' })
               }, 1500)
@@ -247,7 +248,7 @@ export function request({
           const msg = (body && body.msg) ? body.msg : `HTTP ${statusCode}`
           const err = classifyError(msg, { httpStatus: statusCode, businessCode: body?.code, businessMsg: msg, showError })
           if (showError) {
-            uni.showToast({ title: err.message, icon: 'none' })
+            showToast(err.message)
           }
           return reject(err)
         }
@@ -258,7 +259,7 @@ export function request({
         } else {
           const err = classifyError(body.msg, { businessCode: body.code, businessMsg: body.msg, showError })
           if (showError) {
-            uni.showToast({ title: err.message || '操作失败', icon: 'none' })
+            showToast(err.message || '操作失败')
           }
           reject(err)
         }
@@ -267,7 +268,7 @@ export function request({
         if (showLoading) uni.hideLoading()
         const classified = classifyError(err, { showError })
         if (showError) {
-          uni.showToast({ title: classified.message, icon: 'none' })
+          showToast(classified.message)
         }
         reject(classified)
       }

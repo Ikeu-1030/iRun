@@ -161,7 +161,7 @@ async function onSubmit() {
     if (pickupAddress.value === '自定义地点') {
       actualPickup = customPickupAddress.value
       if (!actualPickup) {
-        uni.showToast({ title: '请输入自定义取餐地点', icon: 'none' })
+        uni.showToast({ title: '请输入取餐地点', icon: 'none' })
         submitting.value = false
         return
       }

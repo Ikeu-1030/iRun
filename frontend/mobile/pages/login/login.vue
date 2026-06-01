@@ -30,8 +30,11 @@
           <view class="field-row">
             <input class="field-input" v-model="username" placeholder="请输入账号/手机号" />
           </view>
-          <view class="field-row">
-            <input class="field-input" name="password" v-model="password" placeholder="请输入密码" />
+          <view class="field-row field-row--pwd">
+            <input class="field-input" :password="!showPwd" v-model="password" placeholder="请输入密码" />
+            <view class="eye-toggle" @click="showPwd = !showPwd">
+              <iconpark-icon :name="showPwd ? 'preview-open' : 'preview-close'" size="20" color="#8F8D88" />
+            </view>
           </view>
         </template>
 
@@ -104,7 +107,12 @@
           </view>
           <view class="reg-field">
             <text class="reg-label">设置密码</text>
-            <input class="reg-input" name="password" v-model="regPassword" placeholder="6-20位密码" maxlength="20" />
+            <view class="reg-pwd-row">
+              <input class="reg-input" :password="!showRegPwd" v-model="regPassword" placeholder="6-20位密码" maxlength="20" />
+              <view class="eye-toggle" @click="showRegPwd = !showRegPwd">
+                <iconpark-icon :name="showRegPwd ? 'preview-open' : 'preview-close'" size="20" color="#8F8D88" />
+              </view>
+            </view>
           </view>
 
           <view class="submit-btn" :class="{ 'submit-btn--disabled': !canRegSubmit || regSubmitting }" @click="onRegister">
@@ -151,6 +159,7 @@ const username = ref('')
 const phone = ref('')
 const code = ref('')
 const password = ref('')
+const showPwd = ref(false)
 const submitting = ref(false)
 const countdown = ref(0)
 
@@ -208,7 +217,7 @@ async function onWechatLogin() {
     await store.fetchUserInfo()
     onLoginSuccess()
   } catch (e) {
-    uni.showToast({ title: '微信登录失败，请用手机号登录', icon: 'none', duration: 2000 })
+    uni.showToast({ title: '微信登录失败', icon: 'none', duration: 2000 })
   }
   submitting.value = false
 }
@@ -226,6 +235,7 @@ const regPhone = ref('')
 const regCode = ref('')
 const regUsername = ref('')
 const regPassword = ref('')
+const showRegPwd = ref(false)
 const regSubmitting = ref(false)
 const regCountdown = ref(0)
 
@@ -304,7 +314,10 @@ watch(showRegister, (val) => {
 .code-row { display: flex; align-items: center; gap: 16rpx; margin-bottom: 20rpx; }
 .code-input { flex: 1; height: 88rpx; background: var(--surface); border-radius: 20rpx; padding: 0 24rpx; font-size: 30rpx; color: var(--text-primary); box-sizing: border-box; }
 .field-row { margin-bottom: 20rpx; }
+.field-row--pwd { position: relative; }
+.field-row--pwd .field-input { padding-right: 80rpx; }
 .field-input { width: 100%; height: 88rpx; background: var(--surface); border-radius: 20rpx; padding: 0 24rpx; font-size: 30rpx; color: var(--text-primary); box-sizing: border-box; }
+.eye-toggle { position: absolute; right: 0; top: 0; width: 80rpx; height: 88rpx; display: flex; align-items: center; justify-content: center; z-index: 2; }
 
 .send-code-btn { padding: 18rpx 20rpx; background: var(--primary); border-radius: 20rpx; flex-shrink: 0; min-width: 160rpx; text-align: center; }
 .send-code-btn--disabled { background: var(--outline); }
@@ -343,4 +356,7 @@ watch(showRegister, (val) => {
 .reg-field--code .reg-input { flex: 1; }
 .reg-label { font-size: 24rpx; color: var(--text-secondary); display: block; margin-bottom: 10rpx; }
 .reg-input { width: 100%; height: 84rpx; background: var(--surface); border-radius: 16rpx; padding: 0 22rpx; font-size: 28rpx; color: var(--text-primary); box-sizing: border-box; }
+.reg-pwd-row { position: relative; }
+.reg-pwd-row .reg-input { padding-right: 80rpx; }
+.reg-pwd-row .eye-toggle { height: 84rpx; }
 </style>

@@ -69,6 +69,7 @@ import { onLoad, onUnload } from '@dcloudio/uni-app'
 import { useStore } from '@/store/index.js'
 import { useChatStore } from '@/store/chat.js'
 import { handlePageError, ErrorType } from '@/utils/error'
+import { showToast } from '@/utils/toast'
 
 const store = useStore()
 const chatStore = useChatStore()
@@ -136,7 +137,7 @@ async function onSend() {
   if (!text || sending.value) return
 
   if (!chatStore.wsConnected) {
-    uni.showToast({ title: '消息未连接，请稍后重试', icon: 'none' })
+    showToast('消息未连接，请稍后重试')
     return
   }
 
@@ -284,7 +285,7 @@ async function confirmDelete(msg) {
       customHandlers: {
         [ErrorType.BUSINESS]: (err) => {
           if (err.message.includes('只能操作')) {
-            uni.showToast({ title: '只能删除自己发送的消息', icon: 'none' })
+            showToast('只能删除自己发送的消息')
           }
         }
       }
@@ -310,9 +311,9 @@ async function confirmRecall(msg) {
       customHandlers: {
         [ErrorType.BUSINESS]: (err) => {
           if (err.message.includes('超过5分钟')) {
-            uni.showToast({ title: '消息已超过5分钟，无法撤回', icon: 'none' })
+            showToast('消息已超过5分钟，无法撤回')
           } else if (err.message.includes('只能操作')) {
-            uni.showToast({ title: '只能撤回自己发送的消息', icon: 'none' })
+            showToast('只能撤回自己发送的消息')
           }
         }
       }

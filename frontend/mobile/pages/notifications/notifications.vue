@@ -93,6 +93,7 @@ import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { notificationApi } from '@/api'
 import { NOTIFICATION_TYPES } from '@/utils/constants.js'
+import { showToast } from '@/utils/toast'
 
 const sysInfo = uni.getSystemInfoSync()
 const toolbarHeight = 72
@@ -274,7 +275,7 @@ async function onBatchDelete() {
   selectedIds.value = new Set()
   selectMode.value = false
   uni.hideLoading()
-  uni.showToast({ title: `已删除${successCount}条`, icon: 'success' })
+  showToast(`已删除${successCount}条`, { icon: 'success' })
 }
 
 function formatTime(timeStr) {

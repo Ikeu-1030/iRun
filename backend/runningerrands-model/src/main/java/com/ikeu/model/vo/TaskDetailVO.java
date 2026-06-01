@@ -57,6 +57,9 @@ public class TaskDetailVO implements Serializable {
     @Schema(name = "发布者昵称")
     private String publisherNickname;
 
+    @Schema(name = "发布者用户名")
+    private String publisherUsername;
+
     @Schema(name = "发布者头像URL")
     private String publisherAvatar;
 

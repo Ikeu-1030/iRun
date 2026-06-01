@@ -40,7 +40,7 @@
             </span>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item @click="authStore.logout()">
+                <el-dropdown-item @click="handleLogout">
                   <el-icon><SwitchButton /></el-icon> 退出登录
                 </el-dropdown-item>
               </el-dropdown-menu>
@@ -59,6 +59,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { ElMessageBox } from 'element-plus'
 import { useAuthStore } from '@/stores/auth'
 import { useAppStore } from '@/stores/app'
 
@@ -88,6 +89,13 @@ const menuItems: MenuItem[] = [
   { path: '/employees', title: '员工管理', icon: 'UserFilled', roles: [1] },
   { path: '/logs', title: '操作日志', icon: 'Tickets', roles: [1] }
 ]
+
+async function handleLogout() {
+  try {
+    await ElMessageBox.confirm('确定要退出登录吗？', '提示', { type: 'warning' })
+    authStore.logout()
+  } catch { /* 用户取消 */ }
+}
 
 const visibleMenu = computed(() => menuItems.filter(item => {
   if (!item.roles) return true

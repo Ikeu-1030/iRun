@@ -163,6 +163,7 @@ import { useStore } from '@/store/index.js'
 import { taskApi, notificationApi } from '@/api'
 import { requireCertified } from '@/utils/error'
 import CustomTabbar from '@/components/custom-tabbar/custom-tabbar.vue'
+import { showToast } from '@/utils/toast'
 
 const store = useStore()
 const sysInfo = uni.getSystemInfoSync()
@@ -191,7 +192,7 @@ async function onSearch(e) {
   try {
     const res = await taskApi.searchTasks({ keyword, page: 1, size: 20 })
     if (res.records?.length) {
-      uni.showToast({ title: `找到 ${res.total} 个任务`, icon: 'none' })
+      showToast(`找到 ${res.total} 个任务`)
     } else {
       uni.showToast({ title: '未找到匹配任务', icon: 'none' })
     }

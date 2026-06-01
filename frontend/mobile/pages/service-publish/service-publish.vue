@@ -659,14 +659,14 @@ async function onSubmit() {
   // 校验
   if (taskType.value === 1) {
     if (totalPackageQty.value === 0) {
-      uni.showToast({ title: '请至少选择1件快递', icon: 'none' })
+      uni.showToast({ title: '至少选1件快递', icon: 'none' })
       return
     }
   }
   if (taskType.value === 4) {
     const validProducts = productItems.value.filter(p => p.name.trim())
     if (validProducts.length === 0) {
-      uni.showToast({ title: '请至少填写1件商品', icon: 'none' })
+      uni.showToast({ title: '至少填1件商品', icon: 'none' })
       return
     }
     if (!pickupAddress.value) {

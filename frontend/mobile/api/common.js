@@ -3,6 +3,7 @@
  */
 import { SERVER_ORIGIN } from '@/utils/config'
 import { getToken } from '@/utils/request'
+import { showToast } from '@/utils/toast'
 
 const UPLOAD_URL = SERVER_ORIGIN + '/api/common/upload'
 
@@ -28,12 +29,12 @@ export function uploadFile(filePath) {
           if (body.code === 1) {
             resolve(body.data)
           } else {
-            uni.showToast({ title: body.msg || '上传失败', icon: 'none' })
+            showToast(body.msg || '上传失败')
             reject(new Error(body.msg))
           }
         } catch (e) {
           console.error('uploadFile 解析响应失败:', e, 'res.data:', res.data)
-          uni.showToast({ title: '上传响应异常，请重试', icon: 'none' })
+          uni.showToast({ title: '上传异常，请重试', icon: 'none' })
           reject(e)
         }
       },

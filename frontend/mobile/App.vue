@@ -1,5 +1,6 @@
 <script>
 import { classifyError, isErrorType, ErrorType } from '@/utils/error'
+import { showToast } from '@/utils/toast'
 
 export default {
   onLaunch() {
@@ -24,7 +25,7 @@ export default {
           console.warn('[App] Unhandled rejection:', reason)
           const classified = classifyError(reason)
           if (classified.type === ErrorType.NETWORK || classified.type === ErrorType.SERVER_ERROR) {
-            uni.showToast({ title: classified.message, icon: 'none' })
+            showToast(classified.message)
           }
         })
       }

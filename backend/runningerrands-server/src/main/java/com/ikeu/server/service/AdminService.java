@@ -26,6 +26,9 @@ public interface AdminService {
     /** 管理员强制更新任务状态。 */
     void updateTaskStatus(Long taskId, Integer status);
 
+    /** 获取任务详情。 */
+    TaskDetailVO getTaskDetail(Long taskId);
+
     /** 分页查询所有任务列表，支持按状态筛选。 */
     PageResult<TaskListVO> listAllTasks(Integer status, int page, int size);
 

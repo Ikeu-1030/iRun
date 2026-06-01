@@ -96,7 +96,7 @@ async function onChangeAvatar() {
     }
   } catch (e) {
     console.error('profile-settings avatar upload:', e)
-    uni.showToast({ title: '头像上传失败，请重试', icon: 'none' })
+    uni.showToast({ title: '头像上传失败', icon: 'none' })
   }
 }
 

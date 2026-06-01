@@ -427,7 +427,7 @@ async function loadData() {
     }
     dataReady.value = true
   } catch (e) {
-    uni.showToast({ title: '加载失败，请稍后重试', icon: 'none' })
+    uni.showToast({ title: '加载失败，请重试', icon: 'none' })
     dataReady.value = true
   }
 }

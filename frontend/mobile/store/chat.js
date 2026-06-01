@@ -8,6 +8,7 @@ import { defineStore } from 'pinia'
 import { chatApi } from '@/api'
 import { StompClient } from '@/utils/stomp'
 import { WS_URL } from '@/utils/config'
+import { showToast } from '@/utils/toast'
 
 export const useChatStore = defineStore('chat', () => {
   // ---- state ----
@@ -196,7 +197,7 @@ export const useChatStore = defineStore('chat', () => {
     }
     const ok = messageIds.length - failed
     if (failed > 0) {
-      uni.showToast({ title: `已删除 ${ok} 条，${failed} 条失败`, icon: 'none' })
+      showToast(`已删除 ${ok} 条，${failed} 条失败`)
     }
   }
 

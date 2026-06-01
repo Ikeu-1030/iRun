@@ -69,7 +69,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { listUsers, reviewUserCertification } from '@/api/users'
 import { listRunners, reviewRunnerCert } from '@/api/runners'
 
@@ -91,6 +91,7 @@ async function fetchUsers() {
 }
 
 async function approveUser(row: any) {
+  await ElMessageBox.confirm(`确认通过用户 "${row.nickname || row.username}" 的实名认证？`, '提示', { type: 'success' })
   await reviewUserCertification(row.id, 2)
   ElMessage.success('已通过认证')
   fetchUsers()
@@ -119,6 +120,7 @@ async function fetchRunners() {
 }
 
 async function approveRunner(row: any) {
+  await ElMessageBox.confirm(`确认通过跑腿员 "${row.nickname}" 的认证？`, '提示', { type: 'success' })
   await reviewRunnerCert(row.profileId, 2)
   ElMessage.success('已通过认证')
   fetchRunners()

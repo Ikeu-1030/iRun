@@ -144,6 +144,7 @@ async function toggleStatus(row: any, enabled: boolean) {
 function resetPwd(row: any) { pwdDialog.id = row.id; pwdDialog.newPassword = ''; pwdDialog.visible = true }
 
 async function submitResetPwd() {
+  await ElMessageBox.confirm('确认重置该员工的密码？重置后需使用新密码登录。', '警告', { type: 'warning' })
   await resetEmployeePassword(pwdDialog.id, { newPassword: pwdDialog.newPassword })
   ElMessage.success('密码已重置')
   pwdDialog.visible = false

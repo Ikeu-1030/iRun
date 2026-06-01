@@ -149,22 +149,22 @@ async function onSetPayPassword() {
     return
   }
   if (newPayPassword.value.length < 6) {
-    uni.showToast({ title: '支付密码至少6位数字', icon: 'none' })
+    uni.showToast({ title: '至少6位数字密码', icon: 'none' })
     return
   }
   if (!/^\d+$/.test(newPayPassword.value)) {
-    uni.showToast({ title: '支付密码仅支持数字', icon: 'none' })
+    uni.showToast({ title: '密码仅支持数字', icon: 'none' })
     return
   }
   if (newPayPassword.value !== confirmPayPassword.value) {
-    uni.showToast({ title: '两次输入的支付密码不一致', icon: 'none' })
+    uni.showToast({ title: '两次密码不一致', icon: 'none' })
     return
   }
   if (!lock()) return
   try {
     await userApi.setPayPassword(loginPassword.value, newPayPassword.value)
     store.markPayPasswordSet()
-    uni.showToast({ title: '支付密码设置成功', icon: 'success' })
+    uni.showToast({ title: '设置成功', icon: 'success' })
     setTimeout(() => uni.navigateBack(), 1000)
   } catch (e) {
     if (e.message?.includes('已设置支付密码')) {
@@ -182,22 +182,22 @@ async function onChangePayPassword() {
     return
   }
   if (newPayPassword2.value.length < 6) {
-    uni.showToast({ title: '支付密码至少6位数字', icon: 'none' })
+    uni.showToast({ title: '至少6位数字密码', icon: 'none' })
     return
   }
   if (!/^\d+$/.test(newPayPassword2.value)) {
-    uni.showToast({ title: '支付密码仅支持数字', icon: 'none' })
+    uni.showToast({ title: '密码仅支持数字', icon: 'none' })
     return
   }
   if (newPayPassword2.value !== confirmPayPassword2.value) {
-    uni.showToast({ title: '两次输入的支付密码不一致', icon: 'none' })
+    uni.showToast({ title: '两次密码不一致', icon: 'none' })
     return
   }
   if (!lock()) return
   try {
     await userApi.changePayPassword(oldPayPassword.value, newPayPassword2.value)
     store.markPayPasswordSet()
-    uni.showToast({ title: '支付密码已修改', icon: 'success' })
+    uni.showToast({ title: '修改成功', icon: 'success' })
     setTimeout(() => uni.navigateBack(), 1000)
   } catch (e) {
     if (e.message?.includes('请先设置支付密码')) {

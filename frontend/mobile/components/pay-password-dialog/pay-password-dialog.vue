@@ -27,6 +27,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { useDialogState, confirmPayPassword, cancelPayPassword } from '@/utils/pay-password.js'
+import { showToast } from '@/utils/toast'
 
 const { visible, title, hint } = useDialogState()
 const inputValue = ref('')
@@ -47,7 +48,7 @@ function onInput(e) {
 function onConfirm() {
   const pw = (inputValue.value || '').replace(/\D/g, '')
   if (!pw || pw.length < 6) {
-    uni.showToast({ title: '请输入至少6位数字支付密码', icon: 'none' })
+    showToast('请输入6位数字支付密码')
     return
   }
   confirmPayPassword(pw)

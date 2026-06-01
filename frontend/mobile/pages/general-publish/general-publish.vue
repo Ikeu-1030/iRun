@@ -196,7 +196,7 @@ function onBack() { uni.navigateBack() }
 
 async function onSubmit() {
   if (!description.value && !privateDescription.value) {
-    uni.showToast({ title: '请填写任务描述或备注', icon: 'none' })
+    uni.showToast({ title: '请填写描述或备注', icon: 'none' })
     return
   }
   if (!pickupAddress.value) {

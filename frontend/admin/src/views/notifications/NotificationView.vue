@@ -28,7 +28,7 @@
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { sendNotification, broadcastNotification } from '@/api/notifications'
 import { NOTIFICATION_TYPES } from '@/utils/constants'
 
@@ -40,6 +40,8 @@ function openSendDialog() {
 }
 
 async function submitSend() {
+  const title = dialog.isBroadcast ? '确认向全部用户发送该通知？' : '确认向指定用户发送该通知？'
+  await ElMessageBox.confirm(title, '提示', { type: 'warning' })
   sending.value = true
   try {
     if (dialog.isBroadcast) {

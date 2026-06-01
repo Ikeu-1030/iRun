@@ -280,7 +280,8 @@ const typeFilters = [
   { value: 1, label: '代取快递' },
   { value: 2, label: '代拿餐食' },
   { value: 3, label: '校内代办' },
-  { value: 4, label: '代购物品' }
+  { value: 4, label: '代购物品' },
+  { value: 5, label: '通用代办' }
 ]
 
 const loadMoreStatus = computed(() => {

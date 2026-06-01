@@ -199,6 +199,7 @@ import { TASK_TYPES, TASK_TYPE_META, TYPE_FROM_API, isQueueWaitType } from '@/ut
 import { parseTaskSpecs, parseExpressPackagesFromSpecs, parseShoppingItemsFromSpecs, parseBookCountFromSpecs, parsePrintSpecsFromSpecs, parseMerchantInfoFromSpecs } from '@/utils/campus-data.js'
 import { useSubmitLock } from '@/utils/submit-guard'
 import UploadGrid from '@/components/upload-grid/upload-grid.vue'
+import { showToast } from '@/utils/toast'
 
 const sysInfo = uni.getSystemInfoSync()
 const scrollHeight = sysInfo.windowHeight - sysInfo.statusBarHeight - 44
@@ -445,7 +446,7 @@ async function loadData() {
 async function onPickup() {
   const label = isQueueWait.value ? '到达凭证' : '取货凭证'
   if (uploadedPickupImages.value.length === 0) {
-    uni.showToast({ title: `请先上传${label}`, icon: 'none' })
+    showToast(`请先上传${label}`)
     return
   }
   if (!actionLock()) return
@@ -462,7 +463,7 @@ async function onPickup() {
 async function onDeliver() {
   const label = isQueueWait.value ? '完成凭证' : '送达凭证'
   if (uploadedDeliverImages.value.length === 0) {
-    uni.showToast({ title: `请先上传${label}`, icon: 'none' })
+    showToast(`请先上传${label}`)
     return
   }
   if (!actionLock()) return

@@ -205,7 +205,7 @@ async function onApply() {
   try {
     await runnerApi.applyRunner()
     store.userInfo.verifyStatus = 1
-    uni.showToast({ title: '申请已提交，请等待审核', icon: 'success' })
+    uni.showToast({ title: '申请已提交', icon: 'success' })
   } catch (e) { /* handled */ }
   applying.value = false
 }

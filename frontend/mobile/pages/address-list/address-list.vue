@@ -14,11 +14,11 @@
       </view>
 
       <view v-for="addr in list" :key="addr.id" class="addr-swipe-wrapper">
-        <view v-if="!selectMode" class="addr-delete-btn" @click.stop="onDeleteAddr(addr.id)">
+        <view class="addr-delete-btn" @click.stop="onDeleteAddr(addr.id)">
           <iconpark-icon name="trash" size="22" color="#fff" />
           <text>删除</text>
         </view>
-        <view class="addr-swipe-content" :class="{ 'addr-swipe-content--open': swipedId === addr.id && !selectMode }" @touchstart="selectMode ? null : onTouchStart($event, addr.id)" @touchmove="selectMode ? null : onTouchMove($event, addr.id)" @touchend="selectMode ? null : onTouchEnd(addr.id)" @click="onTapAddr(addr)">
+        <view class="addr-swipe-content" :class="{ 'addr-swipe-content--open': swipedId === addr.id }" @touchstart="onTouchStart($event, addr.id)" @touchmove="onTouchMove($event, addr.id)" @touchend="onTouchEnd(addr.id)" @click="onTapAddr(addr)">
           <view class="addr-card" :class="{ 'addr-card--default': addr.isDefault === 1 }">
             <view v-if="addr.isDefault === 1" class="active-bar"></view>
             <view class="addr-content">
@@ -29,7 +29,7 @@
               </view>
               <text class="addr-detail">{{ addr.detail }}</text>
             </view>
-            <view v-if="!selectMode" class="addr-edit" @click.stop="onEdit(addr.id)">
+            <view class="addr-edit" @click.stop="onEdit(addr.id)">
               <iconpark-icon name="compose" size="18" color="#8F8D88" />
             </view>
           </view>
@@ -39,7 +39,7 @@
       <view class="bottom-placeholder"></view>
     </scroll-view>
 
-    <view v-if="!selectMode" class="bottom-bar safe-area-bottom">
+    <view class="bottom-bar safe-area-bottom">
       <view class="add-btn" @click="onAdd">
         <iconpark-icon name="plus" size="22" color="#fff" />
         <text>新增收货地址</text>
@@ -81,12 +81,12 @@ onLoad((options) => {
 function onBack() { uni.navigateBack() }
 
 function onTapAddr(addr) {
+  if (swipedId.value === addr.id) { swipedId.value = null; return }
   if (selectMode.value) {
     uni.$emit('addressSelected', addr)
     uni.navigateBack()
     return
   }
-  if (swipedId.value === addr.id) { swipedId.value = null; return }
   uni.navigateTo({ url: `/pages/address-edit/address-edit?id=${addr.id}&view=1` })
 }
 
