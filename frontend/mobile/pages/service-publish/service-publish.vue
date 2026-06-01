@@ -11,7 +11,7 @@
       <!-- ===== 代取快递 type=1 ===== -->
       <template v-if="taskType === 1">
         <view class="form-card">
-          <view class="card-title">取件信息</view>
+          <view class="card-title">取件信息 <text class="required">*</text></view>
           <view class="form-label">取件驿站</view>
           <view class="addr-row">
             <view class="addr-badge addr-badge--pickup">取</view>
@@ -38,7 +38,7 @@
           </view>
         </view>
         <view class="form-card">
-          <view class="card-title">配送信息</view>
+          <view class="card-title">配送信息 <text class="required">*</text></view>
           <view class="addr-row">
             <view class="addr-badge addr-badge--deliver">收</view>
             <view class="form-addr-card" @click="onSelectAddress">
@@ -55,14 +55,14 @@
         </view>
         <view class="form-card">
           <view class="card-title">备注（仅接单员可见）</view>
-          <textarea class="form-textarea" placeholder="接单成功后对方可见的私密信息，如：门牌号、联系方式…" v-model="privateExpressNote" />
+          <textarea class="form-textarea" placeholder="仅对成功接单方可见" v-model="privateExpressNote" />
         </view>
       </template>
 
       <!-- ===== 代拿餐食 type=2 ===== -->
       <template v-if="taskType === 2">
         <view class="form-card">
-          <view class="card-title">取餐信息</view>
+          <view class="card-title">取餐信息 <text class="required">*</text></view>
           <view class="form-label">餐饮类型</view>
           <view class="chip-row">
             <view class="chip" :class="{ 'chip--active': subType === 21 }" @click="subType = 21">校内餐饮</view>
@@ -76,7 +76,7 @@
               <view class="addr-badge addr-badge--pickup">取</view>
               <picker mode="selector" :range="offCampusLocations" @change="onOffCampusLocation" style="flex:1">
                 <view class="form-select">
-                  <text :class="{ 'form-select-placeholder': !pickupAddress }">{{ pickupAddress || '选择外卖柜地点' }}</text>
+                  <text :class="{ 'form-select-placeholder': !pickupAddress }">{{ pickupAddress || '请选择取餐地点' }}</text>
                   <text class="select-arrow">▼</text>
                 </view>
               </picker>
@@ -87,12 +87,12 @@
 
           <!-- 校内餐饮 → 选择餐厅 -->
           <template v-if="subType === 21">
-            <view class="form-label">餐厅名称</view>
+            <view class="form-label">取餐地点</view>
             <view class="addr-row">
               <view class="addr-badge addr-badge--pickup">取</view>
               <picker mode="selector" :range="restaurants" @change="onRestaurantChange" style="flex:1">
                 <view class="form-select">
-                  <text :class="{ 'form-select-placeholder': !pickupAddress }">{{ pickupAddress || '请选择取餐餐厅' }}</text>
+                  <text :class="{ 'form-select-placeholder': !pickupAddress }">{{ pickupAddress || '请选择取餐地点' }}</text>
                   <text class="select-arrow">▼</text>
                 </view>
               </picker>
@@ -101,13 +101,13 @@
             <input class="form-input" placeholder="如：XX店/XX窗口" v-model="merchantInfo" />
           </template>
 
-          <view class="form-label">{{ subType === 22 ? '需求详情' : '餐品详情' }}</view>
-          <textarea class="form-textarea" :placeholder="subType === 22 ? '请描述你的取餐需求，如：XX餐厅取餐…' : '例如：一份大碗牛肉面，多加香菜，微辣…'" v-model="description" />
-          <view class="form-label">取餐码 / 订单号</view>
-          <input class="form-input" placeholder="输入取餐号码，如：A042" v-model="pickupCode" />
+          <view class="form-label">{{ subType === 22 ? '需求详情' : '取餐详情' }}</view>
+          <textarea class="form-textarea" :placeholder="subType === 22 ? '补充描述餐饮信息' : '请输入取餐详情'" v-model="description" />
+          <view class="form-label">{{ subType === 22 ? '取餐码 / 手机尾号' : '取餐码 / 订单号' }}</view>
+          <input class="form-input" :placeholder="subType === 22 ? '请输入取餐码或您的外卖手机尾号' : '请输入取餐码或订单号'" v-model="pickupCode" />
         </view>
         <view class="form-card">
-          <view class="card-title">配送信息</view>
+          <view class="card-title">配送信息 <text class="required">*</text></view>
           <view class="addr-row">
             <view class="addr-badge addr-badge--deliver">收</view>
             <view class="form-addr-card" @click="onSelectAddress">
@@ -120,7 +120,7 @@
         </view>
         <view v-if="subType === 21 || subType === 22" class="form-card">
           <view class="card-title">备注（仅接单员可见）</view>
-          <textarea class="form-textarea" placeholder="接单成功后对方可见的私密信息，如：口味偏好、门牌号…" v-model="privateFoodNote" />
+          <textarea class="form-textarea" placeholder="仅对成功接单方可见" v-model="privateFoodNote" />
         </view>
       </template>
 
@@ -133,13 +133,13 @@
           </view>
         </view>
         <view v-if="subType !== null && subType !== 33 && subType !== 35" class="form-card">
-          <view class="card-title">任务描述</view>
+          <view class="card-title">任务描述 <text class="required">*</text></view>
           <textarea class="form-textarea" placeholder="详细说明您的代办需求…" v-model="description" />
         </view>
         <!-- 物品急送 subType=33 -->
         <template v-if="subType === 33">
           <view class="form-card">
-            <view class="card-title">物品信息</view>
+            <view class="card-title">物品信息 <text class="required">*</text></view>
             <view class="form-label">物品名称</view>
             <input class="form-input" placeholder="例如：文件、钥匙、快递" v-model="description" />
             <view class="form-label">重量估算</view>
@@ -148,11 +148,11 @@
             </view>
           </view>
           <view class="form-card">
-            <view class="card-title">取件信息</view>
+            <view class="card-title">取件信息 <text class="required">*</text></view>
             <view class="addr-row"><view class="addr-badge addr-badge--pickup">取</view><input class="form-input" placeholder="从哪里取？" v-model="pickupAddress" style="flex:1" /></view>
           </view>
           <view class="form-card">
-            <view class="card-title">配送信息</view>
+            <view class="card-title">配送信息 <text class="required">*</text></view>
             <view class="addr-row">
               <view class="addr-badge addr-badge--deliver">收</view>
               <view class="form-addr-card" @click="onSelectAddress">
@@ -162,21 +162,21 @@
             </view>
           </view>
           <view class="form-card">
-            <view class="card-title">备注说明</view>
-            <textarea class="form-textarea" placeholder="补充说明，如：急用、指定品牌…" v-model="remark" />
+            <view class="card-title">任务描述（公开）</view>
+            <textarea class="form-textarea" placeholder="补充描述" v-model="remark" />
           </view>
           <view class="form-card">
-            <view class="card-title">任务描述（仅接单员可见）</view>
-            <textarea class="form-textarea" placeholder="接单成功后对方可见的私密信息…" v-model="privateRemark" />
+            <view class="card-title">备注说明（仅接单员可见）</view>
+            <textarea class="form-textarea" placeholder="仅对成功接单方可见" v-model="privateRemark" />
           </view>
         </template>
         <!-- 图书馆还书 subType=32 -->
         <view v-if="subType === 32" class="form-card">
-          <view class="card-title">取件地点</view>
+          <view class="card-title">取件地点 <text class="required">*</text></view>
           <view class="addr-row"><view class="addr-badge addr-badge--pickup">取</view><input class="form-input" placeholder="如：东区宿舍3号楼 501" v-model="pickupAddress" style="flex:1" /></view>
         </view>
         <view v-if="subType === 32" class="form-card">
-          <view class="card-title">还书信息</view>
+          <view class="card-title">还书信息 <text class="required">*</text></view>
           <view class="form-label">书本数量</view>
           <view class="qty-stepper" style="justify-content:flex-start">
             <view class="qty-btn" :class="{ 'qty-btn--disabled': bookCount <= 1 }" @click="bookCount > 1 && bookCount--">−</view>
@@ -189,13 +189,13 @@
           </view>
         </view>
         <view v-if="subType === 32" class="form-card">
-          <view class="card-title">联系信息</view>
+          <view class="card-title">联系信息 <text class="required">*</text></view>
           <input class="form-input" placeholder="联系人姓名" style="margin-bottom:16rpx" v-model="deliveryContactName" />
           <input class="form-input" placeholder="联系电话" name="number" v-model="deliveryContactPhone" />
         </view>
         <!-- 帮扔杂物 subType=34 -->
         <view v-if="subType === 34" class="form-card">
-          <view class="card-title">取件地点</view>
+          <view class="card-title">取件地点 <text class="required">*</text></view>
           <view class="addr-row"><view class="addr-badge addr-badge--pickup">取</view><input class="form-input" placeholder="如：东区宿舍3号楼 501" v-model="pickupAddress" style="flex:1" /></view>
           <view class="info-hint" style="margin-top:16rpx">
             <iconpark-icon name="info" size="18" color="#FF6B4A" />
@@ -203,14 +203,14 @@
           </view>
         </view>
         <view v-if="subType === 34" class="form-card">
-          <view class="card-title">联系信息</view>
+          <view class="card-title">联系信息 <text class="required">*</text></view>
           <input class="form-input" placeholder="联系人姓名" style="margin-bottom:16rpx" v-model="deliveryContactName" />
           <input class="form-input" placeholder="联系电话" name="number" v-model="deliveryContactPhone" />
         </view>
         <!-- 办事代排 subType=35 -->
         <template v-if="subType === 35">
           <view class="form-card">
-            <view class="card-title">服务时长</view>
+            <view class="card-title">服务时长 <text class="required">*</text></view>
             <view class="chip-row">
               <view v-for="d in serviceDurationOptions" :key="d.value" class="chip" :class="{ 'chip--active': selectedDuration === d.value }" @click="selectedDuration = d.value">{{ d.label }}</view>
             </view>
@@ -229,23 +229,23 @@
             </view>
           </view>
           <view class="form-card">
-            <view class="card-title">任务描述（公开）</view>
+            <view class="card-title">任务描述（公开） <text class="required">*</text></view>
             <textarea class="form-textarea" placeholder="所有用户可见的任务描述…" v-model="description" />
           </view>
           <view class="form-card">
-            <view class="card-title">任务描述（仅接单员可见）</view>
-            <textarea class="form-textarea" placeholder="接单成功后对方可见的私密信息，如：办事窗口、注意事项…" v-model="privateDescription" />
+            <view class="card-title">备注说明（仅接单员可见）</view>
+            <textarea class="form-textarea" placeholder="仅对成功接单方可见" v-model="privateDescription" />
           </view>
           <view class="form-card">
-            <view class="card-title">服务地点</view>
-            <view class="addr-row"><view class="addr-badge addr-badge--pickup">取</view><input class="form-input" placeholder="如：行政楼1楼教务处" v-model="pickupAddress" style="flex:1" /></view>
+            <view class="card-title">服务地点 <text class="required">*</text></view>
+            <view class="addr-row"><view class="addr-badge addr-badge--pickup">至</view><input class="form-input" placeholder="请填写服务地点" v-model="pickupAddress" style="flex:1" /></view>
             <view class="info-hint">
               <iconpark-icon name="info" size="18" color="#FF6B4A" />
-              <text>无需填写配送终点，跑腿员将在指定地点排队代办</text>
+              <text>跑腿员将在指定地点为您服务</text>
             </view>
           </view>
           <view class="form-card">
-            <view class="card-title">联系信息</view>
+            <view class="card-title">联系信息 <text class="required">*</text></view>
             <input class="form-input" placeholder="联系人姓名" style="margin-bottom:16rpx" v-model="deliveryContactName" />
             <input class="form-input" placeholder="联系电话" name="number" v-model="deliveryContactPhone" />
           </view>
@@ -254,19 +254,19 @@
         <!-- 自定义代办（subType=null） -->
         <template v-if="subType === null">
           <view class="form-card">
-            <view class="card-title">任务描述（公开）</view>
+            <view class="card-title">任务描述（公开） <text class="required">*</text></view>
             <textarea class="form-textarea" placeholder="所有用户可见的任务描述…" v-model="description" />
           </view>
           <view class="form-card">
-            <view class="card-title">任务描述（仅接单员可见）</view>
-            <textarea class="form-textarea" placeholder="接单成功后对方可见的私密信息，如：取件码、联系方式…" v-model="privateDescription" />
+            <view class="card-title">备注说明（仅接单员可见）</view>
+            <textarea class="form-textarea" placeholder="仅对成功接单方可见" v-model="privateDescription" />
           </view>
           <view class="form-card">
-            <view class="card-title">取件信息</view>
+            <view class="card-title">取件信息 <text class="required">*</text></view>
             <view class="addr-row"><view class="addr-badge addr-badge--pickup">取</view><input class="form-input" placeholder="从哪里取？" v-model="pickupAddress" style="flex:1" /></view>
           </view>
           <view class="form-card">
-            <view class="card-title">配送信息</view>
+            <view class="card-title">配送信息 <text class="required">*</text></view>
             <view class="addr-row">
               <view class="addr-badge addr-badge--deliver">收</view>
               <view class="form-addr-card" @click="onSelectAddress">
@@ -279,7 +279,7 @@
 
         <!-- 截止时间（所有校内代办子选项） -->
         <view class="form-card">
-          <view class="card-title">截止时间（选填）</view>
+          <view class="card-title">截止时间</view>
           <view class="time-picker-row">
             <picker mode="date" :value="deadlineDate" :start="minDate" @change="onDeadlineDateChange">
               <view class="form-select form-select--half"><text>{{ deadlineDate || '选择日期' }}</text><text class="select-arrow">▼</text></view>
@@ -305,7 +305,7 @@
           </view>
         </view>
         <view class="form-card">
-          <view class="card-title">商品填写</view>
+          <view class="card-title">商品填写 <text class="required">*</text></view>
           <view v-for="(item, index) in productItems" :key="index" class="product-item-row">
             <view class="product-item-header">
               <text class="product-item-index">商品{{ index + 1 }}</text>
@@ -329,11 +329,27 @@
           </view>
         </view>
         <view class="form-card">
-          <view class="card-title">购买地址</view>
-          <view class="addr-row"><view class="addr-badge addr-badge--pickup">取</view><input class="form-input" placeholder="从哪里购买？如：蓝区校园超市" v-model="pickupAddress" style="flex:1" /></view>
+          <view class="card-title">购买地址 <text class="required">*</text></view>
+          <!-- 校内代购：选择器 -->
+          <view v-if="subType === 43" class="addr-row">
+            <view class="addr-badge addr-badge--pickup">取</view>
+            <picker mode="selector" :range="shopLocations" @change="onShopLocationChange" style="flex:1">
+              <view class="form-select">
+                <text :class="{ 'form-select-placeholder': !pickupAddress }">{{ pickupAddress || '请选择购买地点' }}</text>
+                <text class="select-arrow">▼</text>
+              </view>
+            </picker>
+          </view>
+          <view v-if="pickupAddress === '自定义地点'" class="form-label">自定义购买地点</view>
+          <input v-if="pickupAddress === '自定义地点'" class="form-input" placeholder="请输入具体购买地点" v-model="customPickupAddress" />
+          <!-- 校外代购：自由输入 -->
+          <view v-if="subType === 44" class="addr-row">
+            <view class="addr-badge addr-badge--pickup">取</view>
+            <input class="form-input" placeholder="从哪里购买？如：蓝区校园超市" v-model="pickupAddress" style="flex:1" />
+          </view>
         </view>
         <view class="form-card">
-          <view class="card-title">配送信息</view>
+          <view class="card-title">配送信息 <text class="required">*</text></view>
           <view class="addr-row">
             <view class="addr-badge addr-badge--deliver">收</view>
             <view class="form-addr-card" @click="onSelectAddress">
@@ -350,11 +366,11 @@
         </view>
         <view class="form-card">
           <view class="card-title">备注说明（仅接单员可见）</view>
-          <textarea class="form-textarea" placeholder="接单成功后对方可见的私密信息，如：指定品牌、口味…" v-model="privateDescription" />
+          <textarea class="form-textarea" placeholder="仅对成功接单方可见" v-model="privateDescription" />
         </view>
         <!-- 截止时间 -->
         <view class="form-card">
-          <view class="card-title">截止时间（选填）</view>
+          <view class="card-title">截止时间</view>
           <view class="time-picker-row">
             <picker mode="date" :value="deadlineDate" :start="minDate" @change="onDeadlineDateChange">
               <view class="form-select form-select--half"><text>{{ deadlineDate || '选择日期' }}</text><text class="select-arrow">▼</text></view>
@@ -378,7 +394,7 @@
 
       <!-- ===== 接单限制 ===== -->
       <view class="form-card">
-        <view class="card-title">接单限制（选填）</view>
+        <view class="card-title">接单限制</view>
         <view class="chip-row">
           <view class="chip" :class="{ 'chip--active': requireSex === undefined }" @click="requireSex = undefined">不限</view>
           <view class="chip" :class="{ 'chip--active': requireSex === '男' }" @click="requireSex = '男'">仅男生</view>
@@ -537,9 +553,10 @@ function decreaseQty(key) {
 }
 
 const offCampusLocations = ['西北门外卖柜', '东北1门外卖柜', '东南门外卖柜', '西南1门外卖柜', '西南3门外卖柜', '自定义']
+const shopLocations = ['蓝区体育场校园超市', '霞光超市', '霞光餐厅一楼便利店', '晨曦精选便利店', '自定义地点']
 
 const pageTitle = computed(() => TASK_TYPES[taskType.value] || '发布需求')
-const pageSubtitleMap = { 1: '快递急需取？我们来帮您！', 2: '想吃啥就下单，即刻为你送达宿舍。', 3: '快速发布需求，帮取马即刻接单。', 4: '超市代购一键下单，极速配送到寝。' }
+const pageSubtitleMap = { 1: '快递急需取？我们来帮您！', 2: '即刻为您送达热腾腾的美食', 3: '发布紧急需求，我们来帮您', 4: '超市代购一键下单，极速配送到寝。' }
 const pageSubtitle = computed(() => pageSubtitleMap[taskType.value] || '')
 
 const baseFee = computed(() => {
@@ -602,6 +619,10 @@ function onOffCampusLocation(e) {
   } else {
     pickupAddress.value = val
   }
+}
+
+function onShopLocationChange(e) {
+  pickupAddress.value = shopLocations[e.detail.value]
 }
 
 
@@ -761,6 +782,9 @@ async function onSubmit() {
     if (taskType.value === 2 && subType.value === 22 && pickupAddress.value === '自定义') {
       actualPickupAddress = customPickupAddress.value
     }
+    if (taskType.value === 4 && pickupAddress.value === '自定义地点') {
+      actualPickupAddress = customPickupAddress.value
+    }
 
     // 计算 expireMinutes（从截止时间推算）
     let expireMinutes
@@ -890,6 +914,7 @@ async function onSubmit() {
 .form-card--half{flex:1;min-width:0}
 .form-row{display:flex;gap:20rpx;margin-bottom:20rpx}
 .card-title{font-size:30rpx;font-weight:600;color:var(--text-primary);margin-bottom:20rpx;padding-bottom:16rpx;border-bottom:1rpx solid var(--outline-light);display:flex;align-items:center;gap:10rpx}
+.required{color:#ef4444;font-size:22rpx;vertical-align:super;line-height:1}
 .form-label{font-size:24rpx;font-weight:500;color:var(--text-secondary);margin-bottom:10rpx;margin-top:18rpx}
 .form-label:first-child{margin-top:0}
 .form-input{width:100%;height:84rpx;background:var(--surface);border-radius:20rpx;padding:0 28rpx;font-size:28rpx;color:var(--text-primary);box-sizing:border-box}

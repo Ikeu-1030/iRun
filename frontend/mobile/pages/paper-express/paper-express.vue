@@ -5,11 +5,11 @@
     <scroll-view class="main-scroll" :style="{ height: scrollHeight + 'px' }" scroll-y enhanced :show-scrollbar="false">
       <view class="page-header">
         <text class="page-title">纸品速达</text>
-        <text class="page-subtitle">代购纸品文具，快速送达</text>
+        <text class="page-subtitle">代购纸品，快速送达</text>
       </view>
 
       <view class="form-card">
-        <view class="card-title">物品信息</view>
+        <view class="card-title">物品信息 <text class="required">*</text></view>
         <view class="form-label">物品名称</view>
         <input class="form-input" placeholder="例如：洁柔纸面巾" v-model="description" />
         <view class="form-label">纸品规格</view>
@@ -27,30 +27,20 @@
       </view>
 
       <view class="form-card">
-        <view class="card-title">取件信息</view>
-        <view class="form-label">取件地点</view>
+        <view class="card-title">购买信息 <text class="required">*</text></view>
+        <view class="form-label">购买地点</view>
         <view class="addr-row">
           <view class="addr-badge addr-badge--pickup">取</view>
           <picker mode="selector" :range="pickupLocations" @change="onPickupLoc" style="flex:1">
-            <view class="form-select"><text :class="{ 'form-select-placeholder': !pickupAddress }">{{ pickupAddress || '选择取件地点' }}</text><text class="select-arrow">▼</text></view>
+            <view class="form-select"><text :class="{ 'form-select-placeholder': !pickupAddress }">{{ pickupAddress || '请选择购买地点' }}</text><text class="select-arrow">▼</text></view>
           </picker>
         </view>
-        <view v-if="pickupAddress === '自定义地点'" class="form-label">自定义取件地点</view>
-        <input v-if="pickupAddress === '自定义地点'" class="form-input" placeholder="请输入具体取件地点" v-model="customPickupAddress" />
+        <view v-if="pickupAddress === '自定义地点'" class="form-label">自定义购买地点</view>
+        <input v-if="pickupAddress === '自定义地点'" class="form-input" placeholder="请输入具体购买地点" v-model="customPickupAddress" />
       </view>
 
       <view class="form-card">
-        <view class="card-title">上传信息</view>
-        <UploadGrid v-model="uploadedUrls" :maxCount="3" />
-      </view>
-
-      <view class="form-card">
-        <view class="card-title">备注说明</view>
-        <textarea class="form-textarea" placeholder="补充说明，如：急用、指定品牌…" v-model="remark" />
-      </view>
-
-      <view class="form-card">
-        <view class="card-title">配送信息</view>
+        <view class="card-title">配送信息 <text class="required">*</text></view>
         <view class="addr-row">
           <view class="addr-badge addr-badge--deliver">收</view>
           <view class="form-addr-card" @click="onSelectAddress">
@@ -60,7 +50,17 @@
       </view>
 
       <view class="form-card">
-        <view class="card-title">接单限制（选填）</view>
+        <view class="card-title">备注说明</view>
+        <textarea class="form-textarea" placeholder="补充说明" v-model="remark" />
+      </view>
+
+      <view class="form-card">
+        <view class="card-title">上传信息</view>
+        <UploadGrid v-model="uploadedUrls" :maxCount="3" />
+      </view>
+
+      <view class="form-card">
+        <view class="card-title">接单限制</view>
         <view class="chip-row">
           <view class="chip" :class="{ 'chip--active': requireSex === undefined }" @click="requireSex = undefined">不限</view>
           <view class="chip" :class="{ 'chip--active': requireSex === '男' }" @click="requireSex = '男'">仅男生</view>
@@ -186,6 +186,14 @@ onUnmounted(() => {
 })
 
 async function onSubmit() {
+  if (!description.value) {
+    uni.showToast({ title: '请填写物品名称', icon: 'none' })
+    return
+  }
+  if (!pickupAddress.value) {
+    uni.showToast({ title: '请选择购买地点', icon: 'none' })
+    return
+  }
   if (!deliveryAddressId.value) {
     uni.showToast({ title: '请选择配送地址', icon: 'none' })
     return
@@ -251,6 +259,7 @@ function onBack() { uni.navigateBack() }
 .form-card{background:var(--surface-raised);border-radius:var(--radius-lg);padding:28rpx;margin-bottom:20rpx;box-shadow:var(--shadow-sm);border:1rpx solid var(--outline-light)}
 .form-card--pay{border:2rpx solid var(--primary-container)}
 .card-title{font-size:30rpx;font-weight:600;color:var(--text-primary);margin-bottom:20rpx;padding-bottom:16rpx;border-bottom:1rpx solid var(--outline-light);display:flex;align-items:center;gap:10rpx}
+.required{color:#ef4444;font-size:22rpx;vertical-align:super;line-height:1}
 .addr-row{display:flex;align-items:center;gap:14rpx}
 .addr-badge{width:40rpx;height:40rpx;border-radius:10rpx;display:flex;align-items:center;justify-content:center;font-size:22rpx;font-weight:700;color:#fff;flex-shrink:0}
 .addr-badge--pickup{background:var(--text-primary)}

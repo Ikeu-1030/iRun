@@ -9,7 +9,7 @@
       </view>
 
       <view class="form-card">
-        <view class="card-title">取餐信息</view>
+        <view class="card-title">取餐信息 <text class="required">*</text></view>
         <view class="form-label">取餐地点</view>
         <view class="addr-row">
           <view class="addr-badge addr-badge--pickup">取</view>
@@ -25,7 +25,7 @@
         </template>
         <view class="form-label">取货码 / 订单号</view>
         <input class="form-input form-input--large" placeholder="输入取货码，如：A042" v-model="pickupCode" />
-        <view class="form-label">物品详情</view>
+        <view class="form-label">商品详情</view>
         <textarea class="form-textarea" placeholder="请输入具体奶茶/咖啡的名称、规格、要求等…" v-model="description" />
       </view>
 
@@ -35,7 +35,7 @@
       </view>
 
       <view class="form-card">
-        <view class="card-title">配送信息</view>
+        <view class="card-title">配送信息 <text class="required">*</text></view>
         <view class="addr-row">
           <view class="addr-badge addr-badge--deliver">收</view>
           <view class="form-addr-card" @click="onSelectAddress">
@@ -45,7 +45,7 @@
       </view>
 
       <view class="form-card">
-        <view class="card-title">接单限制（选填）</view>
+        <view class="card-title">接单限制</view>
         <view class="chip-row">
           <view class="chip" :class="{ 'chip--active': requireSex === undefined }" @click="requireSex = undefined">不限</view>
           <view class="chip" :class="{ 'chip--active': requireSex === '男' }" @click="requireSex = '男'">仅男生</view>
@@ -226,6 +226,7 @@ function onBack() { uni.navigateBack() }
 .form-card{background:var(--surface-raised);border-radius:var(--radius-lg);padding:28rpx;margin-bottom:20rpx;box-shadow:var(--shadow-sm);border:1rpx solid var(--outline-light)}
 .form-card--pay{border:2rpx solid var(--primary-container)}
 .card-title{font-size:30rpx;font-weight:600;color:var(--text-primary);margin-bottom:20rpx;padding-bottom:16rpx;border-bottom:1rpx solid var(--outline-light)}
+.required{color:#ef4444;font-size:22rpx;vertical-align:super;line-height:1}
 .form-label{font-size:24rpx;font-weight:500;color:var(--text-secondary);margin-bottom:10rpx;margin-top:18rpx}
 .form-label:first-child{margin-top:0}
 .form-input{width:100%;height:84rpx;background:var(--surface);border-radius:20rpx;padding:0 28rpx;font-size:28rpx;color:var(--text-primary);box-sizing:border-box}

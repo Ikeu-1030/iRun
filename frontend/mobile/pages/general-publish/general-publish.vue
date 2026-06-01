@@ -17,12 +17,12 @@
       <!-- 备注（仅接单员可见） -->
       <view class="form-card">
         <view class="card-title">备注（仅接单员可见）</view>
-        <textarea class="form-textarea" placeholder="接单成功后对方可见的私密信息，如：取件码、联系方式、门牌号、具体需求…" v-model="privateDescription" />
+        <textarea class="form-textarea" placeholder="仅对成功接单方可见" v-model="privateDescription" />
       </view>
 
       <!-- 取件信息 -->
       <view class="form-card">
-        <view class="card-title">取件信息</view>
+        <view class="card-title">取件信息 <text class="required">*</text></view>
         <view class="addr-row">
           <view class="addr-badge addr-badge--pickup">取</view>
           <input class="form-input" placeholder="从哪里取件？如：东区宿舍3号楼 501" v-model="pickupAddress" style="flex:1" />
@@ -36,7 +36,7 @@
 
       <!-- 配送信息 -->
       <view class="form-card">
-        <view class="card-title">配送信息</view>
+        <view class="card-title">配送信息 <text class="required">*</text></view>
         <view class="addr-row">
           <view class="addr-badge addr-badge--deliver">收</view>
           <view class="form-addr-card" @click="onSelectAddress">
@@ -50,13 +50,13 @@
 
       <!-- 上传信息 -->
       <view class="form-card">
-        <view class="card-title">上传信息（选填）</view>
+        <view class="card-title">上传信息</view>
         <UploadGrid v-model="uploadedUrls" :maxCount="3" />
       </view>
 
       <!-- 接单限制 -->
       <view class="form-card">
-        <view class="card-title">接单限制（选填）</view>
+        <view class="card-title">接单限制</view>
         <view class="chip-row">
           <view class="chip" :class="{ 'chip--active': requireSex === undefined }" @click="requireSex = undefined">不限</view>
           <view class="chip" :class="{ 'chip--active': requireSex === '男' }" @click="requireSex = '男'">仅男生</view>
@@ -263,6 +263,7 @@ async function onSubmit() {
 .form-card{background:var(--surface-raised);border-radius:var(--radius-lg);padding:28rpx;margin-bottom:20rpx;box-shadow:var(--shadow-sm);border:1rpx solid var(--outline-light)}
 .form-card--pay{border:2rpx solid var(--primary-container)}
 .card-title{font-size:30rpx;font-weight:600;color:var(--text-primary);margin-bottom:20rpx;padding-bottom:16rpx;border-bottom:1rpx solid var(--outline-light);display:flex;align-items:center;gap:10rpx}
+.required{color:#ef4444;font-size:22rpx;vertical-align:super;line-height:1}
 .form-label{font-size:24rpx;font-weight:500;color:var(--text-secondary);margin-bottom:10rpx;margin-top:18rpx}
 .form-label:first-child{margin-top:0}
 .form-input{width:100%;height:84rpx;background:var(--surface);border-radius:20rpx;padding:0 28rpx;font-size:28rpx;color:var(--text-primary);box-sizing:border-box}

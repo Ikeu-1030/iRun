@@ -95,7 +95,7 @@
 
       <uni-card
         title="奶茶咖啡代取"
-        :subTitle="'代取餐食 · 基础配送费 ¥5.00'"
+        :subTitle="'想喝奶茶咖啡？帮你代取送到手'"
         :isShadow="true"
         :shadow="'0 4rpx 20rpx rgba(37, 99, 235, 0.04)'"
         :margin="'0 0 24rpx 0'"
@@ -105,14 +105,14 @@
         @click="onHotCoffee"
       >
         <view class="hot-card-content">
-          <view class="hot-card-price">¥5.00<text class="hot-card-unit">起</text></view>
+          <text class="hot-card-fee">基础配送费 ¥5.00</text>
           <uni-tag text="代取餐食" type="primary" size="small" :inverted="true" customStyle="border-color:#FFD1C7;color:#FF6B4A;background:#FFF0ED;" />
         </view>
       </uni-card>
 
       <uni-card
         title="资料打印"
-        :subTitle="'上传文件 · 黑白/彩印 · 基础配送费 ¥5.00'"
+        :subTitle="'上传文件即可打印，黑白彩印任选'"
         :isShadow="true"
         :shadow="'0 4rpx 20rpx rgba(37, 99, 235, 0.04)'"
         :margin="'0 0 24rpx 0'"
@@ -122,14 +122,14 @@
         @click="onHotPrint"
       >
         <view class="hot-card-content">
-          <view class="hot-card-price">¥5.00<text class="hot-card-unit">起</text></view>
+          <text class="hot-card-fee">基础配送费 ¥5.00</text>
           <uni-tag text="校内代办" type="warning" size="small" :inverted="true" customStyle="border-color:#FED7AA;color:#EA580C;background:#FFF7ED;" />
         </view>
       </uni-card>
 
       <uni-card
         title="纸品速达"
-        :subTitle="'纸品文具代购 · 基础配送费 ¥5.00 + 商品费'"
+        :subTitle="'校园超市纸品代购，即刻送达'"
         :isShadow="true"
         :shadow="'0 4rpx 20rpx rgba(37, 99, 235, 0.04)'"
         :margin="'0 0 24rpx 0'"
@@ -139,7 +139,7 @@
         @click="onHotPaperExpress"
       >
         <view class="hot-card-content">
-          <view class="hot-card-price">¥5.00<text class="hot-card-unit">起</text></view>
+          <text class="hot-card-fee">基础配送费 ¥5.00 + 商品费</text>
           <uni-tag text="代购物品" type="warning" size="small" :inverted="true" customStyle="border-color:#A5F3FC;color:#0891B2;background:#ECFEFF;" />
         </view>
       </uni-card>
@@ -172,9 +172,9 @@ const searchValue = ref('')
 const unreadCount = ref(0)
 
 const services = [
-  { typeValue: 1, title: '代取快递', desc: '菜鸟驿站极速达', icon: 'express', color: 'blue', iconColor: '#3871d6' },
+  { typeValue: 1, title: '代取快递', desc: '驿站包裹极速达', icon: 'express', color: 'blue', iconColor: '#3871d6' },
   { typeValue: 2, title: '代取餐食', desc: '食堂外卖送到寝', icon: 'fire', color: 'orange', iconColor: '#e67e22' },
-  { typeValue: 3, title: '校内代办', desc: '打印跑腿交材料', icon: 'campusErrand', color: 'green', iconColor: '#4c5e86' },
+  { typeValue: 3, title: '校内代办', desc: '急送跑腿帮办事', icon: 'campusErrand', color: 'green', iconColor: '#4c5e86' },
   { typeValue: 4, title: '代购物品', desc: '超市代购送到寝', icon: 'shop', color: 'teal', iconColor: '#0891B2' }
 ]
 
@@ -320,7 +320,7 @@ loadUnread()
 .section-more text { font-size: 26rpx; font-weight: 500; color: var(--primary); }
 
 .hot-card-content { display: flex; align-items: center; justify-content: flex-end; gap: 16rpx; padding-top: 8rpx; }
-.hot-card-price { font-size: 36rpx; font-weight: 700; color: var(--primary); }
+.hot-card-fee { font-size: 24rpx; color: var(--text-secondary); }
 .hot-card-unit { font-size: 22rpx; font-weight: 500; color: var(--text-tertiary); margin-left: 4rpx; }
 
 .loading-hint { text-align: center; padding: 32rpx; }
