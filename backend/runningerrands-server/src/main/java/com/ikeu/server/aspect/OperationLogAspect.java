@@ -5,6 +5,7 @@ import com.ikeu.model.entity.Admin;
 import com.ikeu.model.entity.OperationLog;
 import com.ikeu.server.mapper.AdminMapper;
 import com.ikeu.server.service.OperationLogService;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 操作日志切面，拦截标注 @OperationLog 的管理端方法，自动记录操作日志。
@@ -34,6 +36,16 @@ public class OperationLogAspect {
 
     private final OperationLogService operationLogService;
     private final AdminMapper adminMapper;
+
+    /** 需要在操作日志中脱敏的字段名 */
+    private static final Set<String> SENSITIVE_FIELDS = Set.of(
+            "password", "oldPassword", "newPassword",
+            "loginPassword", "payPassword", "newPayPassword", "oldPayPassword",
+            "code", "refreshToken"
+    );
+
+    /** 敏感字段替换值 */
+    private static final String MASK_VALUE = "***";
 
     @AfterReturning(pointcut = "@annotation(anno)", returning = "ret")
     public void logOperation(JoinPoint joinPoint, Object ret, com.ikeu.server.annotation.OperationLog anno) {
@@ -78,7 +90,8 @@ public class OperationLogAspect {
             }
             if (!paramList.isEmpty()) {
                 try {
-                    log.setRequestParams(JSONUtil.toJsonStr(paramList.size() == 1 ? paramList.get(0) : paramList));
+                    String json = JSONUtil.toJsonStr(paramList.size() == 1 ? paramList.get(0) : paramList);
+                    log.setRequestParams(maskSensitiveFields(json));
                 } catch (Exception ignored) {}
             }
 
@@ -93,6 +106,34 @@ public class OperationLogAspect {
             operationLogService.save(log);
         } catch (Exception e) {
             log.error("操作日志记录失败", e);
+        }
+    }
+
+    /** 对 JSON 字符串中的敏感字段值进行脱敏处理 */
+    private String maskSensitiveFields(String json) {
+        try {
+            Object parsed = JSONUtil.parse(json);
+            maskRecursive(parsed);
+            return JSONUtil.toJsonStr(parsed);
+        } catch (Exception e) {
+            return json;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void maskRecursive(Object obj) {
+        if (obj instanceof JSONObject jsonObj) {
+            for (String key : jsonObj.keySet()) {
+                if (SENSITIVE_FIELDS.contains(key)) {
+                    jsonObj.set(key, MASK_VALUE);
+                } else {
+                    maskRecursive(jsonObj.get(key));
+                }
+            }
+        } else if (obj instanceof List<?> list) {
+            for (Object item : list) {
+                maskRecursive(item);
+            }
         }
     }
 
