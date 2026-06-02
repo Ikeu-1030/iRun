@@ -434,6 +434,9 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
         // 任务分类占比
         List<DashboardVO.CategoryPie> taskCategories = buildTaskCategories();
 
+        // 订单状态分布
+        List<DashboardVO.CategoryPie> orderStatusDistribution = buildOrderStatusDistribution();
+
         return DashboardVO.builder()
                 .userCount(userCount).taskCount(taskCount)
                 .orderCount(orderCount).runnerCount(runnerCount)
@@ -442,6 +445,7 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
                 .todayNewTasks(todayNewTasks).todayCompletedOrders(todayCompletedOrders)
                 .userTrend(userTrend).revenueTrend(revenueTrend)
                 .taskCategories(taskCategories)
+                .orderStatusDistribution(orderStatusDistribution)
                 .build();
     }
 
@@ -491,6 +495,20 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
             Long value = row.get("value") != null ? Long.parseLong(row.get("value").toString()) : 0L;
             return DashboardVO.CategoryPie.builder().name(name).value(value).build();
         }).collect(Collectors.toList());
+    }
+
+    private static final String[] ORDER_STATUS_LABELS = {"待取货", "配送中", "待确认", "已完成", "已取消"};
+
+    private List<DashboardVO.CategoryPie> buildOrderStatusDistribution() {
+        List<DashboardVO.CategoryPie> result = new ArrayList<>();
+        for (int i = 1; i <= 5; i++) {
+            Long count = taskOrderMapper.selectCount(
+                    new LambdaQueryWrapper<TaskOrder>().eq(TaskOrder::getStatus, i)
+                            .eq(TaskOrder::getIsDeleted, 0));
+            result.add(DashboardVO.CategoryPie.builder()
+                    .name(ORDER_STATUS_LABELS[i - 1]).value(count).build());
+        }
+        return result;
     }
 
     /**

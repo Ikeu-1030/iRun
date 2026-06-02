@@ -31,6 +31,12 @@
           <v-chart :option="categoryPieOption" style="height: 300px" autoresize />
         </el-card>
       </el-col>
+      <el-col :span="12">
+        <el-card>
+          <template #header>订单状态分布</template>
+          <v-chart :option="orderStatusOption" style="height: 300px" autoresize />
+        </el-card>
+      </el-col>
     </el-row>
   </div>
 </template>
@@ -53,6 +59,7 @@ interface DashboardData {
   userTrend: { date: string; value: number }[]
   revenueTrend: { date: string; value: number }[]
   taskCategories: { name: string; value: number }[]
+  orderStatusDistribution: { name: string; value: number }[]
 }
 
 const data = ref<DashboardData | null>(null)
@@ -89,6 +96,22 @@ const categoryPieOption = computed(() => ({
     emphasis: { itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0, 0, 0, 0.5)' } }
   }]
 }))
+
+const orderStatusOption = computed(() => ({
+  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+  xAxis: { type: 'category', data: data.value?.orderStatusDistribution?.map(d => d.name) ?? [] },
+  yAxis: { type: 'value', minInterval: 1 },
+  series: [{
+    data: data.value?.orderStatusDistribution?.map(d => ({ value: d.value, itemStyle: statusColor(d.name) })) ?? [],
+    type: 'bar', barWidth: '50%',
+    label: { show: true, position: 'top' }
+  }]
+}))
+
+function statusColor(name: string) {
+  const map: Record<string, string> = { '待取货': '#e6a23c', '配送中': '#409eff', '待确认': '#67c23a', '已完成': '#909399', '已取消': '#f56c6c' }
+  return map[name] || '#409eff'
+}
 
 onMounted(async () => {
   data.value = await getDashboard() as DashboardData

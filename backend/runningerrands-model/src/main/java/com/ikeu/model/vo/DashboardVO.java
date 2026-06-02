@@ -53,6 +53,9 @@ public class DashboardVO implements Serializable {
     @Schema(description = "任务分类占比")
     private List<CategoryPie> taskCategories;
 
+    @Schema(description = "订单状态分布")
+    private List<CategoryPie> orderStatusDistribution;
+
     @Data
     @Builder
     @NoArgsConstructor
