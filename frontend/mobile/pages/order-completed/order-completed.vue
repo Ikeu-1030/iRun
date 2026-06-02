@@ -251,6 +251,14 @@ import { orderApi, reviewApi, taskApi } from '@/api'
 import { TASK_TYPES, TASK_TYPE_META, TYPE_FROM_API, isQueueWaitType } from '@/utils/constants.js'
 import { parseTaskSpecs, parseShoppingItemsFromSpecs, parseBookCountFromSpecs, parsePrintSpecsFromSpecs, parseMerchantInfoFromSpecs } from '@/utils/campus-data.js'
 import { useSubmitLock } from '@/utils/submit-guard'
+import { SERVER_ORIGIN } from '@/utils/config'
+
+function normalizeUrl(url) {
+  if (!url) return ''
+  if (url.startsWith('http')) return url
+  if (url.startsWith('/')) return SERVER_ORIGIN + url
+  return url
+}
 
 const sysInfo = uni.getSystemInfoSync()
 const scrollHeight = sysInfo.windowHeight - sysInfo.statusBarHeight - 44
@@ -308,7 +316,7 @@ const otherParty = computed(() => {
       initial: (order.value.runnerNickname || '跑').charAt(0),
       roleLabel: '本次为您服务的跑腿员',
       avatarBg: 'linear-gradient(135deg,#4facfe,#43e97b)',
-      avatar: order.value.runnerAvatar || '',
+      avatar: normalizeUrl(order.value.runnerAvatar),
       id: order.value.runnerId,
       phone: order.value.runnerPhone
     }
@@ -319,7 +327,7 @@ const otherParty = computed(() => {
       initial: (order.value.publisherNickname || '发').charAt(0),
       roleLabel: '任务发布者',
       avatarBg: 'linear-gradient(135deg,#f97316,#f59e0b)',
-      avatar: order.value.publisherAvatar || '',
+      avatar: normalizeUrl(order.value.publisherAvatar),
       id: order.value.publisherId,
       phone: order.value.publisherPhone
     }

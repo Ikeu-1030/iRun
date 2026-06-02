@@ -42,4 +42,12 @@ export const BASE_URL = current.BASE_URL
 export const WS_URL = current.WS_URL
 export const ENV_VERSION = envVersion
 
+/** 将相对路径的头像 URL 补全为完整 URL，小程序不支持相对路径 */
+export function normalizeAvatarUrl(url) {
+  if (!url) return ''
+  if (url.startsWith('http://') || url.startsWith('https://')) return url
+  if (url.startsWith('/')) return SERVER_ORIGIN + url
+  return url
+}
+
 export default { SERVER_ORIGIN, BASE_URL, WS_URL, ENV_VERSION }

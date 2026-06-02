@@ -257,6 +257,14 @@ import { taskApi, orderApi } from '@/api'
 import { TASK_STATUS, TASK_TYPES, TASK_TYPE_META, TYPE_FROM_API, isQueueWaitType } from '@/utils/constants.js'
 import { parseDeliveryAddress, parseTaskSpecs, parseExpressPackagesFromSpecs, parseShoppingItemsFromSpecs, parseBookCountFromSpecs, parsePrintSpecsFromSpecs, parseMerchantInfoFromSpecs } from '@/utils/campus-data.js'
 import { useSubmitLock } from '@/utils/submit-guard'
+import { SERVER_ORIGIN } from '@/utils/config'
+
+function normalizeUrl(url) {
+  if (!url) return ''
+  if (url.startsWith('http')) return url
+  if (url.startsWith('/')) return SERVER_ORIGIN + url
+  return url
+}
 
 const store = useStore()
 const sysInfo = uni.getSystemInfoSync()
@@ -452,7 +460,7 @@ async function loadData() {
         runnerInfo.value = {
           name: orderData.runnerNickname || '跑腿员',
           initial: (orderData.runnerNickname || '跑').charAt(0),
-          avatar: orderData.runnerAvatar || '',
+          avatar: normalizeUrl(orderData.runnerAvatar),
           avatarBg: 'linear-gradient(135deg,#4facfe,#43e97b)',
           id: orderData.runnerId,
           phone: orderData.runnerPhone
