@@ -143,7 +143,7 @@
 
         <view class="task-footer">
           <view class="publisher-info">
-            <image v-if="item.publisherAvatar" class="pub-avatar-img" :src="item.publisherAvatar" mode="aspectFill" />
+            <image v-if="item.publisherAvatar" class="pub-avatar-img" :src="normalizeUrl(item.publisherAvatar)" mode="aspectFill" />
             <view v-else class="pub-avatar">{{ item.publisherInitial }}</view>
             <text class="pub-name">{{ item.publisherNickname }}</text>
             <text class="pub-time">{{ item.timeText }}</text>
@@ -223,6 +223,14 @@ import { TASK_TYPE_META, getTaskTypeLabel, TYPE_TO_API, TYPE_FROM_API, subTypeTo
 import { parseDeliveryAddress } from '@/utils/campus-data.js'
 import { normalizeTaskCard } from '@/utils/task-normalizer.js'
 import CustomTabbar from '@/components/custom-tabbar/custom-tabbar.vue'
+import { SERVER_ORIGIN } from '@/utils/config'
+
+function normalizeUrl(url) {
+  if (!url) return ''
+  if (url.startsWith('http')) return url
+  if (url.startsWith('/')) return SERVER_ORIGIN + url
+  return url
+}
 
 const store = useStore()
 const sysInfo = uni.getSystemInfoSync()

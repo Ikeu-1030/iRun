@@ -9,7 +9,7 @@
         <!-- 骑手信息卡片 -->
         <view class="profile-card animate-scale-pop">
           <view class="profile-avatar-wrap">
-            <image v-if="info.avatarUrl" class="profile-avatar" :src="info.avatarUrl" mode="aspectFill" />
+            <image v-if="info.avatarUrl" class="profile-avatar" :src="normalizeUrl(info.avatarUrl)" mode="aspectFill" />
             <view v-else class="profile-avatar profile-avatar--placeholder">{{ initial }}</view>
           </view>
           <view class="profile-info">
@@ -39,7 +39,7 @@
         </view>
         <view v-for="(r, ri) in reviews" :key="r.reviewId" class="review-card animate-fade-up" :style="{ animationDelay: (ri * 0.08) + 's' }" @click="openReviewDetail(r)">
           <view class="review-header">
-            <image v-if="r.reviewerAvatar" class="review-avatar" :src="r.reviewerAvatar" mode="aspectFill" />
+            <image v-if="r.reviewerAvatar" class="review-avatar" :src="normalizeUrl(r.reviewerAvatar)" mode="aspectFill" />
             <view v-else class="review-avatar review-avatar--txt">{{ (r.reviewerNickname || '匿').charAt(0) }}</view>
             <view class="review-meta">
               <text class="review-name">{{ r.reviewerNickname || '匿名' }}</text>
@@ -75,7 +75,7 @@
         </view>
         <scroll-view class="detail-body" scroll-y>
           <view class="detail-reviewer">
-            <image v-if="selectedReview.reviewerAvatar" class="detail-avatar" :src="selectedReview.reviewerAvatar" mode="aspectFill" />
+            <image v-if="selectedReview.reviewerAvatar" class="detail-avatar" :src="normalizeUrl(selectedReview.reviewerAvatar)" mode="aspectFill" />
             <view v-else class="detail-avatar detail-avatar--txt">{{ (selectedReview.reviewerNickname || '匿').charAt(0) }}</view>
             <view class="detail-reviewer-info">
               <text class="detail-name">{{ selectedReview.reviewerNickname || '匿名' }}</text>
@@ -93,7 +93,7 @@
             <view class="detail-followup-title">追评</view>
             <view v-for="f in selectedReview.followUps" :key="f.reviewId" class="detail-followup-item">
               <view class="detail-followup-header">
-                <image v-if="f.reviewerAvatar" class="detail-fu-avatar" :src="f.reviewerAvatar" mode="aspectFill" />
+                <image v-if="f.reviewerAvatar" class="detail-fu-avatar" :src="normalizeUrl(f.reviewerAvatar)" mode="aspectFill" />
                 <view v-else class="detail-fu-avatar detail-fu-avatar--txt">{{ (f.reviewerNickname || '匿').charAt(0) }}</view>
                 <text class="detail-fu-name">{{ f.reviewerNickname || '匿名' }}</text>
                 <text class="detail-fu-time">{{ formatTime(f.createdAt) }}</text>
@@ -111,6 +111,14 @@
 import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { reviewApi, runnerApi } from '@/api'
+import { SERVER_ORIGIN } from '@/utils/config'
+
+function normalizeUrl(url) {
+  if (!url) return ''
+  if (url.startsWith('http')) return url
+  if (url.startsWith('/')) return SERVER_ORIGIN + url
+  return url
+}
 
 const sysInfo = uni.getSystemInfoSync()
 const scrollHeight = sysInfo.windowHeight - sysInfo.statusBarHeight - 44

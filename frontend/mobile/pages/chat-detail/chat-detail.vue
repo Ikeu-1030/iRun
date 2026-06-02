@@ -17,7 +17,7 @@
             <iconpark-icon v-if="selectedIds.has(msg.messageId)" name="checkbox-filled" size="22" color="#FF6B4A" />
             <text v-else class="select-circle"></text>
           </view>
-          <image v-if="msg.senderAvatar && !multiSelectMode" class="msg-avatar" :src="msg.senderAvatar" mode="aspectFill" />
+          <image v-if="msg.senderAvatar && !multiSelectMode" class="msg-avatar" :src="normalizeUrl(msg.senderAvatar)" mode="aspectFill" />
           <view v-else-if="!multiSelectMode" class="msg-avatar msg-avatar--fallback">{{ peerInitial }}</view>
           <view class="msg-bubble msg-bubble--left" :class="{ 'msg-bubble--recalled': msg.isRecalled }" @longpress="onLongPress(msg)">
             <text v-if="msg.isRecalled" class="recalled-text">{{ msg.content }}</text>
@@ -70,6 +70,14 @@ import { useStore } from '@/store/index.js'
 import { useChatStore } from '@/store/chat.js'
 import { handlePageError, ErrorType } from '@/utils/error'
 import { showToast } from '@/utils/toast'
+import { SERVER_ORIGIN } from '@/utils/config'
+
+function normalizeUrl(url) {
+  if (!url) return ''
+  if (url.startsWith('http')) return url
+  if (url.startsWith('/')) return SERVER_ORIGIN + url
+  return url
+}
 
 const store = useStore()
 const chatStore = useChatStore()
@@ -100,7 +108,7 @@ const hasMore = computed(() => {
 onLoad(async (options) => {
   peerUserId.value = Number(options?.userId) || 0
   peerNickname.value = decodeURIComponent(options?.nickname || '') || '聊天'
-  peerAvatar.value = decodeURIComponent(options?.avatar || '') || ''
+  peerAvatar.value = normalizeUrl(decodeURIComponent(options?.avatar || ''))
   myUserId.value = store.userId || 0
 
   // 确保全局 STOMP 已连接

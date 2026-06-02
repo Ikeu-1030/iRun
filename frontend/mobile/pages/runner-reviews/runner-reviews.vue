@@ -31,7 +31,7 @@
       <view v-for="review in reviews" :key="review.reviewId" class="review-card">
         <view class="review-header">
           <view class="reviewer-avatar">
-            <image v-if="review.reviewerAvatar" class="avatar-img" :src="review.reviewerAvatar" mode="aspectFill" />
+            <image v-if="review.reviewerAvatar" class="avatar-img" :src="normalizeUrl(review.reviewerAvatar)" mode="aspectFill" />
             <text v-else class="avatar-text">{{ review.reviewerInitial }}</text>
           </view>
           <view class="reviewer-info">
@@ -78,6 +78,14 @@ import { ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { useStore } from '@/store/index.js'
 import { reviewApi, runnerApi } from '@/api'
+import { SERVER_ORIGIN } from '@/utils/config'
+
+function normalizeUrl(url) {
+  if (!url) return ''
+  if (url.startsWith('http')) return url
+  if (url.startsWith('/')) return SERVER_ORIGIN + url
+  return url
+}
 
 const store = useStore()
 const sysInfo = uni.getSystemInfoSync()

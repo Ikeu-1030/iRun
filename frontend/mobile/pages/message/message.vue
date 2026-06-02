@@ -66,7 +66,7 @@
 
         <view v-for="contact in displayedContacts" :key="contact.userId" class="chat-item" @click="onChat(contact)">
           <view class="chat-avatar-wrap">
-            <image v-if="contact.avatarUrl" class="chat-avatar-img" :src="contact.avatarUrl" mode="aspectFill" />
+            <image v-if="contact.avatarUrl" class="chat-avatar-img" :src="normalizeUrl(contact.avatarUrl)" mode="aspectFill" />
             <view v-else class="chat-avatar">{{ contact.initial }}</view>
           </view>
           <view class="chat-body">
@@ -96,6 +96,14 @@ import { useStore } from '@/store/index.js'
 import { useChatStore } from '@/store/chat.js'
 import { notificationApi } from '@/api'
 import CustomTabbar from '@/components/custom-tabbar/custom-tabbar.vue'
+import { SERVER_ORIGIN } from '@/utils/config'
+
+function normalizeUrl(url) {
+  if (!url) return ''
+  if (url.startsWith('http')) return url
+  if (url.startsWith('/')) return SERVER_ORIGIN + url
+  return url
+}
 
 const store = useStore()
 const chatStore = useChatStore()
