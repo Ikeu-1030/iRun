@@ -39,7 +39,7 @@ public class AdminTaskController {
     }
 
     @RequireRole({1})
-    @OperationLog(module = "任务管理", action = "修改状态", description = "更新任务 #taskId 状态")
+    @OperationLog(module = "任务管理", action = "修改状态", description = "任务 #taskId → #status")
     @Operation(summary = "强制更新任务状态")
     @PutMapping("/tasks/{taskId}/status")
     public Result<Void> updateTaskStatus(@PathVariable Long taskId,

@@ -38,12 +38,12 @@ public class AdminOrderController {
         return Result.successData(adminService.getOrderDetail(id));
     }
 
-    @OperationLog(module = "订单管理", action = "修改", description = "强制修改订单状态")
+    @OperationLog(module = "订单管理", action = "修改", description = "订单 #id → #orderStatus")
     @RequireRole({1, 2})
     @Operation(summary = "强制修改订单状态")
     @PutMapping("/orders/{id}/status")
-    public Result<Void> updateOrderStatus(@PathVariable Long id, @RequestParam Integer status) {
-        adminService.updateOrderStatus(id, status);
+    public Result<Void> updateOrderStatus(@PathVariable Long id, @RequestParam("status") Integer orderStatus) {
+        adminService.updateOrderStatus(id, orderStatus);
         return Result.success();
     }
 }

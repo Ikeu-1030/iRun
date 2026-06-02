@@ -32,7 +32,7 @@ public class AdminRunnerController {
     }
 
     @RequireRole({1, 2})
-    @OperationLog(module = "跑腿员管理", action = "审核认证", description = "审核跑腿员档案 #profileId")
+    @OperationLog(module = "跑腿员管理", action = "审核认证", description = "审核跑腿员档案 #profileId → #verifyStatus")
     @Operation(summary = "审核跑腿员认证")
     @PutMapping("/reviews/{profileId}")
     public Result<Void> reviewCertification(

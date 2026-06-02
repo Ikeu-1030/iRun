@@ -22,6 +22,7 @@ import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -39,6 +40,15 @@ public class OperationLogAspect {
 
     private final OperationLogService operationLogService;
     private final AdminMapper adminMapper;
+
+    /** 状态码→中文映射（参数名 → 值→标签） */
+    private static final Map<String, Map<Integer, String>> STATUS_LABELS = Map.of(
+            "isCertify", Map.of(0, "未认证", 1, "审核中", 2, "已认证", 3, "驳回"),
+            "verifyStatus", Map.of(0, "未认证", 1, "审核中", 2, "已认证", 3, "驳回"),
+            "status", Map.of(1, "待接单", 2, "已接单", 3, "配送中", 4, "待确认", 5, "已完成", 6, "已取消"),
+            "orderStatus", Map.of(1, "待取货", 2, "配送中", 3, "待确认", 4, "已完成", 5, "已取消"),
+            "enabled", Map.of(0, "禁用", 1, "启用")
+    );
 
     /** 需要在操作日志中脱敏的字段名 */
     private static final Set<String> SENSITIVE_FIELDS = Set.of(
@@ -80,6 +90,11 @@ public class OperationLogAspect {
                         description = sb.toString();
                         // 再处理裸 #paramName（替换为 toString，但过滤 DTO 类名前缀）
                         String strValue = args[i].toString();
+                        // 整型参数尝试映射为中文标签
+                        if (args[i] instanceof Number) {
+                            String label = getStatusLabel(paramNames[i], ((Number) args[i]).intValue());
+                            if (label != null) strValue = label;
+                        }
                         // DTO 的 toString() 形如 "ClassName(field=value, ...)"，截取括号内容
                         if (strValue.contains("(") && strValue.endsWith(")")) {
                             strValue = strValue.substring(strValue.indexOf('(') + 1, strValue.length() - 1);
@@ -176,6 +191,11 @@ public class OperationLogAspect {
             }
         } catch (Exception ignored) {}
         return "";
+    }
+
+    private String getStatusLabel(String paramName, int value) {
+        Map<Integer, String> labels = STATUS_LABELS.get(paramName);
+        return labels != null ? labels.get(value) : null;
     }
 
     private Field findField(Class<?> clazz, String name) {

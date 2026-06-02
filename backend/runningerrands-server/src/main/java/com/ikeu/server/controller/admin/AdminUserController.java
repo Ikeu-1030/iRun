@@ -40,7 +40,7 @@ public class AdminUserController {
     }
 
     @RequireRole({1})
-    @OperationLog(module = "用户管理", action = "封禁/解封", description = "切换用户 #userId 状态")
+    @OperationLog(module = "用户管理", action = "封禁/解封", description = "用户 #userId → #enabled")
     @Operation(summary = "封禁/解封用户")
     @PutMapping("/users/{userId}/status")
     public Result<Void> toggleStatus(@PathVariable Long userId,
@@ -50,7 +50,7 @@ public class AdminUserController {
     }
 
     @RequireRole({1, 2})
-    @OperationLog(module = "用户管理", action = "审核认证", description = "审核用户 #userId 实名认证")
+    @OperationLog(module = "用户管理", action = "审核认证", description = "审核用户 #userId 实名认证 → #isCertify")
     @Operation(summary = "审核用户实名认证（学生身份认证）")
     @PutMapping("/users/{userId}/certify")
     public Result<Void> reviewUserCertification(
