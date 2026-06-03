@@ -142,6 +142,25 @@ function handleRefresh(auth) {
     })
 }
 
+// ---------- 日期格式化 ----------
+
+function formatDates(obj) {
+  if (typeof obj === 'string') {
+    return obj.replace(/(\d)T(\d{2}:\d{2})/g, '$1 $2')
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(formatDates)
+  }
+  if (obj && typeof obj === 'object') {
+    const result = {}
+    for (const key of Object.keys(obj)) {
+      result[key] = formatDates(obj[key])
+    }
+    return result
+  }
+  return obj
+}
+
 // ---------- 请求核心 ----------
 
 /**
@@ -215,7 +234,7 @@ export function request({
                     return reject(err)
                   }
                   if (retryBody.code === 1) {
-                    resolve(retryBody.data)
+                    resolve(formatDates(retryBody.data))
                   } else {
                     const err = classifyError(retryBody.msg, { businessCode: retryBody.code, businessMsg: retryBody.msg, showError })
                     if (showError) showToast(err.message || '操作失败')
@@ -255,7 +274,7 @@ export function request({
 
         // 业务 code 判断
         if (body.code === 1) {
-          resolve(body.data)
+          resolve(formatDates(body.data))
         } else {
           const err = classifyError(body.msg, { businessCode: body.code, businessMsg: body.msg, showError })
           if (showError) {

@@ -29,7 +29,7 @@
         </el-table-column>
         <el-table-column prop="acceptTime" label="接单时间" width="170" />
         <el-table-column prop="expectFinishTime" label="预计送达" width="170" />
-        <el-table-column label="操作" width="80">
+        <el-table-column label="操作" min-width="100">
           <template #default="{ row }">
             <el-button type="primary" link @click="$router.push(`/orders/${row.orderId}`)">详情</el-button>
           </template>
@@ -56,7 +56,7 @@ const total = ref(0)
 const query = reactive({ status: undefined as number | undefined, page: 1, size: 10 })
 
 function statusTag(s: number) {
-  const map: Record<number, string> = { 1: '', 2: 'warning', 3: 'warning', 4: 'success', 5: 'danger' }
+  const map: Record<number, string> = { 1: 'info', 2: 'warning', 3: '', 4: 'success', 5: 'danger' }
   return map[s] ?? 'info'
 }
 

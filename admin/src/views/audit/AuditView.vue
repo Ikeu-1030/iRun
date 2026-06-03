@@ -4,19 +4,19 @@
       <el-tabs v-model="activeTab">
         <el-tab-pane label="用户实名认证" name="userCert">
           <el-table :data="userTable" v-loading="userLoading" stripe>
-            <el-table-column prop="id" label="ID" width="80" />
-            <el-table-column prop="username" label="用户名" width="120" />
-            <el-table-column prop="nickname" label="昵称" width="120" />
-            <el-table-column prop="realName" label="真实姓名" width="100" />
-            <el-table-column prop="studentId" label="学号" width="120" />
-            <el-table-column prop="phone" label="手机号" width="140" />
-            <el-table-column label="认证照片" width="100">
+            <el-table-column prop="id" label="ID" width="70" />
+            <el-table-column prop="username" label="用户名" min-width="100" />
+            <el-table-column prop="nickname" label="昵称" min-width="100" />
+            <el-table-column prop="realName" label="真实姓名" min-width="90" />
+            <el-table-column prop="studentId" label="学号" min-width="110" />
+            <el-table-column prop="phone" label="手机号" min-width="130" />
+            <el-table-column label="认证照片" width="90">
               <template #default="{ row }">
                 <el-button v-if="row.certifyImg" link type="primary" @click="previewImg(row.certifyImg)">查看</el-button>
                 <span v-else>-</span>
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="180" fixed="right">
+            <el-table-column label="操作" min-width="150" >
               <template #default="{ row }">
                 <el-button type="success" link @click="approveUser(row)">通过</el-button>
                 <el-button type="danger" link @click="rejectUser(row)">驳回</el-button>
@@ -32,12 +32,12 @@
 
         <el-tab-pane label="跑腿员认证" name="runnerCert">
           <el-table :data="runnerTable" v-loading="runnerLoading" stripe>
-            <el-table-column prop="profileId" label="档案ID" width="80" />
-            <el-table-column prop="nickname" label="昵称" width="120" />
-            <el-table-column prop="phone" label="手机号" width="140" />
-            <el-table-column prop="realName" label="真实姓名" width="100" />
+            <el-table-column prop="profileId" label="档案ID" width="70" />
+            <el-table-column prop="nickname" label="昵称" min-width="120" />
+            <el-table-column prop="phone" label="手机号" min-width="140" />
+            <el-table-column prop="realName" label="真实姓名" min-width="100" />
             <el-table-column prop="creditScore" label="信用分" width="80" />
-            <el-table-column label="操作" width="180" fixed="right">
+            <el-table-column label="操作" min-width="150" >
               <template #default="{ row }">
                 <el-button type="success" link @click="approveRunner(row)">通过</el-button>
                 <el-button type="danger" link @click="rejectRunner(row)">驳回</el-button>

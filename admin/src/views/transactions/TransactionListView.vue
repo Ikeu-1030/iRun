@@ -20,15 +20,15 @@
       </el-form>
 
       <el-table :data="tableData" v-loading="loading" stripe>
-        <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="userNickname" label="用户" width="120" />
-        <el-table-column prop="amount" label="金额" width="120" />
-        <el-table-column label="类型" width="140">
+        <el-table-column prop="id" label="ID" width="70" />
+        <el-table-column prop="userNickname" label="用户" min-width="100" />
+        <el-table-column prop="amount" label="金额" min-width="100" />
+        <el-table-column label="类型" min-width="120">
           <template #default="{ row }">{{ TRANSACTION_TYPES[row.type as keyof typeof TRANSACTION_TYPES] }}</template>
         </el-table-column>
-        <el-table-column prop="balanceBefore" label="变动前余额" width="120" />
-        <el-table-column prop="balanceAfter" label="变动后余额" width="120" />
-        <el-table-column prop="createdAt" label="时间" width="180" />
+        <el-table-column prop="balanceBefore" label="变动前余额" min-width="110" />
+        <el-table-column prop="balanceAfter" label="变动后余额" min-width="110" />
+        <el-table-column prop="createdAt" label="时间" min-width="160" />
       </el-table>
 
       <el-pagination

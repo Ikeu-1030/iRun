@@ -44,7 +44,7 @@
             <el-tag v-else type="info" size="small">离线</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" min-width="260" fixed="right">
+        <el-table-column label="操作" min-width="220">
           <template #default="{ row }">
             <el-button type="primary" link @click="showDetail(row.profileId)">详情</el-button>
             <el-button v-if="row.verifyStatus === 1" type="success" link @click="review(row, 2)">通过</el-button>

@@ -20,7 +20,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="lastLoginTime" label="最后登录" width="180" />
-        <el-table-column label="操作" min-width="240" fixed="right">
+        <el-table-column label="操作" min-width="220">
           <template #default="{ row }">
             <template v-if="row.role === 1">
               <span class="text-gray">-</span>

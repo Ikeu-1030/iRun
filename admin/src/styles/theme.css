@@ -183,6 +183,58 @@ body {
   background: var(--text-tertiary);
 }
 
+/* ===== 表格全局优化 ===== */
+.el-table th.el-table__cell {
+  padding: 12px 0;
+}
+
+.el-table td.el-table__cell {
+  padding: 10px 0;
+}
+
+.el-table .el-table__cell .cell {
+  padding: 0 14px;
+  word-break: break-word;
+}
+
+/* 操作列按钮间距 */
+.el-table .el-table__cell .el-button + .el-button {
+  margin-left: 6px;
+}
+
+/* 固定列：去掉阴影分隔，统一背景 */
+.el-table .el-table__fixed-right::before,
+.el-table .el-table__fixed::before {
+  background: transparent;
+  box-shadow: none;
+}
+
+.el-table .el-table__fixed-right,
+.el-table .el-table__fixed {
+  box-shadow: none;
+}
+
+.el-table .el-table__fixed-right .el-table__fixed-header-wrapper th,
+.el-table .el-table__fixed-right th.el-table__cell,
+.el-table .el-table__fixed .el-table__fixed-header-wrapper th,
+.el-table .el-table__fixed th.el-table__cell {
+  background: var(--neutral-surface);
+}
+
+.el-table .el-table__fixed-right td.el-table__cell,
+.el-table .el-table__fixed td.el-table__cell {
+  background: var(--el-fill-color-blank);
+}
+
+.el-table__fixed-right-patch {
+  background: var(--neutral-surface) !important;
+  border-bottom: 1px solid var(--el-border-color-light) !important;
+}
+
+.el-table .el-table__fixed-right .el-table__body-wrapper {
+  background: var(--el-fill-color-blank);
+}
+
 /* ===== 通用动画类 ===== */
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(12px); }

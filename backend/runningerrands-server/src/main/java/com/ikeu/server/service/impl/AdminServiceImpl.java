@@ -303,7 +303,13 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
     public UserInfoVO getUserDetail(Long userId) {
         User user = userMapper.selectById(userId);
         if (user == null) throw new NotFoundException(MessageConstant.USER_NOT_EXIST);
-        return BeanUtil.copyProperties(user, UserInfoVO.class);
+        UserInfoVO vo = BeanUtil.copyProperties(user, UserInfoVO.class);
+        RunnerProfile rp = runnerProfileMapper.selectOne(
+                new LambdaQueryWrapper<RunnerProfile>().eq(RunnerProfile::getUserId, userId));
+        if (rp != null) {
+            vo.setVerifyStatus(rp.getVerifyStatus());
+        }
+        return vo;
     }
 
     @Override

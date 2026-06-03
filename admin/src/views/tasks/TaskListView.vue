@@ -33,7 +33,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="publishTime" label="发布时间" width="170" />
-        <el-table-column label="操作" width="180">
+        <el-table-column label="操作" min-width="220">
           <template #default="{ row }">
             <el-button type="primary" link @click="$router.push(`/tasks/${row.taskId}`)">详情</el-button>
             <el-popconfirm
@@ -81,7 +81,7 @@ const query = reactive({ status: undefined as number | undefined, page: 1, size:
 const statusDialog = reactive({ visible: false, taskId: 0, newStatus: 1 })
 
 function statusTag(s: number) {
-  const map: Record<number, string> = { 1: '', 2: 'warning', 3: '', 4: 'warning', 5: 'success', 6: 'danger' }
+  const map: Record<number, string> = { 1: 'info', 2: '', 3: 'warning', 4: '', 5: 'success', 6: 'danger' }
   return map[s] ?? 'info'
 }
 

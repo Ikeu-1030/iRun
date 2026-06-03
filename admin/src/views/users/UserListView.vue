@@ -43,7 +43,7 @@
         <el-table-column prop="balance" label="余额" width="100" />
         <el-table-column prop="lastLoginTime" label="最后登录" width="180" />
         <el-table-column prop="createdAt" label="注册时间" width="180" />
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column label="操作" min-width="180">
           <template #default="{ row }">
             <el-button type="primary" link @click="$router.push(`/users/${row.id}`)">详情</el-button>
             <el-button v-if="row.status === 1" type="warning" link @click="toggleStatus(row, false)">封禁</el-button>

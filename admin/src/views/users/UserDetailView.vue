@@ -20,9 +20,6 @@
         <el-descriptions-item label="学院">{{ user.campus || '-' }}</el-descriptions-item>
         <el-descriptions-item label="个性签名">{{ user.signature || '-' }}</el-descriptions-item>
         <el-descriptions-item label="余额">{{ user.balance }}</el-descriptions-item>
-        <el-descriptions-item label="身份">
-          <el-tag size="small">{{ user.verifyStatus === 2 ? '跑腿员' : '普通用户' }}</el-tag>
-        </el-descriptions-item>
         <el-descriptions-item label="认证状态">
           <el-tag :type="certTag(user.isCertify)" size="small">{{ certLabel(user.isCertify) }}</el-tag>
         </el-descriptions-item>

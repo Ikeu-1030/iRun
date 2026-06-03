@@ -46,11 +46,28 @@ service.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   return config
 })
 
+function formatDates(obj: unknown): unknown {
+  if (typeof obj === 'string') {
+    return obj.replace(/(\d)T(\d{2}:\d{2})/g, '$1 $2')
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(formatDates)
+  }
+  if (obj && typeof obj === 'object') {
+    const result: Record<string, unknown> = {}
+    for (const key of Object.keys(obj as Record<string, unknown>)) {
+      result[key] = formatDates((obj as Record<string, unknown>)[key])
+    }
+    return result
+  }
+  return obj
+}
+
 service.interceptors.response.use(
   (response: AxiosResponse) => {
     const body = response.data
     if (body.code === 1) {
-      return body.data
+      return formatDates(body.data)
     }
     ElMessage.error(body.msg || '请求失败')
     return Promise.reject(new Error(body.msg))

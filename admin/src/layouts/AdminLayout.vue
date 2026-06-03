@@ -35,7 +35,7 @@
         <div class="header-right">
           <el-dropdown trigger="click">
             <span class="user-info">
-              <span class="user-avatar">{{ avatarText }}</span>
+              <el-avatar :size="32" :src="avatarUrl" class="user-avatar" />
               <span class="user-name">{{ authStore.adminInfo?.name || authStore.adminInfo?.username }}</span>
               <el-icon><ArrowDown /></el-icon>
             </span>
@@ -73,10 +73,7 @@ const appStore = useAppStore()
 const currentRoute = computed(() => route.path)
 const currentTitle = computed(() => route.meta?.title as string)
 
-const avatarText = computed(() => {
-  const name = authStore.adminInfo?.name || authStore.adminInfo?.username || ''
-  return name.charAt(0).toUpperCase()
-})
+const avatarUrl = '/api/imgs/default_avatar.jpg'
 
 interface MenuItem {
   path: string
@@ -225,16 +222,7 @@ const visibleMenu = computed(() =>
 }
 
 .user-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #FF6B4A, #FFB347);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-shrink: 0;
 }
 
 .user-name {
