@@ -24,7 +24,6 @@ F:/ikeu_runningerrands/
 │   └── runningerrands.sql               # 数据库建表脚本
 ├── admin/                                # 管理端（Vue 3 + TS + Element Plus）
 ├── mobile/                               # 移动端（uni-app 微信小程序）
-├── DESIGN.md                             # 前端设计技能操作手册
 └── .claude/
     ├── CLAUDE.md                         # ← 本文件
     └── settings.local.json               # 本地命令自动批准
@@ -33,6 +32,7 @@ F:/ikeu_runningerrands/
 ## 编码规范
 
 ### Java 后端
+
 - **包结构**: `com.ikeu.{module}.{layer}`，controller 按 `admin`/`user` 分包
 - **注入**: `@RequiredArgsConstructor` 构造器注入，禁止字段注入
 - **返回**: 统一使用 `Result<T>` / `PageResult<T>`（`com.ikeu.common.result`）
@@ -43,14 +43,17 @@ F:/ikeu_runningerrands/
 - **缓存**: 仪表盘用 Spring Cache（`RedisConstant.CACHE_DASHBOARD`），数据变更时 `@CacheEvict`
 - **SQL 同步**: 实体字段变更时同步更新 `runningerrands.sql`（CREATE TABLE + ALTER TABLE 语句）
 - **日志安全**: 不在日志中打印 token 明文、密码等敏感信息
+- **注释**: 采用JavaDoc注释，遵循阿里巴巴注释规范，类注释写明类的作用，标注作者(`@author`)和创建日期(`@since`)，方法注释注明方法逻辑，参数(`@param`)以及返回值(`@return`)，重要方法嵌入HTML标签详细描述
 
 ### Vue 3 管理端
+
 - **目录**: `views/` 按模块分目录，`api/` 一个模块一个文件，`stores/` 按职责拆分
 - **HTTP**: 统一使用 `@/utils/request`（Axios 实例，自动附加 `token` 头、401 刷新、错误 toast）
 - **样式**: Element Plus 组件 + scoped CSS，不引入额外 CSS 框架
 - **角色**: 侧边栏菜单通过 `roles` 字段控制可见性，页面默认无需额外角色检查
 
 ### uni-app 移动端
+
 - **API**: `utils/request.js` 封装，支持 `auth: 'user'/'admin'/'none'`
 - **Store**: Pinia `defineStore('main', ...)`，用户信息/钱包/跑腿员状态
 - **错误**: `ClassifiedError` + `ErrorType` 枚举，`handlePageError()` 统一处理
@@ -87,7 +90,6 @@ cd F:/ikeu_runningerrands/backend
 
 # 启动服务
 ./runningerrands-server/mvnw spring-boot:run
-# → http://localhost:8080/api/doc.html  (Swagger)
 
 # ===== 管理端前端 =====
 cd F:/ikeu_runningerrands/admin
@@ -109,6 +111,8 @@ npx vite build         # 构建
 
 ## 关键约定
 
+- 每次写代码前先计划思考，切勿直接动手，仔细分析代码链路关系，优先参考`/skills/karpathy-skills`s
+- Git commit请先询问，允许后才可提交，切勿直接提交
 - Maven wrapper (`mvnw`) 位于 `runningerrands-server/`，从 `backend/` 根目录使用
 - Git Bash 路径用正斜杠 `/`，Windows 盘符 `F:/`
 - 上下文路径 `/api`，管理端路径 `/admin/**`
