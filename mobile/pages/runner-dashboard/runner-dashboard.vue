@@ -7,7 +7,7 @@
 
       <template v-else>
         <!-- 上下线状态卡片 -->
-        <view class="status-card" :class="isOnline ? 'status-card--online' : 'status-card--offline'">
+        <view class="status-card animate-fade-up" :class="isOnline ? 'status-card--online' : 'status-card--offline'">
           <view class="status-card-left">
             <view class="status-dot" :class="[isOnline ? 'status-dot--online animate-pulse-glow' : 'status-dot--offline']" />
             <view class="status-info">
@@ -21,7 +21,7 @@
         </view>
 
         <!-- 接单容量 -->
-        <view class="capacity-card">
+        <view class="capacity-card animate-fade-up">
           <view class="capacity-header">
             <text class="capacity-label">当前接单</text>
             <text class="capacity-value">{{ profile.currentOrders || 0 }} / {{ profile.maxConcurrentOrders || 3 }} 单</text>
@@ -80,21 +80,21 @@
             </view>
             <text class="menu-label">最大接单数</text>
             <text class="menu-value">{{ profile.maxConcurrentOrders || 3 }} 单</text>
-            <iconpark-icon name="right" size="16" color="#c2c6d5" />
+            <iconpark-icon name="right" size="16" color="#D4D2CC" />
           </view>
           <view class="menu-item" @click="goReviews">
             <view class="menu-icon menu-icon--star">
               <image :src="ICON_REVIEWS" style="width:24px;height:24px" mode="aspectFit" />
             </view>
             <text class="menu-label">我的评价</text>
-            <iconpark-icon name="right" size="16" color="#c2c6d5" />
+            <iconpark-icon name="right" size="16" color="#D4D2CC" />
           </view>
           <view class="menu-item menu-item--last" @click="goCert">
             <view class="menu-icon menu-icon--cert">
               <iconpark-icon name="medal" size="20" color="#FF6B4A" />
             </view>
             <text class="menu-label">骑手认证</text>
-            <iconpark-icon name="right" size="16" color="#c2c6d5" />
+            <iconpark-icon name="right" size="16" color="#D4D2CC" />
           </view>
         </view>
       </template>
@@ -228,12 +228,12 @@ function onBack() { uni.navigateBack() }
 .status-card-left{display:flex;align-items:center;gap:16rpx}
 .status-dot{width:20rpx;height:20rpx;border-radius:50%}
 .status-dot--online{background:#34d399;box-shadow:0 0 12rpx rgba(52,211,153,.5)}
-.status-dot--offline{background:#c2c6d5}
+.status-dot--offline{background:var(--outline)}
 .status-info{display:flex;flex-direction:column}
 .status-title{font-size:30rpx;font-weight:600;color:var(--text-primary)}
 .status-hint{font-size:22rpx;color:var(--text-secondary);margin-top:4rpx}
 
-.status-toggle{width:88rpx;height:52rpx;border-radius:26rpx;background:#c2c6d5;display:flex;align-items:center;padding:4rpx;transition:background var(--duration-fast) var(--easing-out)}
+.status-toggle{width:88rpx;height:52rpx;border-radius:26rpx;background:var(--outline);display:flex;align-items:center;padding:4rpx;transition:background var(--duration-fast) var(--easing-out)}
 .status-toggle--active{background:var(--primary)}
 .status-toggle-thumb{width:44rpx;height:44rpx;border-radius:50%;background:#fff;box-shadow:var(--shadow-sm);transition:transform var(--duration-fast) var(--easing-out)}
 .status-toggle--active .status-toggle-thumb{transform:translateX(36rpx)}

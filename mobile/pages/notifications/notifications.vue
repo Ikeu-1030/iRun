@@ -51,11 +51,11 @@
       </view>
 
       <view v-else-if="list.length === 0" class="empty-state">
-        <iconpark-icon name="sound" size="48" color="#c2c6d5" />
+        <iconpark-icon name="sound" size="48" color="#D4D2CC" />
         <text class="empty-text">{{ emptyText }}</text>
       </view>
 
-      <view v-for="item in list" :key="item.id" class="notify-item" :class="{ 'notify-item--unread': item.isRead === 0 }" @click="onItemTap(item)">
+      <view v-for="(item, index) in list" :key="item.id" class="notify-item animate-fade-up" :class="{ 'notify-item--unread': item.isRead === 0 }" :style="{ animationDelay: (index * 0.05) + 's' }" @click="onItemTap(item)">
         <!-- 选择模式：复选框 -->
         <view v-if="selectMode" class="notify-check" @click.stop="toggleSelect(item)">
           <iconpark-icon :name="isSelected(item) ? 'checkbox-filled' : 'circle'" size="22" :color="isSelected(item) ? '#FF6B4A' : '#D4D2CC'" />
@@ -76,7 +76,7 @@
         <view v-if="!selectMode" class="notify-right">
           <view v-if="item.isRead === 0" class="unread-dot"></view>
           <view class="delete-btn" @click.stop="onDeleteOne(item)">
-            <iconpark-icon name="trash" size="16" color="#c2c6d5" />
+            <iconpark-icon name="trash" size="16" color="#D4D2CC" />
           </view>
         </view>
       </view>
@@ -194,7 +194,7 @@ async function fetchList() {
 function normalizeItem(raw) {
   const type = raw.type || 1
   const iconMap = {
-    1: { icon: 'sound', color: '#3871d6', style: 'blue' },
+    1: { icon: 'sound', color: '#FF6B4A', style: 'coral' },
     2: { icon: 'delivery', color: '#e67e22', style: 'orange' },
     3: { icon: 'notification', color: '#34d399', style: 'green' }
   }

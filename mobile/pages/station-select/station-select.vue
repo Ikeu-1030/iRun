@@ -29,7 +29,7 @@ const scrollHeight = sysInfo.windowHeight - sysInfo.statusBarHeight - 44
 
 const stations = PICKUP_STATIONS
 
-const logoColors = ['#e67e22', '#ba1a1a', '#3871d6', '#34d399', '#f59e0b', '#4c5e86', '#10b981']
+const logoColors = ['#e67e22', '#ba1a1a', '#FF6B4A', '#34d399', '#f59e0b', '#4c5e86', '#10b981']
 
 function logoColor(id) {
   return logoColors[(id - 1) % logoColors.length]

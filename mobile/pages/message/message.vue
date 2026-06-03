@@ -22,12 +22,12 @@
         v-model="searchValue"
         placeholder="搜索聊天记录或联系人"
         radius="48"
-        bgColor="#e7e8f1"
+        bgColor="var(--surface)"
         :clearButton="'auto'"
         :cancelButton="'none'"
         @confirm="onSearch"
       >
-        <template v-slot:searchIcon><iconpark-icon name="search" size="18" color="#737784" /></template>
+        <template v-slot:searchIcon><iconpark-icon name="search" size="18" color="#8F8D88" /></template>
       </uni-search-bar>
 
       <view class="entry-grid">
@@ -53,7 +53,7 @@
 
       <template v-if="!store.isCertified">
         <view class="empty-contacts">
-          <iconpark-icon name="locked-filled" size="36" color="#c2c6d5" />
+          <iconpark-icon name="locked-filled" size="36" color="#D4D2CC" />
           <text class="empty-text">认证后可使用聊天功能</text>
           <text class="empty-sub" @click="goCertify">去认证</text>
         </view>
@@ -64,7 +64,7 @@
           <text class="empty-text">暂无聊天记录</text>
         </view>
 
-        <view v-for="contact in displayedContacts" :key="contact.userId" class="chat-item" @click="onChat(contact)">
+        <view v-for="(contact, index) in displayedContacts" :key="contact.userId" class="chat-item animate-fade-up" :style="{ animationDelay: (index * 0.06) + 's' }" @click="onChat(contact)">
           <view class="chat-avatar-wrap">
             <image v-if="contact.avatarUrl" class="chat-avatar-img" :src="normalizeUrl(contact.avatarUrl)" mode="aspectFill" />
             <view v-else class="chat-avatar">{{ contact.initial }}</view>

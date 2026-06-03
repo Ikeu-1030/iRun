@@ -4,7 +4,7 @@
 
     <scroll-view class="main-scroll" :style="{ height: scrollHeight + 'px' }" scroll-y enhanced :show-scrollbar="false">
       <!-- 余额卡片 -->
-      <view class="balance-card">
+      <view class="balance-card animate-scale-pop">
         <view class="balance-glow balance-glow--1"></view>
         <view class="balance-glow balance-glow--2"></view>
         <view class="balance-body">
@@ -14,7 +14,7 @@
       </view>
 
       <!-- 充值 -->
-      <view class="section-card">
+      <view class="section-card animate-fade-up delay-3">
         <text class="section-title">充值金额</text>
         <view class="amount-grid">
           <view v-for="amount in presetAmounts" :key="amount" class="amount-chip" :class="{ 'amount-chip--active': rechargeSelected === amount && !rechargeCustom }" @click="onSelectRecharge(amount)">
@@ -34,7 +34,7 @@
       </view>
 
       <!-- 提现 -->
-      <view class="section-card">
+      <view class="section-card animate-fade-up delay-4">
         <view class="section-header-row">
           <text class="section-title">提现</text>
           <text class="link-text" @click="onAllWithdraw">全部提现</text>

@@ -285,15 +285,15 @@ const otherParty = computed(() => {
 })
 
 const statusMap = {
-  1: { color: '#e67e22', bg: 'linear-gradient(135deg,#fff7ed,#f9f9ff)', iconBg: 'rgba(230,126,34,.12)', icon: 'info', hint: '请尽快前往取货' },
-  2: { color: '#3871d6', bg: 'linear-gradient(135deg,#eff6ff,#f9f9ff)', iconBg: 'rgba(56,113,214,.12)', icon: 'location-filled', hint: '正在配送中' },
-  3: { color: '#34d399', bg: 'linear-gradient(135deg,#f0fdf4,#f9f9ff)', iconBg: 'rgba(52,211,153,.12)', icon: 'checkmarkempty', hint: '' },
-  4: { color: '#4c5e86', bg: 'linear-gradient(135deg,#f2f3fc,#f9f9ff)', iconBg: 'rgba(76,94,134,.12)', icon: 'checkbox-filled', hint: '' },
-  5: { color: '#737784', bg: 'linear-gradient(135deg,#ecedf6,#f9f9ff)', iconBg: 'rgba(115,119,132,.12)', icon: 'closeempty', hint: '' }
+  1: { color: '#e67e22', bg: 'linear-gradient(135deg,#fff7ed,#FAFAF8)', iconBg: 'rgba(230,126,34,.12)', icon: 'info', hint: '请尽快前往取货' },
+  2: { color: '#FF6B4A', bg: 'linear-gradient(135deg,#FFF0ED,#FAFAF8)', iconBg: 'rgba(255,107,74,.12)', icon: 'location-filled', hint: '正在配送中' },
+  3: { color: '#34d399', bg: 'linear-gradient(135deg,#f0fdf4,#FAFAF8)', iconBg: 'rgba(52,211,153,.12)', icon: 'checkmarkempty', hint: '' },
+  4: { color: '#4c5e86', bg: 'linear-gradient(135deg,#f2f3fc,#FAFAF8)', iconBg: 'rgba(76,94,134,.12)', icon: 'checkbox-filled', hint: '' },
+  5: { color: '#8F8D88', bg: 'linear-gradient(135deg,#F5F5F0,#FAFAF8)', iconBg: 'rgba(143,141,136,.12)', icon: 'closeempty', hint: '' }
 }
-const statusColor = computed(() => statusMap[order.value.orderStatus]?.color || '#3871d6')
-const statusBg = computed(() => statusMap[order.value.orderStatus]?.bg || 'linear-gradient(135deg,#eff6ff,#f9f9ff)')
-const statusIconBg = computed(() => statusMap[order.value.orderStatus]?.iconBg || 'rgba(56,113,214,.12)')
+const statusColor = computed(() => statusMap[order.value.orderStatus]?.color || '#FF6B4A')
+const statusBg = computed(() => statusMap[order.value.orderStatus]?.bg || 'linear-gradient(135deg,#FFF0ED,#FAFAF8)')
+const statusIconBg = computed(() => statusMap[order.value.orderStatus]?.iconBg || 'rgba(255,107,74,.12)')
 const statusIcon = computed(() => statusMap[order.value.orderStatus]?.icon || 'info')
 const statusHint = computed(() => {
   if (!dataReady.value) return ''
@@ -595,7 +595,7 @@ function copyOrderNo(no) {
 .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16rpx;padding-bottom:16rpx;border-bottom:1rpx solid var(--surface-hover)}
 .card-title{display:flex;align-items:center;gap:10rpx;font-size:28rpx;font-weight:600;color:var(--text-primary);margin-bottom:20rpx;padding-bottom:16rpx;border-bottom:1rpx solid var(--surface-hover)}
 .type-badge{display:flex;align-items:center;gap:8rpx;padding:8rpx 18rpx;border-radius:20rpx;font-size:24rpx;font-weight:500}
-.type-badge--blue{background:var(--primary-container);color:#004397}
+.type-badge--blue{background:var(--primary-container);color:#FF6B4A}
 .type-badge--orange{background:#fff7ed;color:#ad6200}
 .type-badge--green{background:#f0fdf4;color:#166534}
 .type-badge--teal{background:#ecfeff;color:#0e7490}

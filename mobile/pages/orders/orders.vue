@@ -27,11 +27,13 @@
           <text>我的接单</text>
         </view>
       </view>
-      <scroll-view class="status-filter" scroll-x enhanced :show-scrollbar="false">
-        <view v-for="f in currentFilters" :key="f.value" class="filter-chip" :class="{ 'filter-chip--active': activeStatus === f.value }" @click="filterStatus(f.value)">
-          <text>{{ f.label }}</text>
-        </view>
-      </scroll-view>
+      <view class="status-filter-wrap">
+        <scroll-view class="status-filter" scroll-x enhanced :show-scrollbar="false">
+          <view v-for="f in currentFilters" :key="f.value" class="filter-chip" :class="{ 'filter-chip--active': activeStatus === f.value }" @click="filterStatus(f.value)">
+            <text>{{ f.label }}</text>
+          </view>
+        </scroll-view>
+      </view>
     </view>
 
     <scroll-view class="main-scroll" :style="{ height: scrollHeight + 'px' }" scroll-y enhanced :show-scrollbar="false" @scrolltolower="loadMore" refresher-enabled @refresherrefresh="onRefresh" :refresher-triggered="refreshing">
@@ -40,13 +42,14 @@
       </view>
 
       <view v-else-if="list.length === 0" class="empty-state">
-        <iconpark-icon name="list" size="48" color="#c2c6d5" />
+        <iconpark-icon name="list" size="48" color="#D4D2CC" />
         <text class="empty-text" v-if="activeRole === 'publisher'">暂无发布的任务</text>
         <text class="empty-text" v-else>暂无接单记录</text>
         <text class="empty-sub">试试调整筛选条件</text>
       </view>
 
-      <view v-for="(item, index) in list" :key="item.uniqueKey" class="order-card animate-fade-up" :style="{ animationDelay: (index * 0.06) + 's' }" @click="onItemTap(item)">
+      <view :key="'orders-' + listAnimKey" style="width:100%">
+        <view v-for="(item, index) in list" :key="item.uniqueKey" class="order-card animate-fade-up" :style="{ animationDelay: (index * 0.06) + 's' }" @click="onItemTap(item)">
         <view class="order-header">
           <view class="order-type">
             <view class="type-icon" :class="'type-icon--' + item.iconStyle">
@@ -113,6 +116,7 @@
           </view>
         </view>
       </view>
+      </view>
 
       <uni-load-more v-if="list.length > 0" :status="loadMoreStatus" />
 
@@ -124,7 +128,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onUnmounted } from 'vue'
+import { ref, computed, onUnmounted, nextTick } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { useStore } from '@/store/index.js'
 import { taskApi, orderApi, notificationApi } from '@/api'
@@ -141,6 +145,7 @@ const activeStatus = ref('')
 const list = ref([])
 const page = ref(1)
 const hasMore = ref(true)
+const listAnimKey = ref(0)
 const loading = ref(false)
 const refreshing = ref(false)
 const unreadCount = ref(0)
@@ -316,7 +321,7 @@ function onCancelTask(item) {
       await taskApi.cancelTask(target.taskId, reason)
       uni.showToast({ title: '已取消', icon: 'success' })
       target.status = 6
-      target.statusBadge = { text: '已取消', type: 'info', bg: '#ecedf6', color: '#737784' }
+      target.statusBadge = { text: '已取消', type: 'info', bg: '#F5F5F0', color: '#5E5D58' }
       target.canCancel = false
     } catch (e) { /* handled */ }
   })
@@ -339,9 +344,11 @@ function onRefresh() {
   fetchList()
 }
 
-onShow(() => {
+onShow(async () => {
   loadUnread()
   page.value = 1
+  listAnimKey.value++
+  await nextTick()
   fetchList()
 })
 
@@ -366,7 +373,9 @@ fetchList()
 .role-tabs { display: flex; gap: 0; background: var(--surface); border-radius: 24rpx; padding: 6rpx; margin-bottom: 16rpx; }
 .role-tab { flex: 1; text-align: center; padding: 16rpx 0; border-radius: 20rpx; font-size: 28rpx; font-weight: 500; color: var(--text-secondary); transition: all var(--duration-fast) var(--easing-out); }
 .role-tab--active { background: var(--primary); color: #fff; font-weight: 600; box-shadow: var(--shadow-primary); }
-.status-filter { white-space: nowrap; padding-bottom: 16rpx; }
+.status-filter-wrap { position: relative; }
+.status-filter-wrap::after { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 48rpx; background: linear-gradient(to right, transparent, var(--background)); pointer-events: none; }
+.status-filter { white-space: nowrap; padding-bottom: 16rpx; padding-right: 24rpx; }
 .filter-chip { display: inline-block; padding: 10rpx 22rpx; border-radius: 48rpx; background: var(--surface-raised); border: 1rpx solid var(--outline-light); margin-right: 12rpx; font-size: 24rpx; color: var(--text-secondary); transition: all var(--duration-fast) var(--easing-out); }
 .filter-chip--active { background: var(--primary-container); border-color: var(--primary); color: var(--primary); font-weight: 500; }
 

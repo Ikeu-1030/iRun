@@ -230,14 +230,14 @@
     "pageOrientation": "portrait",
     "navigationBarTextStyle": "black",
     "navigationBarBackgroundColor": "#ffffff",
-    "backgroundColor": "#f9f9ff",
-    "backgroundColorTop": "#f9f9ff",
-    "backgroundColorBottom": "#f9f9ff"
+    "backgroundColor": "#FAFAF8",
+    "backgroundColorTop": "#FAFAF8",
+    "backgroundColorBottom": "#FAFAF8"
   },
   "tabBar": {
     "custom": true,
-    "color": "#737784",
-    "selectedColor": "#3871d6",
+    "color": "#8F8D88",
+    "selectedColor": "#FF6B4A",
     "backgroundColor": "#ffffff",
     "list": [
       { "pagePath": "pages/index/index", "text": "首页" },

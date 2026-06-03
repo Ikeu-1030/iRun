@@ -41,11 +41,11 @@
         <view class="form-section">
           <view class="form-item">
             <text class="form-label">真实姓名</text>
-            <input class="form-input" v-model="form.realName" placeholder="请输入真实姓名" placeholder-style="color:#c2c6d5" />
+            <input class="form-input" v-model="form.realName" placeholder="请输入真实姓名" placeholder-style="color:#D4D2CC" />
           </view>
           <view class="form-item">
             <text class="form-label">学号</text>
-            <input class="form-input" v-model="form.studentId" placeholder="请输入学号" placeholder-style="color:#c2c6d5" />
+            <input class="form-input" v-model="form.studentId" placeholder="请输入学号" placeholder-style="color:#D4D2CC" />
           </view>
           <view class="form-item form-item--upload">
             <text class="form-label">学生证照片</text>

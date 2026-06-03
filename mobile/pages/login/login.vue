@@ -8,13 +8,13 @@
     <template v-else>
       <!-- 品牌区 -->
       <view class="brand-section">
-        <image class="brand-logo" src="/static/icons/logo.png" mode="aspectFill" />
-        <text class="brand-title">小i跑腿</text>
-        <text class="brand-subtitle">助力您的"校园最后一公里"</text>
+        <image class="brand-logo animate-bounce-in" src="/static/icons/logo.png" mode="aspectFill" />
+        <text class="brand-title animate-fade-up delay-2">小i跑腿</text>
+        <text class="brand-subtitle animate-fade-up delay-3">助力您的"校园最后一公里"</text>
       </view>
 
       <!-- 登录方式 -->
-      <view class="login-tabs">
+      <view class="login-tabs animate-scale-pop delay-3">
         <view class="login-tab" :class="{ 'login-tab--active': loginMode === 'password' }" @click="loginMode = 'password'">
           <text>密码登录</text>
         </view>
@@ -24,13 +24,13 @@
       </view>
 
       <!-- 表单 -->
-      <view class="form-card">
+      <view class="form-card animate-fade-up delay-4">
         <!-- 密码登录 → 账号 + 密码 -->
         <template v-if="loginMode === 'password'">
-          <view class="field-row">
+          <view class="field-row animate-fade-up delay-5">
             <input class="field-input" v-model="username" placeholder="请输入账号/手机号" />
           </view>
-          <view class="field-row field-row--pwd">
+          <view class="field-row field-row--pwd animate-fade-up delay-6">
             <input class="field-input" :password="!showPwd" v-model="password" placeholder="请输入密码" />
             <view class="eye-toggle" @click="showPwd = !showPwd">
               <iconpark-icon :name="showPwd ? 'preview-open' : 'preview-close'" size="20" color="#8F8D88" />
@@ -40,11 +40,11 @@
 
         <!-- 验证码登录 → 手机号 + 验证码 -->
         <template v-else>
-          <view class="phone-row">
+          <view class="phone-row animate-fade-up delay-5">
             <text class="phone-prefix">+86</text>
             <input class="phone-input" name="tel" v-model="phone" placeholder="请输入手机号" maxlength="11" />
           </view>
-          <view class="code-row">
+          <view class="code-row animate-fade-up delay-6">
             <input class="code-input" name="number" v-model="code" placeholder="输入验证码" maxlength="6" />
             <view class="send-code-btn" :class="{ 'send-code-btn--disabled': countdown > 0 || !phoneValid }" @click="onSendCode">
               <text>{{ countdown > 0 ? `${countdown}s` : '获取验证码' }}</text>
@@ -52,7 +52,7 @@
           </view>
         </template>
 
-        <view class="submit-btn" :class="{ 'submit-btn--disabled': !canSubmit || submitting }" @click="onLogin">
+        <view class="submit-btn animate-fade-up delay-7" :class="{ 'submit-btn--disabled': !canSubmit || submitting }" @click="onLogin">
           <text>{{ submitting ? '登录中…' : '登录' }}</text>
         </view>
 
@@ -344,8 +344,9 @@ watch(showRegister, (val) => {
 .agreement-link { color: var(--primary); }
 
 /* 注册覆盖层 */
-.register-overlay { position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,0.4); display: flex; align-items: flex-end; }
-.register-panel { width: 100%; background: var(--surface-raised); border-radius: var(--radius-lg) var(--radius-lg) 0 0; padding: 32rpx 36rpx; padding-bottom: calc(32rpx + env(safe-area-inset-bottom)); }
+.register-overlay { position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,0.4); display: flex; align-items: flex-end; animation: fadeIn var(--duration-normal) var(--easing-out); }
+.register-panel { width: 100%; background: var(--surface-raised); border-radius: var(--radius-lg) var(--radius-lg) 0 0; padding: 32rpx 36rpx; padding-bottom: calc(32rpx + env(safe-area-inset-bottom)); animation: slideInUp var(--duration-entrance) var(--ease-spring); }
+@keyframes slideInUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 .register-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28rpx; }
 .register-title { font-size: 34rpx; font-weight: 700; color: var(--text-primary); }
 .register-close { width: 56rpx; height: 56rpx; border-radius: 50%; background: var(--surface); display: flex; align-items: center; justify-content: center; }

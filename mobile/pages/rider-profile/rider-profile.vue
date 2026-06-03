@@ -70,7 +70,7 @@
         <view class="detail-header">
           <text class="detail-title">评价详情</text>
           <view class="detail-close" @click="closeDetail">
-            <iconpark-icon name="close" size="22" color="#737784" />
+            <iconpark-icon name="close" size="22" color="#8F8D88" />
           </view>
         </view>
         <scroll-view class="detail-body" scroll-y>

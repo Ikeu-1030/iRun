@@ -19,7 +19,7 @@
 
     <scroll-view class="main-scroll" :style="{ height: scrollHeight + 'px' }" scroll-y enhanced :show-scrollbar="false">
       <!-- 用户信息卡片 -->
-      <uni-card :isShadow="true" :shadow="'0 4rpx 20rpx rgba(37, 99, 235, 0.04)'" :margin="'16rpx 0 0 0'" :spacing="'32rpx 36rpx'" :border="false" @click="onProfileTap">
+      <uni-card :isShadow="true" :shadow="'0 4rpx 20rpx rgba(255, 107, 74, 0.05)'" :margin="'16rpx 0 0 0'" :spacing="'32rpx 36rpx'" :border="false" @click="onProfileTap">
         <template v-slot:title>
           <view class="profile-header">
             <view class="profile-avatar">
@@ -31,13 +31,13 @@
               <text class="profile-dept">{{ store.userInfo.campus || '未设置学院' }}</text>
               <text class="profile-bio" v-if="store.userInfo.signature">{{ store.userInfo.signature }}</text>
             </view>
-            <iconpark-icon name="right" size="18" color="#737784" />
+            <iconpark-icon name="right" size="18" color="#8F8D88" />
           </view>
         </template>
       </uni-card>
 
       <!-- 钱包卡片 -->
-      <uni-card title="我的钱包" :isShadow="true" :shadow="'0 4rpx 20rpx rgba(37, 99, 235, 0.04)'" :margin="'48rpx 0 0 0'" :spacing="'0 0 0 0'" :padding="'0'" :border="false">
+      <uni-card title="我的钱包" :isShadow="true" :shadow="'0 4rpx 20rpx rgba(255, 107, 74, 0.05)'" :margin="'48rpx 0 0 0'" :spacing="'0 0 0 0'" :padding="'0'" :border="false">
         <view class="wallet-card">
           <view class="wallet-glow wallet-glow--1"></view>
           <view class="wallet-glow wallet-glow--2"></view>
@@ -60,7 +60,7 @@
           <view class="func-item func-item--last" @click="onMenuItem('dashboard')">
             <view class="func-icon func-icon--blue"><iconpark-icon name="analysis" size="22" color="#FF6B4A" /></view>
             <text class="func-name">我的骑手</text>
-            <iconpark-icon name="right" size="16" color="#c2c6d5" />
+            <iconpark-icon name="right" size="16" color="#D4D2CC" />
           </view>
         </view>
       </template>
@@ -73,12 +73,12 @@
           <view class="func-status">
             <text :class="userCertClass">{{ store.certifyStatusLabel }}</text>
           </view>
-          <iconpark-icon name="right" size="16" color="#c2c6d5" />
+          <iconpark-icon name="right" size="16" color="#D4D2CC" />
         </view>
         <view class="func-item" @click="onMenuItem('bills')">
           <view class="func-icon func-icon--blue"><iconpark-icon name="wallet-filled" size="22" color="#FF6B4A" /></view>
           <text class="func-name">我的账单</text>
-          <iconpark-icon name="right" size="16" color="#c2c6d5" />
+          <iconpark-icon name="right" size="16" color="#D4D2CC" />
         </view>
         <view class="func-item" @click="onMenuItem('rider')" v-if="store.isCertified && !store.isCertifiedRunner">
           <view class="func-icon func-icon--blue"><iconpark-icon name="deliveryTruck" size="22" color="#FF6B4A" /></view>
@@ -86,22 +86,22 @@
           <view class="func-status">
             <text :class="runnerCertClass">{{ runnerCertLabel }}</text>
           </view>
-          <iconpark-icon name="right" size="16" color="#c2c6d5" />
+          <iconpark-icon name="right" size="16" color="#D4D2CC" />
         </view>
         <view class="func-item" @click="onMenuItem('address')">
           <view class="func-icon func-icon--blue"><iconpark-icon name="addressBook" size="22" color="#FF6B4A" /></view>
           <text class="func-name">收货地址管理</text>
-          <iconpark-icon name="right" size="16" color="#c2c6d5" />
+          <iconpark-icon name="right" size="16" color="#D4D2CC" />
         </view>
         <view class="func-item" @click="onMenuItem('privacy')">
           <view class="func-icon func-icon--blue"><iconpark-icon name="locked-filled" size="22" color="#FF6B4A" /></view>
           <text class="func-name">隐私与安全设置</text>
-          <iconpark-icon name="right" size="16" color="#c2c6d5" />
+          <iconpark-icon name="right" size="16" color="#D4D2CC" />
         </view>
         <view class="func-item func-item--last" @click="onMenuItem('support')">
-          <view class="func-icon func-icon--blue"><iconpark-icon name="chat-filled" size="22" color="#FF6B4A" /></view>
+          <view class="func-icon func-icon--blue"><iconpark-icon name="message" size="22" color="#FF6B4A" /></view>
           <text class="func-name">联系客服</text>
-          <iconpark-icon name="right" size="16" color="#c2c6d5" />
+          <iconpark-icon name="right" size="16" color="#D4D2CC" />
         </view>
       </view>
 

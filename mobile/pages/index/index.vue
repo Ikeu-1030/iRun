@@ -33,7 +33,7 @@
         </view>
         <view class="cert-banner-arrow">
           <text v-if="store.userInfo.isCertify === 0 || store.userInfo.isCertify === 3">去认证</text>
-          <iconpark-icon name="right" size="14" color="#737784" />
+          <iconpark-icon name="right" size="14" color="#8F8D88" />
         </view>
       </view>
 
@@ -49,7 +49,7 @@
           @confirm="onSearch"
         >
           <template v-slot:searchIcon>
-            <iconpark-icon name="search" size="18" color="#737784" />
+            <iconpark-icon name="search" size="18" color="#8F8D88" />
           </template>
         </uni-search-bar>
       </view>
@@ -97,7 +97,7 @@
         title="奶茶咖啡代取"
         :subTitle="'想喝奶茶咖啡？帮你代取送到手'"
         :isShadow="true"
-        :shadow="'0 4rpx 20rpx rgba(37, 99, 235, 0.04)'"
+        :shadow="'0 4rpx 20rpx rgba(255, 107, 74, 0.05)'"
         :margin="'0 0 24rpx 0'"
         :padding="'0'"
         :spacing="'24rpx 32rpx'"
@@ -114,7 +114,7 @@
         title="资料打印"
         :subTitle="'上传文件即可打印，黑白彩印任选'"
         :isShadow="true"
-        :shadow="'0 4rpx 20rpx rgba(37, 99, 235, 0.04)'"
+        :shadow="'0 4rpx 20rpx rgba(255, 107, 74, 0.05)'"
         :margin="'0 0 24rpx 0'"
         :padding="'0'"
         :spacing="'24rpx 32rpx'"
@@ -131,7 +131,7 @@
         title="纸品速达"
         :subTitle="'校园超市纸品代购，即刻送达'"
         :isShadow="true"
-        :shadow="'0 4rpx 20rpx rgba(37, 99, 235, 0.04)'"
+        :shadow="'0 4rpx 20rpx rgba(255, 107, 74, 0.05)'"
         :margin="'0 0 24rpx 0'"
         :padding="'0'"
         :spacing="'24rpx 32rpx'"
@@ -172,7 +172,7 @@ const searchValue = ref('')
 const unreadCount = ref(0)
 
 const services = [
-  { typeValue: 1, title: '代取快递', desc: '驿站包裹极速达', icon: 'express', color: 'blue', iconColor: '#3871d6' },
+  { typeValue: 1, title: '代取快递', desc: '驿站包裹极速达', icon: 'express', color: 'blue', iconColor: '#FF6B4A' },
   { typeValue: 2, title: '代取餐食', desc: '食堂外卖送到寝', icon: 'fire', color: 'orange', iconColor: '#e67e22' },
   { typeValue: 3, title: '校内代办', desc: '急送跑腿帮办事', icon: 'campusErrand', color: 'green', iconColor: '#4c5e86' },
   { typeValue: 4, title: '代购物品', desc: '超市代购送到寝', icon: 'shop', color: 'teal', iconColor: '#0891B2' }

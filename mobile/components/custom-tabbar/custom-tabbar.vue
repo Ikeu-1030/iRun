@@ -7,12 +7,12 @@
       :class="{ 'tab-item--active': selected === index }"
       @click="switchTab(index, item.pagePath)"
     >
-      <view class="tab-icon-wrap">
-        <uni-icons v-if="item.icon === 'home'" type="home" size="22" :color="selected === index ? '#FF6B4A' : '#7A7A7A'"></uni-icons>
-        <uni-icons v-else-if="item.icon === 'hall'" type="search" size="22" :color="selected === index ? '#FF6B4A' : '#7A7A7A'"></uni-icons>
-        <uni-icons v-else-if="item.icon === 'orders'" type="list" size="22" :color="selected === index ? '#FF6B4A' : '#7A7A7A'"></uni-icons>
-        <uni-icons v-else-if="item.icon === 'message'" type="chat" size="22" :color="selected === index ? '#FF6B4A' : '#7A7A7A'"></uni-icons>
-        <uni-icons v-else-if="item.icon === 'profile'" type="person" size="22" :color="selected === index ? '#FF6B4A' : '#7A7A7A'"></uni-icons>
+      <view class="tab-icon-wrap" :class="{ 'tab-icon-wrap--active': selected === index }">
+        <iconpark-icon v-if="item.icon === 'home'" name="home-two" size="24" :color="selected === index ? '#FF6B4A' : '#8F8D88'" />
+        <iconpark-icon v-else-if="item.icon === 'hall'" name="fund" size="24" :color="selected === index ? '#FF6B4A' : '#8F8D88'" />
+        <iconpark-icon v-else-if="item.icon === 'orders'" name="order" size="24" :color="selected === index ? '#FF6B4A' : '#8F8D88'" />
+        <iconpark-icon v-else-if="item.icon === 'message'" name="message-one" size="24" :color="selected === index ? '#FF6B4A' : '#8F8D88'" />
+        <iconpark-icon v-else-if="item.icon === 'profile'" name="person" size="24" :color="selected === index ? '#FF6B4A' : '#8F8D88'" />
       </view>
       <text class="tab-text" :class="{ 'tab-text--active': selected === index }">{{ item.text }}</text>
     </view>
@@ -80,15 +80,20 @@ function switchTab(index, pagePath) {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: transform var(--duration-fast) var(--ease-spring);
+}
+
+.tab-icon-wrap--active {
+  transform: scale(1.12);
 }
 
 .tab-text {
   font-size: 20rpx;
   font-weight: 400;
-  color: var(--text-tertiary, #7A7A7A);
+  color: var(--text-tertiary);
   margin-top: 2rpx;
   letter-spacing: -0.01em;
-  transition: color 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: color 0.12s var(--easing-out), font-weight 0.12s var(--easing-out);
 }
 
 .tab-text--active {

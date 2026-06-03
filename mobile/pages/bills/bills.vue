@@ -78,10 +78,10 @@ const filters = [
 ]
 
 const categoryMap = {
-  1: { category: 'express', iconType: 'billExpense', iconColor: '#3871d6' },
+  1: { category: 'express', iconType: 'billExpense', iconColor: '#FF6B4A' },
   2: { category: 'recharge', iconType: 'wallet', iconColor: '#34d399' },
-  3: { category: 'recharge', iconType: 'wallet', iconColor: '#3871d6' },
-  4: { category: 'withdraw', iconType: 'withdraw', iconColor: '#737784' },
+  3: { category: 'recharge', iconType: 'wallet', iconColor: '#FF6B4A' },
+  4: { category: 'withdraw', iconType: 'withdraw', iconColor: '#8F8D88' },
   5: { category: 'express', iconType: 'refresh', iconColor: '#34d399' }
 }
 
@@ -99,7 +99,7 @@ async function fetchList() {
     if (activeFilter.value) params.type = activeFilter.value
     const res = await transactionApi.getTransactions(params)
     const records = (res.records || []).map(r => {
-      const meta = categoryMap[r.type] || { category: 'express', iconType: 'list', iconColor: '#737784' }
+      const meta = categoryMap[r.type] || { category: 'express', iconType: 'list', iconColor: '#8F8D88' }
       return {
         ...r,
         title: TRANSACTION_TYPES[r.type] || '交易',

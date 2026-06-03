@@ -6,7 +6,7 @@
       <!-- 完成状态横幅 -->
       <view class="status-banner animate-bounce-in" :class="'status-banner--' + (isCompleted ? 'done' : 'cancelled')">
         <view class="status-icon-wrap">
-          <iconpark-icon :name="isCompleted ? 'checkbox-filled' : 'closeempty'" size="48" :color="isCompleted ? '#34d399' : '#737784'" />
+          <iconpark-icon :name="isCompleted ? 'checkbox-filled' : 'closeempty'" size="48" :color="isCompleted ? '#34d399' : '#8F8D88'" />
         </view>
         <text class="status-title">{{ isCompleted ? '订单已完成' : '订单已取消' }}</text>
         <text class="status-desc">{{ isCompleted ? '感谢使用小i跑腿，期待下次为您服务' : cancelReasonText }}</text>
@@ -17,7 +17,7 @@
       <!-- 取消详情卡片 -->
       <view class="info-card" v-if="!isCompleted">
         <view class="card-title">
-          <iconpark-icon name="info-filled" size="18" color="#737784" />
+          <iconpark-icon name="info-filled" size="18" color="#8F8D88" />
           <text>取消详情</text>
         </view>
         <view class="card-row">
@@ -594,7 +594,7 @@ function copyOrderNo(no) {
 .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16rpx;padding-bottom:16rpx;border-bottom:1rpx solid var(--surface-hover)}
 .card-title{display:flex;align-items:center;gap:10rpx;font-size:28rpx;font-weight:600;color:var(--text-primary);margin-bottom:20rpx;padding-bottom:16rpx;border-bottom:1rpx solid var(--surface-hover)}
 .type-badge{display:flex;align-items:center;gap:8rpx;padding:8rpx 18rpx;border-radius:20rpx;font-size:24rpx;font-weight:500}
-.type-badge--blue{background:var(--primary-container);color:#004397}
+.type-badge--blue{background:var(--primary-container);color:#FF6B4A}
 .type-badge--orange{background:#fff7ed;color:#ad6200}
 .type-badge--green{background:#f0fdf4;color:#166534}
 .type-badge--teal{background:#ecfeff;color:#0e7490}

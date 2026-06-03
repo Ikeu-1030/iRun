@@ -183,7 +183,7 @@
             <text class="row-value">{{ task.pickupAddress }}</text>
           </view>
           <view class="desc-hidden" v-if="task.hasPickupCode">
-            <iconpark-icon name="locked-filled" size="16" color="#737784" />
+            <iconpark-icon name="locked-filled" size="16" color="#8F8D88" />
             <text>取件码已隐藏，接单后方可查看</text>
           </view>
         </view>
@@ -194,7 +194,7 @@
             <text>任务描述</text>
           </view>
           <view class="desc-hidden">
-            <iconpark-icon name="locked-filled" size="16" color="#737784" />
+            <iconpark-icon name="locked-filled" size="16" color="#8F8D88" />
             <text>部分任务描述已隐藏，接单后方可查看</text>
           </view>
         </view>
@@ -205,7 +205,7 @@
             <text>上传信息</text>
           </view>
           <view class="desc-hidden">
-            <iconpark-icon name="locked-filled" size="16" color="#737784" />
+            <iconpark-icon name="locked-filled" size="16" color="#8F8D88" />
             <text>任务截图/文件已隐藏，接单后方可查看</text>
           </view>
         </view>
@@ -326,12 +326,12 @@ const typeIconColor = computed(() => typeMeta.value.color)
 const typeColor = computed(() => ({ 1: 'blue', 2: 'orange', 3: 'green', 4: 'teal' }[taskTypeCode.value] || 'blue'))
 
 const statusMap = {
-  1: { style: 'waiting', icon: 'search', color: '#3871d6', title: '等待接单中', desc: '任务已发布，正在为您匹配跑腿同学' },
+  1: { style: 'waiting', icon: 'search', color: '#FF6B4A', title: '等待接单中', desc: '任务已发布，正在为您匹配跑腿同学' },
   2: { style: 'accepted', icon: 'checkbox-filled', color: '#e67e22', title: '已接单', desc: '跑腿同学已接单，准备为您取件' },
-  3: { style: 'delivering', icon: 'location-filled', color: '#3871d6', title: '配送中', desc: '跑腿同学正在为您配送' },
+  3: { style: 'delivering', icon: 'location-filled', color: '#FF6B4A', title: '配送中', desc: '跑腿同学正在为您配送' },
   4: { style: 'confirming', icon: 'checkmarkempty', color: '#34d399', title: '待确认收货', desc: '跑腿同学已送达，请确认收货' },
   5: { style: 'done', icon: 'checkbox-filled', color: '#34d399', title: '已完成', desc: '感谢使用 Campus Express' },
-  6: { style: 'cancelled', icon: 'closeempty', color: '#737784', title: '已取消', desc: '该任务已被取消' }
+  6: { style: 'cancelled', icon: 'closeempty', color: '#8F8D88', title: '已取消', desc: '该任务已被取消' }
 }
 // 接单方视角的状态文案
 const runnerStatusMap = {
@@ -342,7 +342,7 @@ const runnerStatusMap = {
 }
 const statusStyle = computed(() => statusMap[task.value.status]?.style || 'waiting')
 const statusIcon = computed(() => statusMap[task.value.status]?.icon || 'search')
-const statusColor = computed(() => statusMap[task.value.status]?.color || '#3871d6')
+const statusColor = computed(() => statusMap[task.value.status]?.color || '#FF6B4A')
 const statusTitle = computed(() => {
   if (isRunner.value && runnerStatusMap[task.value.status]) return runnerStatusMap[task.value.status].title
   return statusMap[task.value.status]?.title || '加载中'
@@ -606,7 +606,7 @@ function onBack() { uni.navigateBack() }
 .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16rpx;padding-bottom:16rpx;border-bottom:1rpx solid var(--surface-hover)}
 .card-title{display:flex;align-items:center;gap:10rpx;font-size:28rpx;font-weight:600;color:var(--text-primary);margin-bottom:20rpx;padding-bottom:16rpx;border-bottom:1rpx solid var(--surface-hover)}
 .type-badge{display:flex;align-items:center;gap:8rpx;padding:8rpx 18rpx;border-radius:20rpx;font-size:24rpx;font-weight:500}
-.type-badge--blue{background:var(--primary-container);color:#004397}
+.type-badge--blue{background:var(--primary-container);color:#FF6B4A}
 .type-badge--orange{background:#fff7ed;color:#ad6200}
 .type-badge--green{background:#f0fdf4;color:#166534}
 .type-badge--teal{background:#ecfeff;color:#0e7490}

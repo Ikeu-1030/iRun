@@ -1,6 +1,6 @@
 <template>
   <view class="page">
-    <uni-nav-bar backgroundColor="#f9f9ff" :border="false" statusBar>
+    <uni-nav-bar backgroundColor="#FAFAF8" :border="false" statusBar>
       <template v-slot:left>
         <view class="nav-avatar-wrap">
           <view class="nav-avatar">
@@ -20,9 +20,9 @@
     <!-- 搜索栏 -->
     <view class="search-bar">
       <view class="search-input-wrap">
-        <iconpark-icon name="search" size="18" color="#737784" />
+        <iconpark-icon name="search" size="18" color="#8F8D88" />
         <input class="search-input" v-model="searchKeyword" placeholder="搜索任务描述…" confirm-name="search" @confirm="onSearch" />
-        <iconpark-icon v-if="searchKeyword" name="clear" size="18" color="#c2c6d5" @click="clearSearch" />
+        <iconpark-icon v-if="searchKeyword" name="clear" size="18" color="#D4D2CC" @click="clearSearch" />
       </view>
       <view class="filter-btn" :class="{ 'filter-btn--active': hasActiveFilters }" @click="openFilterPanel">
         <iconpark-icon name="bars" size="20" :color="hasActiveFilters ? '#fff' : '#FF6B4A'" />
@@ -57,12 +57,13 @@
       </view>
 
       <view v-else-if="list.length === 0" class="empty-state">
-        <iconpark-icon name="search" size="48" color="#c2c6d5" class="animate-bounce-in" />
+        <iconpark-icon name="search" size="48" color="#D4D2CC" class="animate-bounce-in" />
         <text class="empty-text">暂无可用任务</text>
         <text class="empty-sub">试试调整筛选条件</text>
       </view>
 
-      <view v-for="(item, index) in list" :key="item.uniqueKey" class="task-card animate-fade-up" :style="{ animationDelay: (index * 0.06) + 's' }" @click="onItemTap(item)">
+      <view :key="'hall-' + listAnimKey" style="width:100%">
+        <view v-for="(item, index) in list" :key="item.uniqueKey" class="task-card animate-fade-up" :style="{ animationDelay: (index * 0.06) + 's' }" @click="onItemTap(item)">
         <view class="task-header">
           <view class="task-type">
             <view class="type-icon" :class="'type-icon--' + item.iconStyle">
@@ -89,7 +90,7 @@
 
         <view class="task-desc" v-if="item.description">{{ item.description }}</view>
         <view class="task-desc task-desc--hidden" v-else-if="!item.description && item.taskType === 1">
-          <iconpark-icon name="locked-filled" size="14" color="#737784" />
+          <iconpark-icon name="locked-filled" size="14" color="#8F8D88" />
           <text>取件信息已隐藏</text>
         </view>
 
@@ -161,6 +162,7 @@
           </view>
         </view>
       </view>
+      </view>
 
       <uni-load-more v-if="list.length > 0" :status="loadMoreStatus" />
       <view class="bottom-placeholder"></view>
@@ -172,7 +174,7 @@
         <view class="filter-panel-header">
           <text class="filter-panel-title">高级筛选</text>
           <view class="filter-panel-close" @click="closeFilterPanel">
-            <iconpark-icon name="close" size="20" color="#737784" />
+            <iconpark-icon name="close" size="20" color="#8F8D88" />
           </view>
         </view>
 
@@ -238,6 +240,7 @@ const scrollHeight = sysInfo.windowHeight - sysInfo.statusBarHeight - 44 - 72 - 
 
 const activeType = ref(0)
 const list = ref([])
+const listAnimKey = ref(0)
 const page = ref(1)
 const hasMore = ref(true)
 const loading = ref(false)
@@ -312,7 +315,9 @@ const activeFilterTags = computed(() => {
   return tags
 })
 
-onShow(() => {
+onShow(async () => {
+  listAnimKey.value++
+  await nextTick()
   fetchList()
 })
 
@@ -518,8 +523,9 @@ function copyOrderNo(no) {
 .nav-btn{width:68rpx;height:68rpx;display:flex;align-items:center;justify-content:center;border-radius:50%}
 .nav-btn:active{background:var(--primary-container)}
 
-.filter-section{padding:0 32rpx 16rpx;flex-shrink:0;background:var(--background)}
-.filter-scroll{white-space:nowrap}
+.filter-section{padding:0 32rpx 16rpx;flex-shrink:0;background:var(--background);position:relative}
+.filter-section::after{content:'';position:absolute;right:0;top:0;bottom:0;width:48rpx;background:linear-gradient(to right,transparent,var(--background));pointer-events:none}
+.filter-scroll{white-space:nowrap;padding-right:24rpx}
 .filter-chip{display:inline-block;padding:10rpx 22rpx;border-radius:48rpx;background:var(--surface-raised);border:1rpx solid var(--outline-light);margin-right:12rpx;font-size:24rpx;color:var(--text-secondary);transition:all var(--duration-fast) var(--easing-out)}
 .filter-chip--active{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:500;box-shadow:var(--shadow-primary)}
 

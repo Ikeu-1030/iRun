@@ -90,26 +90,26 @@ export const ORDER_STEP_INDEX = {
 
 // ---------- 订单状态对应的徽标样式 ----------
 export const ORDER_STATUS_BADGE = {
-  1: { text: '待取货', type: 'primary', bg: '#eff6ff', color: '#004397' },
+  1: { text: '待取货', type: 'primary', bg: '#FFF0ED', color: '#FF6B4A' },
   2: { text: '待送达', type: 'warning', bg: '#fff7ed', color: '#ad6200' },
-  3: { text: '待确认', type: 'primary', bg: '#eff6ff', color: '#3871d6' },
-  4: { text: '已完成', type: 'default', bg: '#f2f3fc', color: '#424753' },
-  5: { text: '已取消', type: 'info', bg: '#ecedf6', color: '#737784' }
+  3: { text: '待确认', type: 'primary', bg: '#FFF0ED', color: '#FF6B4A' },
+  4: { text: '已完成', type: 'default', bg: '#ECFDF5', color: '#065F46' },
+  5: { text: '已取消', type: 'info', bg: '#F5F5F0', color: '#5E5D58' }
 }
 
 // ---------- 任务状态对应的徽标样式 ----------
 export const TASK_STATUS_BADGE = {
-  1: { text: '待接单', type: 'primary', bg: '#eff6ff', color: '#3871d6' },
+  1: { text: '待接单', type: 'primary', bg: '#FFF0ED', color: '#FF6B4A' },
   2: { text: '已接单', type: 'warning', bg: '#fff7ed', color: '#ad6200' },
-  3: { text: '配送中', type: 'primary', bg: '#eff6ff', color: '#004397' },
+  3: { text: '配送中', type: 'primary', bg: '#FFF0ED', color: '#FF6B4A' },
   4: { text: '待确认', type: 'success', bg: '#f0fdf4', color: '#16a34a' },
-  5: { text: '已完成', type: 'default', bg: '#f2f3fc', color: '#424753' },
-  6: { text: '已取消', type: 'info', bg: '#ecedf6', color: '#737784' }
+  5: { text: '已完成', type: 'default', bg: '#ECFDF5', color: '#065F46' },
+  6: { text: '已取消', type: 'info', bg: '#F5F5F0', color: '#5E5D58' }
 }
 
 // ---------- 任务类型 → 图标/颜色映射 ----------
 export const TASK_TYPE_META = {
-  1: { icon: 'express', color: '#3871d6', bg: '#eff6ff' },
+  1: { icon: 'express', color: '#FF6B4A', bg: '#FFF0ED' },
   2: { icon: 'fire', color: '#e67e22', bg: '#fff7ed' },
   3: { icon: 'campusErrand', color: '#4e5f82', bg: '#f0fdf4' },
   4: { icon: 'shop', color: '#0891B2', bg: '#ecf2ff' },
