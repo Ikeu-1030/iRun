@@ -1,7 +1,7 @@
 <template>
-  <div class="page" ref="pageRef">
-    <el-button @click="$router.back()" style="margin-bottom:16px">← 返回</el-button>
-    <el-card v-loading="loading">
+  <div class="page" :class="{ entered }">
+    <el-button @click="$router.back()" class="back-btn anim-back" style="margin-bottom:16px">← 返回</el-button>
+    <el-card v-loading="loading" class="anim-card">
       <template #header>
         <span>用户详情 #{{ userId }}</span>
       </template>
@@ -46,14 +46,13 @@
 <script setup lang="ts">
 import { onMounted, ref, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
-import gsap from 'gsap'
 import { getUserDetail } from '@/api/users'
 
 const route = useRoute()
 const userId = ref(Number(route.params.id))
 const user = ref<any>(null)
 const loading = ref(false)
-const pageRef = ref<HTMLElement>()
+const entered = ref(false)
 
 function certLabel(s: number) {
   const map: Record<number, string> = { 0: '未认证', 1: '审核中', 2: '已认证', 3: '认证驳回' }
@@ -68,31 +67,34 @@ onMounted(async () => {
   loading.value = true
   try {
     user.value = await getUserDetail(userId.value)
-    await nextTick()
-    runEntrance()
   } finally { loading.value = false }
+  await nextTick()
+  entered.value = true
 })
-
-function runEntrance() {
-  const el = pageRef.value
-  if (!el) return
-
-  const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
-
-  // Back button
-  const btn = el.querySelector('.el-button') as HTMLElement
-  if (btn) tl.from(btn, { x: -16, opacity: 0, duration: 0.4 }, 0)
-
-  // Card
-  const card = el.querySelector('.el-card') as HTMLElement
-  if (card) tl.from(card, { y: 24, opacity: 0, duration: 0.55 }, '-=0.25')
-
-  // Descriptions rows stagger
-  const rows = el.querySelectorAll('.el-descriptions__body tbody tr')
-  if (rows.length) {
-    tl.from(rows, {
-      x: -8, opacity: 0, duration: 0.3, stagger: 0.04, ease: 'power3.out',
-    }, '-=0.2')
-  }
-}
 </script>
+
+<style scoped>
+/* ===== 入场动画 ===== */
+.anim-back,
+.anim-card {
+  opacity: 0;
+}
+
+.entered .anim-back {
+  animation: slideInLeft 0.4s var(--ease-out) both;
+}
+
+.entered .anim-card {
+  animation: fadeUp 0.5s 0.08s var(--ease-out) both;
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+</style>

@@ -1,12 +1,12 @@
 <template>
-  <div class="page" ref="pageRef">
-    <el-page-header @back="$router.back()" title="返回">
+  <div class="page" :class="{ entered }">
+    <el-page-header @back="$router.back()" title="返回" class="anim-header">
       <template #content>
         <span class="page-title">任务详情 — {{ detail.taskNo }}</span>
       </template>
     </el-page-header>
 
-    <el-card v-loading="loading" class="detail-card">
+    <el-card v-loading="loading" class="detail-card anim-card">
       <template #header>
         <div class="card-header">
           <span>基本信息</span>
@@ -39,7 +39,7 @@
         <el-descriptions-item v-if="detail.pickupCode" label="取件码">{{ detail.pickupCode }}</el-descriptions-item>
       </el-descriptions>
 
-      <div v-if="detail.cancelReason" class="cancel-info">
+      <div v-if="detail.cancelReason" class="cancel-info anim-cancel">
         <el-alert :title="'取消原因：' + detail.cancelReason" type="warning" show-icon :closable="false" />
       </div>
 
@@ -53,7 +53,8 @@
             :preview-src-list="detail.imageUrls"
             :initial-index="i"
             fit="cover"
-            class="task-image"
+            class="task-image anim-img"
+            :style="{ animationDelay: (0.3 + i * 0.07) + 's' }"
           >
             <template #error>
               <div class="image-error">
@@ -72,14 +73,13 @@
 import { onMounted, reactive, ref, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { Picture } from '@element-plus/icons-vue'
-import gsap from 'gsap'
 import { getTaskDetail } from '@/api/tasks'
 import { TASK_STATUS } from '@/utils/constants'
 
 const route = useRoute()
 const loading = ref(false)
+const entered = ref(false)
 const detail = reactive<any>({})
-const pageRef = ref<HTMLElement>()
 
 function statusTag(s: number) {
   const map: Record<number, string> = { 1: '', 2: 'warning', 3: '', 4: 'warning', 5: 'success', 6: 'danger' }
@@ -96,37 +96,10 @@ onMounted(async () => {
   try {
     const res = await getTaskDetail(Number(route.params.id)) as any
     Object.assign(detail, res)
-    await nextTick()
-    runEntrance()
   } finally { loading.value = false }
+  await nextTick()
+  entered.value = true
 })
-
-function runEntrance() {
-  const el = pageRef.value
-  if (!el) return
-
-  const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
-
-  // Page header
-  const header = el.querySelector('.el-page-header') as HTMLElement
-  if (header) tl.from(header, { x: -16, opacity: 0, duration: 0.4 }, 0)
-
-  // Detail card
-  const card = el.querySelector('.detail-card') as HTMLElement
-  if (card) tl.from(card, { y: 20, opacity: 0, duration: 0.5 }, '-=0.25')
-
-  // Cancel alert
-  const cancel = el.querySelector('.cancel-info') as HTMLElement
-  if (cancel) tl.from(cancel, { x: -12, opacity: 0, duration: 0.35 }, '-=0.15')
-
-  // Image grid stagger
-  const images = el.querySelectorAll('.task-image')
-  if (images.length) {
-    tl.from(images, {
-      scale: 0.88, opacity: 0, duration: 0.45, stagger: 0.08, ease: 'back.out(1.4)',
-    }, '-=0.15')
-  }
-}
 </script>
 
 <style scoped>
@@ -139,4 +112,43 @@ function runEntrance() {
 .image-grid { display: flex; flex-wrap: wrap; gap: 12px; }
 .task-image { width: 160px; height: 160px; border-radius: var(--radius-sm); }
 .image-error { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-placeholder); font-size: 12px; background: var(--neutral-surface); gap: 4px; }
+
+/* ===== 入场动画 ===== */
+.anim-header,
+.anim-card,
+.anim-cancel,
+.anim-img {
+  opacity: 0;
+}
+
+.entered .anim-header {
+  animation: slideInLeft 0.4s var(--ease-out) both;
+}
+
+.entered .anim-card {
+  animation: fadeUp 0.5s 0.05s var(--ease-out) both;
+}
+
+.entered .anim-cancel {
+  animation: slideInLeft 0.35s 0.15s var(--ease-out) both;
+}
+
+.entered .anim-img {
+  animation: imgPop 0.45s var(--ease-spring) both;
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes imgPop {
+  from { opacity: 0; transform: scale(0.88); }
+  to   { opacity: 1; transform: scale(1); }
+}
 </style>

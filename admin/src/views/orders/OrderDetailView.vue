@@ -1,12 +1,12 @@
 <template>
-  <div class="page" ref="pageRef">
-    <el-page-header @back="$router.back()" title="返回">
+  <div class="page" :class="{ entered }">
+    <el-page-header @back="$router.back()" title="返回" class="anim-header">
       <template #content>
         <span class="page-title">订单详情 — {{ detail.taskNo }}</span>
       </template>
     </el-page-header>
 
-    <el-card v-loading="loading" class="detail-card">
+    <el-card v-loading="loading" class="detail-card anim-card">
       <template #header>
         <div class="card-header">
           <span>基本信息</span>
@@ -16,7 +16,7 @@
         </div>
       </template>
 
-      <el-descriptions :column="2" border>
+      <el-descriptions :column="2" border class="anim-desc" style="--anim-delay: 0.08s">
         <el-descriptions-item label="订单ID">{{ detail.orderId }}</el-descriptions-item>
         <el-descriptions-item label="任务编号">{{ detail.taskNo }}</el-descriptions-item>
         <el-descriptions-item label="报酬">
@@ -33,7 +33,7 @@
         <el-descriptions-item label="收货联系电话">{{ detail.contactPhone || '-' }}</el-descriptions-item>
       </el-descriptions>
 
-      <el-descriptions :column="2" border style="margin-top: 16px" title="人员信息">
+      <el-descriptions :column="2" border class="anim-desc" style="margin-top:16px;--anim-delay:0.18s" title="人员信息">
         <el-descriptions-item label="发布者昵称">{{ detail.publisherNickname || '-' }}</el-descriptions-item>
         <el-descriptions-item label="跑腿员昵称">{{ detail.runnerNickname || '-' }}</el-descriptions-item>
         <el-descriptions-item label="发布者用户名">{{ detail.publisherUsername || '-' }}</el-descriptions-item>
@@ -42,7 +42,7 @@
         <el-descriptions-item label="跑腿员手机">{{ detail.runnerPhone || '-' }}</el-descriptions-item>
       </el-descriptions>
 
-      <el-descriptions :column="2" border style="margin-top: 16px" title="时间记录">
+      <el-descriptions :column="2" border class="anim-desc" style="margin-top:16px;--anim-delay:0.28s" title="时间记录">
         <el-descriptions-item label="接单时间">{{ detail.acceptTime || '-' }}</el-descriptions-item>
         <el-descriptions-item label="预计完成">{{ detail.expectFinishTime || '-' }}</el-descriptions-item>
         <el-descriptions-item label="取货时间">{{ detail.pickupTime || '-' }}</el-descriptions-item>
@@ -51,15 +51,14 @@
         <el-descriptions-item label="取消时间">{{ detail.cancelTime || '-' }}</el-descriptions-item>
       </el-descriptions>
 
-      <div v-if="detail.cancelReason" class="cancel-info">
+      <div v-if="detail.cancelReason" class="cancel-info anim-cancel">
         <el-alert :title="'取消原因：' + detail.cancelReason" type="warning" show-icon :closable="false" />
       </div>
 
-      <!-- 任务图片 -->
-      <div v-if="detail.imageUrls && detail.imageUrls.length > 0" class="image-section">
+      <div v-if="detail.imageUrls?.length" class="image-section anim-img-section">
         <h4>任务图片</h4>
         <div class="image-grid">
-          <el-image v-for="(url, i) in detail.imageUrls" :key="i" :src="url" :preview-src-list="detail.imageUrls" :initial-index="i" fit="cover" class="task-image">
+          <el-image v-for="(url, i) in detail.imageUrls" :key="i" :src="url" :preview-src-list="detail.imageUrls" :initial-index="i" fit="cover" class="task-image anim-img" :style="{ animationDelay: (0.3 + i * 0.07) + 's' }">
             <template #error>
               <div class="image-error"><el-icon><Picture /></el-icon><span>加载失败</span></div>
             </template>
@@ -67,11 +66,10 @@
         </div>
       </div>
 
-      <!-- 取货凭证 -->
-      <div v-if="detail.pickupProofImgs && detail.pickupProofImgs.length > 0" class="image-section">
+      <div v-if="detail.pickupProofImgs?.length" class="image-section anim-img-section">
         <h4>取货凭证</h4>
         <div class="image-grid">
-          <el-image v-for="(url, i) in detail.pickupProofImgs" :key="i" :src="url" :preview-src-list="detail.pickupProofImgs" :initial-index="i" fit="cover" class="task-image">
+          <el-image v-for="(url, i) in detail.pickupProofImgs" :key="i" :src="url" :preview-src-list="detail.pickupProofImgs" :initial-index="i" fit="cover" class="task-image anim-img" :style="{ animationDelay: (0.3 + i * 0.07) + 's' }">
             <template #error>
               <div class="image-error"><el-icon><Picture /></el-icon><span>加载失败</span></div>
             </template>
@@ -79,11 +77,10 @@
         </div>
       </div>
 
-      <!-- 送达凭证 -->
-      <div v-if="detail.deliverProofImgs && detail.deliverProofImgs.length > 0" class="image-section">
+      <div v-if="detail.deliverProofImgs?.length" class="image-section anim-img-section">
         <h4>送达凭证</h4>
         <div class="image-grid">
-          <el-image v-for="(url, i) in detail.deliverProofImgs" :key="i" :src="url" :preview-src-list="detail.deliverProofImgs" :initial-index="i" fit="cover" class="task-image">
+          <el-image v-for="(url, i) in detail.deliverProofImgs" :key="i" :src="url" :preview-src-list="detail.deliverProofImgs" :initial-index="i" fit="cover" class="task-image anim-img" :style="{ animationDelay: (0.3 + i * 0.07) + 's' }">
             <template #error>
               <div class="image-error"><el-icon><Picture /></el-icon><span>加载失败</span></div>
             </template>
@@ -97,16 +94,14 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
-import { ElMessage } from 'element-plus'
 import { Picture } from '@element-plus/icons-vue'
-import gsap from 'gsap'
 import { getOrderDetail } from '@/api/orders'
 import { ORDER_STATUS } from '@/utils/constants'
 
 const route = useRoute()
 const loading = ref(false)
+const entered = ref(false)
 const detail = reactive<any>({})
-const pageRef = ref<HTMLElement>()
 
 function statusTag(s: number) {
   const map: Record<number, string> = { 1: '', 2: 'warning', 3: 'warning', 4: 'success', 5: 'danger' }
@@ -123,45 +118,10 @@ onMounted(async () => {
   try {
     const res = await getOrderDetail(Number(route.params.id)) as any
     Object.assign(detail, res)
-    await nextTick()
-    runEntrance()
   } finally { loading.value = false }
+  await nextTick()
+  entered.value = true
 })
-
-function runEntrance() {
-  const el = pageRef.value
-  if (!el) return
-
-  const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
-
-  // Page header
-  const header = el.querySelector('.el-page-header') as HTMLElement
-  if (header) tl.from(header, { x: -16, opacity: 0, duration: 0.4 }, 0)
-
-  // Main detail card
-  const card = el.querySelector('.detail-card') as HTMLElement
-  if (card) tl.from(card, { y: 24, opacity: 0, duration: 0.55 }, '-=0.25')
-
-  // Description blocks stagger
-  const descBlocks = el.querySelectorAll('.el-descriptions')
-  if (descBlocks.length) {
-    tl.from(descBlocks, {
-      y: 16, opacity: 0, duration: 0.45, stagger: 0.1, ease: 'power3.out',
-    }, '-=0.3')
-  }
-
-  // Cancel alert
-  const cancel = el.querySelector('.cancel-info') as HTMLElement
-  if (cancel) tl.from(cancel, { x: -10, opacity: 0, duration: 0.35 }, '-=0.15')
-
-  // Image grids stagger
-  const images = el.querySelectorAll('.task-image')
-  if (images.length) {
-    tl.from(images, {
-      scale: 0.85, opacity: 0, duration: 0.45, stagger: 0.07, ease: 'back.out(1.4)',
-    }, '-=0.2')
-  }
-}
 </script>
 
 <style scoped>
@@ -174,4 +134,53 @@ function runEntrance() {
 .image-grid { display: flex; flex-wrap: wrap; gap: 12px; }
 .task-image { width: 160px; height: 160px; border-radius: var(--radius-sm); }
 .image-error { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-placeholder); font-size: 12px; background: var(--neutral-surface); gap: 4px; }
+
+/* ===== 入场动画 ===== */
+.anim-header,
+.anim-card,
+.anim-desc,
+.anim-img-section,
+.anim-cancel,
+.anim-img {
+  opacity: 0;
+}
+
+.entered .anim-header {
+  animation: slideInLeft 0.4s var(--ease-out) both;
+}
+
+.entered .anim-card {
+  animation: fadeUp 0.5s 0.05s var(--ease-out) both;
+}
+
+.entered .anim-desc {
+  animation: fadeUp 0.4s var(--anim-delay, 0.1s) var(--ease-out) both;
+}
+
+.entered .anim-cancel {
+  animation: slideInLeft 0.3s 0.25s var(--ease-out) both;
+}
+
+.entered .anim-img-section {
+  animation: fadeUp 0.4s 0.25s var(--ease-out) both;
+}
+
+.entered .anim-img {
+  animation: imgPop 0.45s var(--ease-spring) both;
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes imgPop {
+  from { opacity: 0; transform: scale(0.88); }
+  to   { opacity: 1; transform: scale(1); }
+}
 </style>
