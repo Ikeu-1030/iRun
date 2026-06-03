@@ -1,5 +1,5 @@
 <template>
-  <div class="page">
+  <div class="page" ref="pageRef">
     <el-button @click="$router.back()" style="margin-bottom:16px">← 返回</el-button>
     <el-card v-loading="loading">
       <template #header>
@@ -44,14 +44,16 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
+import gsap from 'gsap'
 import { getUserDetail } from '@/api/users'
 
 const route = useRoute()
 const userId = ref(Number(route.params.id))
 const user = ref<any>(null)
 const loading = ref(false)
+const pageRef = ref<HTMLElement>()
 
 function certLabel(s: number) {
   const map: Record<number, string> = { 0: '未认证', 1: '审核中', 2: '已认证', 3: '认证驳回' }
@@ -66,6 +68,31 @@ onMounted(async () => {
   loading.value = true
   try {
     user.value = await getUserDetail(userId.value)
+    await nextTick()
+    runEntrance()
   } finally { loading.value = false }
 })
+
+function runEntrance() {
+  const el = pageRef.value
+  if (!el) return
+
+  const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
+
+  // Back button
+  const btn = el.querySelector('.el-button') as HTMLElement
+  if (btn) tl.from(btn, { x: -16, opacity: 0, duration: 0.4 }, 0)
+
+  // Card
+  const card = el.querySelector('.el-card') as HTMLElement
+  if (card) tl.from(card, { y: 24, opacity: 0, duration: 0.55 }, '-=0.25')
+
+  // Descriptions rows stagger
+  const rows = el.querySelectorAll('.el-descriptions__body tbody tr')
+  if (rows.length) {
+    tl.from(rows, {
+      x: -8, opacity: 0, duration: 0.3, stagger: 0.04, ease: 'power3.out',
+    }, '-=0.2')
+  }
+}
 </script>

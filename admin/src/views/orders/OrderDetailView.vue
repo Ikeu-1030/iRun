@@ -1,5 +1,5 @@
 <template>
-  <div class="page">
+  <div class="page" ref="pageRef">
     <el-page-header @back="$router.back()" title="返回">
       <template #content>
         <span class="page-title">订单详情 — {{ detail.taskNo }}</span>
@@ -95,16 +95,18 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { onMounted, reactive, ref, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Picture } from '@element-plus/icons-vue'
+import gsap from 'gsap'
 import { getOrderDetail } from '@/api/orders'
 import { ORDER_STATUS } from '@/utils/constants'
 
 const route = useRoute()
 const loading = ref(false)
 const detail = reactive<any>({})
+const pageRef = ref<HTMLElement>()
 
 function statusTag(s: number) {
   const map: Record<number, string> = { 1: '', 2: 'warning', 3: 'warning', 4: 'success', 5: 'danger' }
@@ -121,8 +123,45 @@ onMounted(async () => {
   try {
     const res = await getOrderDetail(Number(route.params.id)) as any
     Object.assign(detail, res)
+    await nextTick()
+    runEntrance()
   } finally { loading.value = false }
 })
+
+function runEntrance() {
+  const el = pageRef.value
+  if (!el) return
+
+  const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
+
+  // Page header
+  const header = el.querySelector('.el-page-header') as HTMLElement
+  if (header) tl.from(header, { x: -16, opacity: 0, duration: 0.4 }, 0)
+
+  // Main detail card
+  const card = el.querySelector('.detail-card') as HTMLElement
+  if (card) tl.from(card, { y: 24, opacity: 0, duration: 0.55 }, '-=0.25')
+
+  // Description blocks stagger
+  const descBlocks = el.querySelectorAll('.el-descriptions')
+  if (descBlocks.length) {
+    tl.from(descBlocks, {
+      y: 16, opacity: 0, duration: 0.45, stagger: 0.1, ease: 'power3.out',
+    }, '-=0.3')
+  }
+
+  // Cancel alert
+  const cancel = el.querySelector('.cancel-info') as HTMLElement
+  if (cancel) tl.from(cancel, { x: -10, opacity: 0, duration: 0.35 }, '-=0.15')
+
+  // Image grids stagger
+  const images = el.querySelectorAll('.task-image')
+  if (images.length) {
+    tl.from(images, {
+      scale: 0.85, opacity: 0, duration: 0.45, stagger: 0.07, ease: 'back.out(1.4)',
+    }, '-=0.2')
+  }
+}
 </script>
 
 <style scoped>
