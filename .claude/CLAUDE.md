@@ -111,7 +111,7 @@ npx vite build         # 构建
 
 ## 关键约定
 
-- 每次写代码前先计划思考，切勿直接动手，仔细分析代码链路关系，优先参考`/skills/karpathy-skills`s
+- 每次写代码前先计划思考，切勿直接动手，仔细分析代码链路关系，优先参考`/skills/karpathy-skills`
 - Git commit请先询问，允许后才可提交，切勿直接提交
 - Maven wrapper (`mvnw`) 位于 `runningerrands-server/`，从 `backend/` 根目录使用
 - Git Bash 路径用正斜杠 `/`，Windows 盘符 `F:/`
