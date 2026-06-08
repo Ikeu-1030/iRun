@@ -35,7 +35,7 @@ public class TaskPublishDTO implements Serializable {
 
     @NotNull
     @DecimalMin(value = "2.0", message = "最低报酬不能低于2元")
-    @DecimalMax(value = "50.0")
+    @DecimalMax(value = "50.0", message = "赏金最高不能超过50元")
     @Schema(description = "报酬")
     private BigDecimal reward;
 

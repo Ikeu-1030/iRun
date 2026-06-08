@@ -4,7 +4,7 @@
 
     <scroll-view class="main-scroll" :style="{ height: scrollHeight + 'px' }" scroll-y enhanced :show-scrollbar="false">
       <!-- 完成状态横幅 -->
-      <view class="status-banner animate-bounce-in" :class="'status-banner--' + (isCompleted ? 'done' : 'cancelled')">
+      <view v-if="dataReady" class="status-banner animate-bounce-in" :class="'status-banner--' + (isCompleted ? 'done' : 'cancelled')">
         <view class="status-icon-wrap">
           <iconpark-icon :name="isCompleted ? 'checkbox-filled' : 'closeempty'" size="48" :color="isCompleted ? '#34d399' : '#8F8D88'" />
         </view>

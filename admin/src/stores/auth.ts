@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { getAdminToken, setAdminToken, removeAdminToken } from '@/utils/request'
+import { getAdminInfo } from '@/api/auth'
 import router from '@/router'
 
 interface AdminInfo {
@@ -23,6 +24,21 @@ export const useAuthStore = defineStore('auth', () => {
     adminInfo.value = info
   }
 
+  const fetchAdminInfo = async () => {
+    if (!token.value || adminInfo.value) return
+    try {
+      const info = await getAdminInfo()
+      adminInfo.value = {
+        adminId: info.adminId,
+        username: info.username,
+        name: info.name,
+        role: info.role,
+      }
+    } catch {
+      clearAuth()
+    }
+  }
+
   const clearAuth = () => {
     token.value = null
     adminInfo.value = null
@@ -35,5 +51,5 @@ export const useAuthStore = defineStore('auth', () => {
     router.replace('/login')
   }
 
-  return { token, adminInfo, isLoggedIn, setAuth, clearAuth, logout }
+  return { token, adminInfo, isLoggedIn, setAuth, fetchAdminInfo, clearAuth, logout }
 })

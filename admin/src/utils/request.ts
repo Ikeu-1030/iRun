@@ -2,6 +2,7 @@ import axios from 'axios'
 import type { AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 import { ElMessage } from 'element-plus'
 import router from '@/router'
+import { useAuthStore } from '@/stores/auth'
 
 const ADMIN_TOKEN_KEY = 'admin_token'
 const ADMIN_REFRESH_KEY = 'admin_refresh_token'
@@ -91,9 +92,13 @@ service.interceptors.response.use(
           const res = await axios.post('/api/admin/refresh', null, {
             headers: { 'X-Refresh-Token': refreshToken }
           })
-          const { token, refreshToken: newRefresh } = res.data.data
+          const { token, refreshToken: newRefresh, adminId, username, name, role } = res.data.data
           setAdminToken(token)
           setRefreshToken(newRefresh)
+          const authStore = useAuthStore()
+          if (adminId) {
+            authStore.adminInfo = { adminId, username, name, role }
+          }
           refreshQueue.forEach(cb => cb(token))
           refreshQueue = []
 

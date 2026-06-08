@@ -119,6 +119,24 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
     }
 
     /**
+     * 获取当前登录管理员信息，仅返回基本信息不含令牌。
+     */
+    @Override
+    public AdminLoginVO getAdminInfo() {
+        Long adminId = com.ikeu.common.context.BaseContext.getCurrentId();
+        Admin admin = getById(adminId);
+        if (admin == null || Objects.equals(admin.getStatus(), StatusConstant.DISABLE)) {
+            throw new UnauthorizedException(MessageConstant.ACCOUNT_DISABLED_OR_NOT_EXIST);
+        }
+        return AdminLoginVO.builder()
+                .adminId(admin.getId())
+                .username(admin.getUsername())
+                .name(admin.getName())
+                .role(admin.getRole())
+                .build();
+    }
+
+    /**
      * 刷新管理员访问令牌（令牌轮换）。
      *
      * <p>流程：

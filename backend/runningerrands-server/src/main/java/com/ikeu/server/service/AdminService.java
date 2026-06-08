@@ -17,6 +17,9 @@ public interface AdminService {
     /** 刷新管理员访问令牌（令牌轮换）。 */
     AdminLoginVO refreshAccessToken(String refreshToken);
 
+    /** 获取当前登录管理员信息（不含令牌）。 */
+    AdminLoginVO getAdminInfo();
+
     /** 管理员退出登录，清除所有 refresh token。 */
     void logout(Long adminId);
 

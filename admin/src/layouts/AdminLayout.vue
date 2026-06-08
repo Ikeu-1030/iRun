@@ -60,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessageBox } from 'element-plus'
 import { useAuthStore } from '@/stores/auth'
@@ -108,6 +108,10 @@ const visibleMenu = computed(() =>
     return authStore.adminInfo && item.roles.includes(authStore.adminInfo.role)
   })
 )
+
+onMounted(() => {
+  authStore.fetchAdminInfo()
+})
 </script>
 
 <style scoped>

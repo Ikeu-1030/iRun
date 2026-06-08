@@ -37,6 +37,12 @@ public class AdminAuthController {
         return Result.success(adminService.refreshAccessToken(refreshToken));
     }
 
+    @Operation(summary = "获取当前管理员信息")
+    @GetMapping("/info")
+    public Result<AdminLoginVO> info() {
+        return Result.success(adminService.getAdminInfo());
+    }
+
     @Operation(summary = "管理员退出登录")
     @PostMapping("/logout")
     public Result<Void> logout() {
