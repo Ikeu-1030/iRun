@@ -191,7 +191,7 @@
         <view v-if="subType === 32" class="form-card">
           <view class="card-title">联系信息 <text class="required">*</text></view>
           <input class="form-input" placeholder="联系人姓名" style="margin-bottom:16rpx" v-model="deliveryContactName" />
-          <input class="form-input" placeholder="联系电话" name="number" v-model="deliveryContactPhone" />
+          <input class="form-input" placeholder="联系电话" type="number" v-model="deliveryContactPhone" />
         </view>
         <!-- 帮扔杂物 subType=34 -->
         <view v-if="subType === 34" class="form-card">
@@ -205,7 +205,7 @@
         <view v-if="subType === 34" class="form-card">
           <view class="card-title">联系信息 <text class="required">*</text></view>
           <input class="form-input" placeholder="联系人姓名" style="margin-bottom:16rpx" v-model="deliveryContactName" />
-          <input class="form-input" placeholder="联系电话" name="number" v-model="deliveryContactPhone" />
+          <input class="form-input" placeholder="联系电话" type="number" v-model="deliveryContactPhone" />
         </view>
         <!-- 办事代排 subType=35 -->
         <template v-if="subType === 35">
@@ -247,7 +247,7 @@
           <view class="form-card">
             <view class="card-title">联系信息 <text class="required">*</text></view>
             <input class="form-input" placeholder="联系人姓名" style="margin-bottom:16rpx" v-model="deliveryContactName" />
-            <input class="form-input" placeholder="联系电话" name="number" v-model="deliveryContactPhone" />
+            <input class="form-input" placeholder="联系电话" type="number" v-model="deliveryContactPhone" />
           </view>
         </template>
 
@@ -867,13 +867,18 @@ async function onSubmit() {
       privateNote = undefined
     }
 
+    const bounty = showCustomBounty.value ? (customBounty.value || 0) : reward.value
+    const productFee = taskType.value === 4 ? (estimatedProductFee.value || 0) : 0
+
     const payload = {
       type: TYPE_TO_API[taskType.value],
       subType: subTypeValue || (taskType.value === 1 || taskType.value === 4 ? undefined : SUBTYPE_TO_VALUE[subType.value]) || undefined,
       publicDesc: publicDesc || undefined,
       privateNote: privateNote || undefined,
       taskSpecs: taskSpecsStr || undefined,
-      reward: parseFloat(totalReward.value.toFixed(2)),
+      reward: parseFloat(Number(bounty).toFixed(2)),
+      deliveryFee: baseFee.value,
+      productCost: parseFloat(Number(productFee).toFixed(2)),
       payPassword: pw,
       pickupCode: pickupCode.value || undefined,
       pickupAddress: actualPickupAddress || undefined,

@@ -221,13 +221,17 @@ async function onSubmit() {
       taskSpecsStr = JSON.stringify({ 额外费用: Number(extraFee.value) })
     }
 
+    const bounty = showCustomBounty.value ? (customBounty.value || 0) : reward.value
+
     const payload = {
       type: taskTypeString.value,
       subType: undefined,
       publicDesc: publicDesc || undefined,
       privateNote: privateNote,
       taskSpecs: taskSpecsStr || undefined,
-      reward: parseFloat(totalReward.value.toFixed(2)),
+      reward: parseFloat(Number(bounty).toFixed(2)),
+      deliveryFee: 5,
+      productCost: extraFee.value > 0 ? Number(extraFee.value) : 0,
       payPassword: pw,
       pickupCode: requirePickupCode.value && pickupCode.value ? pickupCode.value : undefined,
       pickupAddress: pickupAddress.value || undefined,

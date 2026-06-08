@@ -26,7 +26,7 @@ public class AdminLogController {
 
     private final OperationLogService operationLogService;
 
-    @RequireRole({1})
+    @RequireRole({1, 2})
     @Operation(summary = "操作日志列表")
     @GetMapping("/logs")
     public Result<PageResult<OperationLog>> listLogs(

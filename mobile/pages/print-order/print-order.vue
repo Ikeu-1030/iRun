@@ -204,11 +204,15 @@ async function onSubmit() {
       打印方式: printSide.value === 'double' ? '双面打印' : '单面打印'
     })
 
+    const bounty = showCustomBounty.value ? (customBounty.value || 0) : reward.value
+
     await taskApi.publishTask({
       type: TYPE_TO_API[3], subType: SUBTYPE_TO_VALUE[31],
       publicDesc: description.value || undefined,
       taskSpecs: taskSpecsStr,
-      reward: totalPrice.value,
+      reward: parseFloat(Number(bounty).toFixed(2)),
+      deliveryFee: baseFee,
+      productCost: 0,
       payPassword: pw,
       deliveryAddressId: deliveryAddressId.value || undefined,
       contactName: deliveryContactName.value || undefined,

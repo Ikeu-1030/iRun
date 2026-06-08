@@ -213,11 +213,15 @@ async function onSubmit() {
       预估商品费: estimatedProductFee.value > 0 ? Number(estimatedProductFee.value) : 0
     })
 
+    const bounty = showCustomBounty.value ? (customBounty.value || 0) : reward.value
+
     await taskApi.publishTask({
       type: TYPE_TO_API[4], subType: SUBTYPE_TO_VALUE[41],
       publicDesc: remark.value || undefined,
       taskSpecs: taskSpecsStr,
-      reward: totalPrice.value,
+      reward: parseFloat(Number(bounty).toFixed(2)),
+      deliveryFee: baseFee,
+      productCost: estimatedProductFee.value > 0 ? Number(estimatedProductFee.value) : 0,
       payPassword: pw,
       pickupAddress: actualPickup || undefined,
       deliveryAddressId: deliveryAddressId.value || undefined,

@@ -101,7 +101,7 @@ export const ORDER_STATUS_BADGE = {
 export const TASK_STATUS_BADGE = {
   1: { text: '待接单', type: 'primary', bg: '#FFF0ED', color: '#FF6B4A' },
   2: { text: '已接单', type: 'warning', bg: '#fff7ed', color: '#ad6200' },
-  3: { text: '配送中', type: 'primary', bg: '#FFF0ED', color: '#FF6B4A' },
+  3: { text: '配送中', type: 'warning', bg: '#fff7ed', color: '#ad6200' },
   4: { text: '待确认', type: 'success', bg: '#f0fdf4', color: '#16a34a' },
   5: { text: '已完成', type: 'default', bg: '#ECFDF5', color: '#065F46' },
   6: { text: '已取消', type: 'info', bg: '#F5F5F0', color: '#5E5D58' }

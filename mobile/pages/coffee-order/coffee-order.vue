@@ -179,12 +179,16 @@ async function onSubmit() {
     if (merchantInfo.value) taskSpecsObj.商家信息 = merchantInfo.value
     const taskSpecsStr = Object.keys(taskSpecsObj).length > 0 ? JSON.stringify(taskSpecsObj) : undefined
 
+    const bounty = showCustomBounty.value ? (customBounty.value || 0) : reward.value
+
     await taskApi.publishTask({
       type: TYPE_TO_API[2], subType: SUBTYPE_TO_VALUE[23],
       publicDesc: description.value || undefined,
       taskSpecs: taskSpecsStr,
       pickupCode: pickupCode.value || undefined,
-      reward: totalPrice.value,
+      reward: parseFloat(Number(bounty).toFixed(2)),
+      deliveryFee: baseFee,
+      productCost: 0,
       payPassword: pw,
       pickupAddress: actualPickup || undefined,
       deliveryAddressId: deliveryAddressId.value || undefined,

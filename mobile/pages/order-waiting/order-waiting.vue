@@ -473,9 +473,7 @@ async function loadData() {
         }
         // 已完成 → 跳转完成页
         if (orderData.orderStatus === 4 || orderData.orderStatus === 5) {
-          setTimeout(() => {
-            uni.redirectTo({ url: `/pages/order-completed/order-completed?orderId=${orderData.orderId}` })
-          }, 300)
+          uni.redirectTo({ url: `/pages/order-completed/order-completed?orderId=${orderData.orderId}` })
           return
         }
       } catch (e) { /* order not found or not accessible */ }
@@ -483,15 +481,13 @@ async function loadData() {
 
     // 已完成/已取消 → 跳转完成页
     if (data.status === 5 || data.status === 6) {
-      setTimeout(() => {
-        uni.redirectTo({ url: `/pages/order-completed/order-completed?taskId=${taskId.value}` })
-      }, 300)
+      uni.redirectTo({ url: `/pages/order-completed/order-completed?taskId=${taskId.value}` })
       return
     }
 
     // 已接单/配送中/待确认 → 仅订单双方自动跳转配送详情，其他人留在本页（隐私保护）
     if ((isOwnerPublisher.value || isRunner.value) && data.status >= 2 && data.status <= 4) {
-      setTimeout(() => goDelivering(), 300)
+      goDelivering()
     }
   } catch (e) { /* handled */ }
   refreshing.value = false
