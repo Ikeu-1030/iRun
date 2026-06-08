@@ -26,10 +26,13 @@ public class RedissonConfiguration {
     @Value("${spring.data.redis.database:1}")
     private int redisDatabase;
 
+    @Value("${spring.data.redis.password:}")
+    private String redisPassword;
+
     /**
      * 创建 Redisson 客户端 Bean，连接单机 Redis 服务。
      *
-     * <p>使用 application.yml 中配置的 host、port、database 参数
+     * <p>使用 application.yml 中配置的 host、port、password、database 参数
      * 构造单机模式 RedissonClient，用于分布式锁等高级 Redis 操作。
      *
      * @return RedissonClient 实例
@@ -39,7 +42,9 @@ public class RedissonConfiguration {
         Config config = new Config();
         log.info("开始创建RedissonClient对象...");
         config.useSingleServer().setAddress("redis://" + redisHost + ":" + redisPort)
-                .setDatabase(redisDatabase);
+                .setDatabase(redisDatabase)
+                .setPassword(redisPassword);
         return Redisson.create(config);
     }
 }
+

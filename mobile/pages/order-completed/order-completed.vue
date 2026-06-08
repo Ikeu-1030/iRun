@@ -90,23 +90,31 @@
             <text v-for="t in publisherReview.tags" :key="t" class="rating-tag rating-tag--done">{{ t }}</text>
           </view>
         </view>
-        <!-- 追评列表 -->
-        <view v-if="publisherReview.followUps && publisherReview.followUps.length" class="follow-ups">
-          <view v-for="f in publisherReview.followUps" :key="f.reviewId" class="follow-up-item">
-            <text class="follow-up-author">{{ f.reviewerNickname || '对方' }}</text>
-            <text class="follow-up-body">{{ f.content }}</text>
+        <!-- 问答式流式追评（双方可见，支持互相回复） -->
+        <view v-if="threadFlatList.length > 0" class="thread-conversation">
+          <view v-for="f in threadFlatList" :key="f.reviewId" class="thread-item" :style="{ marginLeft: f._depth * 48 + 'rpx' }">
+            <view class="thread-item-header">
+              <text class="thread-author">{{ f.reviewerNickname || '对方' }}</text>
+              <text class="thread-time" v-if="f.createdAt">{{ f.createdAt }}</text>
+            </view>
+            <text class="thread-body" v-if="f.content">{{ f.content }}</text>
+            <!-- 根评价的评分标签 -->
+            <view v-if="f._depth === 0 && f.tags && f.tags.length" class="tag-row">
+              <text v-for="t in f.tags" :key="t" class="rating-tag rating-tag--done">{{ t }}</text>
+            </view>
+            <!-- 回复按钮（对方的消息可回复） -->
+            <view v-if="isThreadParticipant && String(f.reviewerId) !== String(myUserId) && replyingTo !== f.reviewId" class="thread-reply-btn" @click="startReplyTo(f.reviewId)">
+              <text>回复</text>
+            </view>
+            <!-- 回复输入框 -->
+            <view v-if="replyingTo === f.reviewId" class="thread-reply-box">
+              <input class="form-input form-input--follow" v-model="followUpContent" placeholder="输入回复…" />
+              <view class="thread-reply-actions">
+                <text class="reply-cancel" @click="cancelReply">取消</text>
+                <text class="reply-submit" :class="{ 'reply-submit--disabled': !followUpContent.trim() || submittingFollowUp }" @click="onReplyTo(f.reviewId)">发送</text>
+              </view>
+            </view>
           </view>
-        </view>
-        <!-- 配送员追加反馈（仅配送员可见，且原评价人不是自己） -->
-        <view v-if="isRunner && !myFollowUpDone" class="follow-up-input">
-          <input class="form-input form-input--follow" v-model="followUpContent" placeholder="对发布方的评价进行反馈…" />
-          <view class="follow-up-btn" @click="onSubmitFollowUp" :class="{ 'follow-up-btn--disabled': !followUpContent.trim() || submittingFollowUp }">
-            <text>{{ submittingFollowUp ? '提交中…' : '追加反馈' }}</text>
-          </view>
-        </view>
-        <view v-else-if="isRunner && myFollowUpDone" class="review-done">
-          <iconpark-icon name="checkbox-filled" size="20" color="#34d399" />
-          <text>反馈已提交</text>
         </view>
       </view>
 
@@ -147,6 +155,13 @@
         </view>
         <view v-if="merchantTag" class="package-tags">
           <text class="package-tag">商家：{{ merchantTag }}</text>
+        </view>
+        <view v-if="itemExpress" class="package-tags">
+          <text class="package-tag">物品：{{ itemExpress.itemName }}</text>
+          <text class="package-tag" v-if="itemExpress.weight">重量：{{ itemExpress.weight }}</text>
+        </view>
+        <view v-if="extraFee" class="package-tags">
+          <text class="package-tag">额外费用：¥{{ extraFee.toFixed(2) }}</text>
         </view>
         <text class="desc-text">{{ displayDescription }}</text>
       </view>
@@ -249,7 +264,7 @@ import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { orderApi, reviewApi, taskApi } from '@/api'
 import { TASK_TYPES, TASK_TYPE_META, TYPE_FROM_API, isQueueWaitType } from '@/utils/constants.js'
-import { parseTaskSpecs, parseShoppingItemsFromSpecs, parseBookCountFromSpecs, parsePrintSpecsFromSpecs, parseMerchantInfoFromSpecs } from '@/utils/campus-data.js'
+import { parseTaskSpecs, parseShoppingItemsFromSpecs, parseBookCountFromSpecs, parsePrintSpecsFromSpecs, parseMerchantInfoFromSpecs, parseItemExpressFromSpecs, parseExtraFeeFromSpecs } from '@/utils/campus-data.js'
 import { useSubmitLock } from '@/utils/submit-guard'
 import { SERVER_ORIGIN } from '@/utils/config'
 
@@ -286,6 +301,7 @@ const publisherReview = ref(null)
 const followUpContent = ref('')
 const myFollowUpDone = ref(false)
 const submittingFollowUp = ref(false)
+const replyingTo = ref(null) // 当前正在回复的评价ID
 const { lock: reviewLock, unlock: reviewUnlock, locked: reviewSubmitting } = useSubmitLock()
 const { lock: deleteLock, unlock: deleteUnlock, locked: deleteSubmitting } = useSubmitLock()
 
@@ -381,6 +397,44 @@ const merchantTag = computed(() => {
   return parseMerchantInfoFromSpecs(taskSpecs.value)
 })
 
+const itemExpress = computed(() => {
+  if (taskTypeCode.value !== 3) return null
+  return parseItemExpressFromSpecs(taskSpecs.value)
+})
+
+const extraFee = computed(() => {
+  if (taskTypeCode.value !== 5) return null
+  return parseExtraFeeFromSpecs(taskSpecs.value)
+})
+
+// 当前用户ID（发布者或跑腿员）
+const myUserId = computed(() => {
+  if (order.value.isOwnerRunner) return order.value.runnerId
+  if (order.value.isOwnerPublisher) return order.value.publisherId
+  return null
+})
+
+// 当前用户是否是评价对话的参与方（发布者或跑腿员）
+const isThreadParticipant = computed(() => !!(order.value.isOwnerRunner || order.value.isOwnerPublisher))
+
+/**
+ * 将嵌套的 ReviewVO 树展平为带深度标记的列表，用于问答式流式追评展示
+ */
+const threadFlatList = computed(() => {
+  function flatten(review, depth) {
+    if (depth === undefined) depth = 0
+    const items = [{ ...review, _depth: depth }]
+    if (review.followUps && review.followUps.length) {
+      review.followUps.forEach(f => {
+        items.push(...flatten(f, depth + 1))
+      })
+    }
+    return items
+  }
+  if (!publisherReview.value) return []
+  return flatten(publisherReview.value)
+})
+
 onLoad((options) => {
   orderId.value = options?.orderId || ''
   taskId.value = options?.taskId || ''
@@ -448,10 +502,17 @@ async function loadReviews() {
     if (pubReview) {
       publisherReview.value = pubReview
       reviewSubmitted.value = true
-      // 检查当前配送员是否已经追加过反馈
+      // 检查当前用户是否已经追加过反馈（递归检查所有层级）
       if (pubReview.followUps && pubReview.followUps.length) {
         const myId = order.value.isOwnerRunner ? order.value.runnerId : order.value.publisherId
-        // 配送员在追评中以reviewerId出现
+        function hasMyReply(review) {
+          if (String(review.reviewerId) === String(myId)) return true
+          if (review.followUps && review.followUps.length) {
+            return review.followUps.some(f => hasMyReply(f))
+          }
+          return false
+        }
+        myFollowUpDone.value = pubReview.followUps.some(f => hasMyReply(f))
       }
     }
   } catch (e) { /* ignore */ }
@@ -484,18 +545,24 @@ async function onSubmitReview() {
   }
 }
 
-async function onSubmitFollowUp() {
+function startReplyTo(reviewId) {
+  replyingTo.value = reviewId
+  followUpContent.value = ''
+}
+
+function cancelReply() {
+  replyingTo.value = null
+  followUpContent.value = ''
+}
+
+async function onReplyTo(reviewId) {
   if (!followUpContent.value.trim() || submittingFollowUp.value) return
-  if (!publisherReview.value) {
-    uni.showToast({ title: '暂无评价可追加', icon: 'none' })
-    return
-  }
   submittingFollowUp.value = true
   try {
-    await reviewApi.followUpReview(publisherReview.value.reviewId, followUpContent.value.trim())
-    uni.showToast({ title: '反馈已提交', icon: 'success' })
-    myFollowUpDone.value = true
-    // 刷新追评列表
+    await reviewApi.followUpReview(reviewId, followUpContent.value.trim())
+    uni.showToast({ title: '回复已发送', icon: 'success' })
+    cancelReply()
+    // 刷新评价列表
     loadReviews()
   } catch (e) { /* handled */ }
   submittingFollowUp.value = false
@@ -643,16 +710,24 @@ function copyOrderNo(no) {
 .review-time{font-size:22rpx;color:var(--text-tertiary)}
 .review-body{font-size:26rpx;color:var(--text-primary);line-height:1.6;display:block}
 .rating-tag--done{background:#f0fdf4;color:#16a34a}
-.follow-ups{margin-top:20rpx;padding-top:16rpx;border-top:1rpx solid var(--surface-hover)}
-.follow-up-item{padding:14rpx 0}
-.follow-up-author{font-size:24rpx;font-weight:600;color:var(--primary);margin-right:12rpx}
-.follow-up-body{font-size:26rpx;color:var(--text-primary)}
-.follow-up-input{display:flex;align-items:center;gap:12rpx;margin-top:20rpx;padding-top:20rpx;border-top:1rpx solid var(--surface-hover)}
+/* 问答式流式追评 */
+.thread-conversation{margin-top:20rpx;padding-top:16rpx;border-top:1rpx solid var(--surface-hover)}
+.thread-item{padding:14rpx 0;border-bottom:1rpx solid var(--surface-hover)}
+.thread-item:last-child{border-bottom:none}
+.thread-item-header{display:flex;align-items:center;gap:12rpx;margin-bottom:6rpx}
+.thread-author{font-size:24rpx;font-weight:600;color:var(--primary)}
+.thread-time{font-size:20rpx;color:var(--text-tertiary)}
+.thread-body{font-size:26rpx;color:var(--text-primary);line-height:1.6;display:block}
+.thread-reply-btn{padding:8rpx 20rpx;margin-top:10rpx;align-self:flex-start;border-radius:24rpx;border:1rpx solid var(--primary)}
+.thread-reply-btn text{font-size:22rpx;color:var(--primary)}
+.thread-reply-btn:active{background:var(--primary);opacity:.08}
+.thread-reply-box{margin-top:12rpx;display:flex;flex-direction:column;gap:10rpx}
+.thread-reply-actions{display:flex;justify-content:flex-end;gap:16rpx;align-items:center}
+.reply-cancel{font-size:24rpx;color:var(--text-tertiary);padding:10rpx 20rpx}
+.reply-submit{font-size:24rpx;font-weight:500;color:var(--primary);padding:10rpx 20rpx;border-radius:24rpx;background:var(--primary-container)}
+.reply-submit:active{transform:scale(.95)}
+.reply-submit--disabled{color:var(--text-tertiary);background:var(--surface-hover);pointer-events:none}
 .form-input--follow{flex:1;height:72rpx;background:var(--surface);border-radius:16rpx;padding:0 20rpx;font-size:26rpx;color:var(--text-primary);box-sizing:border-box}
-.follow-up-btn{padding:14rpx 24rpx;background:var(--primary);border-radius:36rpx;flex-shrink:0}
-.follow-up-btn:active{transform:scale(.95)}
-.follow-up-btn text{font-size:24rpx;font-weight:500;color:#fff}
-.follow-up-btn--disabled{background:var(--outline);pointer-events:none}
 
 .reorder-btn{display:flex;align-items:center;justify-content:center;gap:10rpx;padding:28rpx;border:1rpx solid var(--outline);border-radius:48rpx;margin-top:24rpx;background:var(--surface-raised)}
 .reorder-btn text{font-size:28rpx;font-weight:500;color:var(--text-primary)}

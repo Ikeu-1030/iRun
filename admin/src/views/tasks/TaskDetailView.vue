@@ -23,6 +23,7 @@
         </el-descriptions-item>
         <el-descriptions-item label="任务大类">{{ detail.type }}</el-descriptions-item>
         <el-descriptions-item label="任务小类">{{ detail.subType || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="任务规格" :span="2">{{ taskSpecsDisplay }}</el-descriptions-item>
         <el-descriptions-item label="发布时间">{{ detail.publishTime }}</el-descriptions-item>
         <el-descriptions-item label="过期时间">{{ detail.expireTime }}</el-descriptions-item>
         <el-descriptions-item label="发布者昵称">{{ detail.publisherNickname }}</el-descriptions-item>
@@ -70,11 +71,12 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref, nextTick } from 'vue'
+import { onMounted, reactive, ref, nextTick, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { Picture } from '@element-plus/icons-vue'
 import { getTaskDetail } from '@/api/tasks'
 import { TASK_STATUS } from '@/utils/constants'
+import { parseTaskSpecsForAdmin } from '@/utils/task-specs-parser'
 
 const route = useRoute()
 const loading = ref(false)
@@ -90,6 +92,8 @@ function formatReward(val: any) {
   if (val == null) return '0.00'
   return Number(val).toFixed(2)
 }
+
+const taskSpecsDisplay = computed(() => parseTaskSpecsForAdmin(detail.taskSpecs))
 
 onMounted(async () => {
   loading.value = true

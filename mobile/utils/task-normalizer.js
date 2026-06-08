@@ -13,7 +13,8 @@ import {
   parseItemExpressFromSpecs,
   parseBookCountFromSpecs,
   parsePrintSpecsFromSpecs,
-  parseMerchantInfoFromSpecs
+  parseMerchantInfoFromSpecs,
+  parseExtraFeeFromSpecs
 } from './campus-data.js'
 import { TASK_TYPE_META, getTaskTypeLabel, TYPE_FROM_API } from './constants.js'
 
@@ -57,6 +58,7 @@ export function normalizeTaskCard(raw, opts = {}) {
     bookCount: null,
     printSpecs: null,
     merchantTag: null,
+    extraFee: null,
     contactName: '',
     contactPhone: ''
   }
@@ -89,6 +91,11 @@ export function normalizeTaskCard(raw, opts = {}) {
         item.规格 ? `${item.名称}x${item.数量}（${item.规格}）` : `${item.名称}x${item.数量}`
       )
     }
+  }
+
+  // type=5：通用代办（额外费用）
+  if (taskType === 5) {
+    card.extraFee = parseExtraFeeFromSpecs(specs)
   }
 
   // 骑手视图需要联系人信息

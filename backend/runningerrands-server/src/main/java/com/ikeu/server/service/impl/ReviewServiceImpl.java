@@ -321,24 +321,31 @@ public class ReviewServiceImpl extends ServiceImpl<ReviewMapper, Review> impleme
                         .orderByDesc(Review::getCreatedAt));
         if (rootReviews.isEmpty()) return Collections.emptyList();
 
-        List<Long> rootIds = rootReviews.stream().map(Review::getId).collect(Collectors.toList());
-        List<Review> followUps = reviewMapper.selectList(
-                new LambdaQueryWrapper<Review>()
-                        .in(Review::getParentId, rootIds)
-                        .orderByAsc(Review::getCreatedAt));
+        // 迭代查询所有层级的追加评价
+        List<Review> allFollowUps = new ArrayList<>();
+        List<Long> currentParentIds = rootReviews.stream().map(Review::getId).collect(Collectors.toList());
+        while (!currentParentIds.isEmpty()) {
+            List<Review> level = reviewMapper.selectList(
+                    new LambdaQueryWrapper<Review>()
+                            .in(Review::getParentId, currentParentIds)
+                            .orderByAsc(Review::getCreatedAt));
+            if (level.isEmpty()) break;
+            allFollowUps.addAll(level);
+            currentParentIds = level.stream().map(Review::getId).collect(Collectors.toList());
+        }
 
         // 合并所有 review 的 reviewerId，只查一次 User
         List<Review> allReviews = new ArrayList<>(rootReviews);
-        if (!followUps.isEmpty()) allReviews.addAll(followUps);
+        if (!allFollowUps.isEmpty()) allReviews.addAll(allFollowUps);
         Map<Long, User> userMap = loadReviewerUserMap(allReviews);
 
         List<ReviewVO> rootVOs = convertToVOList(rootReviews, userMap);
-        if (!followUps.isEmpty()) {
-            List<ReviewVO> followUpVOs = convertToVOList(followUps, userMap);
-            Map<Long, List<ReviewVO>> followUpMap = followUpVOs.stream()
+        if (!allFollowUps.isEmpty()) {
+            List<ReviewVO> followUpVOs = convertToVOList(allFollowUps, userMap);
+            Map<Long, List<ReviewVO>> childrenMap = followUpVOs.stream()
                     .collect(Collectors.groupingBy(ReviewVO::getParentId));
             for (ReviewVO root : rootVOs) {
-                root.setFollowUps(followUpMap.getOrDefault(root.getReviewId(), Collections.emptyList()));
+                attachDescendants(root, childrenMap);
             }
         }
         return rootVOs;
@@ -377,27 +384,50 @@ public class ReviewServiceImpl extends ServiceImpl<ReviewMapper, Review> impleme
                         .orderByDesc(Review::getCreatedAt));
         if (rootReviews.isEmpty()) return Collections.emptyList();
 
-        List<Long> rootIds = rootReviews.stream().map(Review::getId).collect(Collectors.toList());
-        List<Review> followUps = reviewMapper.selectList(
-                new LambdaQueryWrapper<Review>()
-                        .in(Review::getParentId, rootIds)
-                        .orderByAsc(Review::getCreatedAt));
+        // 迭代查询所有层级的追加评价
+        List<Review> allFollowUps = new ArrayList<>();
+        List<Long> currentParentIds = rootReviews.stream().map(Review::getId).collect(Collectors.toList());
+        while (!currentParentIds.isEmpty()) {
+            List<Review> level = reviewMapper.selectList(
+                    new LambdaQueryWrapper<Review>()
+                            .in(Review::getParentId, currentParentIds)
+                            .orderByAsc(Review::getCreatedAt));
+            if (level.isEmpty()) break;
+            allFollowUps.addAll(level);
+            currentParentIds = level.stream().map(Review::getId).collect(Collectors.toList());
+        }
 
         // 合并所有 review 的 reviewerId，只查一次 User
         List<Review> allReviews = new ArrayList<>(rootReviews);
-        if (!followUps.isEmpty()) allReviews.addAll(followUps);
+        if (!allFollowUps.isEmpty()) allReviews.addAll(allFollowUps);
         Map<Long, User> userMap = loadReviewerUserMap(allReviews);
 
         List<ReviewVO> rootVOs = convertToVOList(rootReviews, userMap);
-        if (!followUps.isEmpty()) {
-            List<ReviewVO> followUpVOs = convertToVOList(followUps, userMap);
-            Map<Long, List<ReviewVO>> followUpMap = followUpVOs.stream()
+        if (!allFollowUps.isEmpty()) {
+            List<ReviewVO> followUpVOs = convertToVOList(allFollowUps, userMap);
+            Map<Long, List<ReviewVO>> childrenMap = followUpVOs.stream()
                     .collect(Collectors.groupingBy(ReviewVO::getParentId));
             for (ReviewVO root : rootVOs) {
-                root.setFollowUps(followUpMap.getOrDefault(root.getReviewId(), Collections.emptyList()));
+                attachDescendants(root, childrenMap);
             }
         }
         return rootVOs;
+    }
+
+    /**
+     * 递归挂载子孙评价到父评价的 followUps 字段中，构建树形嵌套结构
+     *
+     * @param parent 父评价 VO
+     * @param childrenMap parentId → 子评价列表的映射
+     */
+    private void attachDescendants(ReviewVO parent, Map<Long, List<ReviewVO>> childrenMap) {
+        List<ReviewVO> children = childrenMap.getOrDefault(parent.getReviewId(), Collections.emptyList());
+        if (!children.isEmpty()) {
+            parent.setFollowUps(children);
+            for (ReviewVO child : children) {
+                attachDescendants(child, childrenMap);
+            }
+        }
     }
 
 }

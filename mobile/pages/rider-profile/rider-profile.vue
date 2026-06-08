@@ -53,10 +53,11 @@
           <view v-if="r.tags && r.tags.length" class="review-tags">
             <text v-for="t in r.tags" :key="t" class="review-tag">{{ t }}</text>
           </view>
-          <!-- 追评 -->
+          <!-- 追评（嵌套展示） -->
           <view v-if="r.followUps && r.followUps.length" class="followup-list">
-            <view v-for="f in r.followUps" :key="f.reviewId" class="followup-item">
-              <text class="followup-text">追评：{{ f.content }}</text>
+            <view v-for="f in flattenThread(r)" :key="f.reviewId" class="followup-item" :style="{ marginLeft: f._depth * 36 + 'rpx' }">
+              <text class="followup-author">{{ f.reviewerNickname || '对方' }}：</text>
+              <text class="followup-text">{{ f.content }}</text>
             </view>
           </view>
         </view>
@@ -91,7 +92,7 @@
           </view>
           <view v-if="selectedReview.followUps && selectedReview.followUps.length" class="detail-followups">
             <view class="detail-followup-title">追评</view>
-            <view v-for="f in selectedReview.followUps" :key="f.reviewId" class="detail-followup-item">
+            <view v-for="f in flattenThread(selectedReview)" :key="f.reviewId" class="detail-followup-item" :style="{ marginLeft: f._depth * 36 + 'rpx' }">
               <view class="detail-followup-header">
                 <image v-if="f.reviewerAvatar" class="detail-fu-avatar" :src="normalizeUrl(f.reviewerAvatar)" mode="aspectFill" />
                 <view v-else class="detail-fu-avatar detail-fu-avatar--txt">{{ (f.reviewerNickname || '匿').charAt(0) }}</view>
@@ -118,6 +119,23 @@ function normalizeUrl(url) {
   if (url.startsWith('http')) return url
   if (url.startsWith('/')) return SERVER_ORIGIN + url
   return url
+}
+
+/**
+ * 将嵌套追评树展平为带深度标记的列表（只读展示，无回复功能）
+ */
+function flattenThread(root) {
+  const items = []
+  function walk(review, depth) {
+    if (review.followUps && review.followUps.length) {
+      review.followUps.forEach(f => {
+        items.push({ ...f, _depth: depth })
+        walk(f, depth + 1)
+      })
+    }
+  }
+  walk(root, 1)
+  return items
 }
 
 const sysInfo = uni.getSystemInfoSync()
@@ -216,6 +234,7 @@ function onBack() { uni.navigateBack() }
 
 .followup-list{margin-top:14rpx;padding-top:14rpx;border-top:1rpx solid var(--surface-hover)}
 .followup-item{display:block;padding:4rpx 0}
+.followup-author{font-size:22rpx;font-weight:600;color:var(--primary)}
 .followup-text{font-size:24rpx;color:var(--text-secondary);line-height:1.5;word-break:break-all}
 
 .loading-state{display:flex;align-items:center;justify-content:center;padding:120rpx 0}
