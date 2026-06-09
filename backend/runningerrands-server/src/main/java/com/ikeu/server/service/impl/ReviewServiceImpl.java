@@ -321,10 +321,11 @@ public class ReviewServiceImpl extends ServiceImpl<ReviewMapper, Review> impleme
                         .orderByDesc(Review::getCreatedAt));
         if (rootReviews.isEmpty()) return Collections.emptyList();
 
-        // 迭代查询所有层级的追加评价
+        // 迭代查询所有层级的追加评价（最大深度 20 防止死循环）
         List<Review> allFollowUps = new ArrayList<>();
         List<Long> currentParentIds = rootReviews.stream().map(Review::getId).collect(Collectors.toList());
-        while (!currentParentIds.isEmpty()) {
+        int depth = 0;
+        while (!currentParentIds.isEmpty() && depth++ < MAX_FOLLOWUP_DEPTH) {
             List<Review> level = reviewMapper.selectList(
                     new LambdaQueryWrapper<Review>()
                             .in(Review::getParentId, currentParentIds)
@@ -345,7 +346,7 @@ public class ReviewServiceImpl extends ServiceImpl<ReviewMapper, Review> impleme
             Map<Long, List<ReviewVO>> childrenMap = followUpVOs.stream()
                     .collect(Collectors.groupingBy(ReviewVO::getParentId));
             for (ReviewVO root : rootVOs) {
-                attachDescendants(root, childrenMap);
+                attachDescendants(root, childrenMap, 0);
             }
         }
         return rootVOs;
@@ -384,10 +385,11 @@ public class ReviewServiceImpl extends ServiceImpl<ReviewMapper, Review> impleme
                         .orderByDesc(Review::getCreatedAt));
         if (rootReviews.isEmpty()) return Collections.emptyList();
 
-        // 迭代查询所有层级的追加评价
+        // 迭代查询所有层级的追加评价（最大深度 20 防止死循环）
         List<Review> allFollowUps = new ArrayList<>();
         List<Long> currentParentIds = rootReviews.stream().map(Review::getId).collect(Collectors.toList());
-        while (!currentParentIds.isEmpty()) {
+        int depth = 0;
+        while (!currentParentIds.isEmpty() && depth++ < MAX_FOLLOWUP_DEPTH) {
             List<Review> level = reviewMapper.selectList(
                     new LambdaQueryWrapper<Review>()
                             .in(Review::getParentId, currentParentIds)
@@ -408,24 +410,29 @@ public class ReviewServiceImpl extends ServiceImpl<ReviewMapper, Review> impleme
             Map<Long, List<ReviewVO>> childrenMap = followUpVOs.stream()
                     .collect(Collectors.groupingBy(ReviewVO::getParentId));
             for (ReviewVO root : rootVOs) {
-                attachDescendants(root, childrenMap);
+                attachDescendants(root, childrenMap, 0);
             }
         }
         return rootVOs;
     }
+
+    /** 最大追评嵌套深度 */
+    private static final int MAX_FOLLOWUP_DEPTH = 20;
 
     /**
      * 递归挂载子孙评价到父评价的 followUps 字段中，构建树形嵌套结构
      *
      * @param parent 父评价 VO
      * @param childrenMap parentId → 子评价列表的映射
+     * @param depth 当前递归深度
      */
-    private void attachDescendants(ReviewVO parent, Map<Long, List<ReviewVO>> childrenMap) {
+    private void attachDescendants(ReviewVO parent, Map<Long, List<ReviewVO>> childrenMap, int depth) {
+        if (depth >= MAX_FOLLOWUP_DEPTH) return;
         List<ReviewVO> children = childrenMap.getOrDefault(parent.getReviewId(), Collections.emptyList());
         if (!children.isEmpty()) {
             parent.setFollowUps(children);
             for (ReviewVO child : children) {
-                attachDescendants(child, childrenMap);
+                attachDescendants(child, childrenMap, depth + 1);
             }
         }
     }

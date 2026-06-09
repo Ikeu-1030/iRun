@@ -21,15 +21,16 @@ interface TaskSpecs {
   包裹列表?: ExpressPackage[]
   商品列表?: ShoppingItem[]
   预估商品费?: number
+  商家?: string
+  餐品?: string
   服务时长?: number
-  时长标签?: string
   基础服务费?: number
+  服务截止时间?: string
   物品名称?: string
   重量?: string
   书本数量?: number
   打印类型?: string
   打印方式?: string
-  商家信息?: string
   额外费用?: number
 }
 
@@ -72,8 +73,8 @@ export function parseTaskSpecsForAdmin(specsStr: string | null | undefined): str
 
   // 办事代排 - 服务时长
   if (specs.服务时长 != null) {
-    const label = specs.时长标签 || `${specs.服务时长}分钟`
-    const fee = specs.基础服务费 ? ` (基础费: ¥${specs.基础服务费})` : ''
+    const label = `${specs.服务时长}分钟`
+    const fee = specs.基础服务费 != null ? ` (基础费: ¥${specs.基础服务费})` : ''
     parts.push(`服务时长: ${label}${fee}`)
   }
 
@@ -92,9 +93,12 @@ export function parseTaskSpecsForAdmin(specsStr: string | null | undefined): str
     parts.push(`打印: ${[specs.打印类型, specs.打印方式].filter(Boolean).join(' / ')}`)
   }
 
-  // 商家信息
-  if (specs.商家信息) {
-    parts.push(`商家: ${specs.商家信息}`)
+  // 代拿餐食 - 商家/餐品
+  if (specs.商家) {
+    parts.push(`商家: ${specs.商家}`)
+  }
+  if (specs.餐品) {
+    parts.push(`餐品: ${specs.餐品}`)
   }
 
   // 通用代办 - 额外费用

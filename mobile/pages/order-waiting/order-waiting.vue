@@ -60,10 +60,6 @@
             <text class="row-label">报酬金额</text>
             <text class="row-value row-value--price">¥{{ rewardText }}</text>
           </view>
-          <view v-if="productFeeText" class="card-row">
-            <text class="row-label">预估商品费</text>
-            <text class="row-value">¥{{ productFeeText.toFixed(2) }}（含在总报酬中）</text>
-          </view>
           <view class="card-row">
             <text class="row-label">创建时间</text>
             <text class="row-value">{{ task.publishTime || '--' }}</text>
@@ -79,9 +75,6 @@
             <iconpark-icon name="compose" size="18" color="#FF6B4A" />
             <text>任务描述</text>
           </view>
-          <view v-if="productTags.length" class="package-tags">
-            <text class="package-tag" v-for="(tag, ti) in productTags" :key="ti">{{ tag }}</text>
-          </view>
           <view v-if="bookCount" class="package-tags">
             <text class="package-tag">书本数量：{{ bookCount }}本</text>
           </view>
@@ -89,23 +82,52 @@
             <text class="package-tag">{{ printSpecs.printType }}</text>
             <text class="package-tag">{{ printSpecs.printSide }}</text>
           </view>
-          <view v-if="merchantTag" class="package-tags">
-            <text class="package-tag">商家：{{ merchantTag }}</text>
-          </view>
           <text class="desc-text">{{ displayDescription }}</text>
         </view>
 
-        <view class="info-card" v-if="task.pickupAddress || task.pickupCode">
+        <view class="info-card" v-if="task.pickupAddress || task.pickupCode || merchantTag || foodItems || serviceDuration || itemExpress || extraFee || productTags.length || productFeeText">
           <view class="card-title">
             <custom-icon name="pickup-info" size="32" />
-            <text>{{ isQueueWait ? '代办信息' : '取件信息' }}</text>
+            <text>{{ pickupSectionTitle }}</text>
           </view>
           <view class="card-row" v-if="task.pickupAddress">
-            <text class="row-label">{{ isQueueWait ? '代办地址' : '取件地址' }}</text>
+            <text class="row-label">{{ pickupAddressLabel }}</text>
             <text class="row-value">{{ task.pickupAddress }}</text>
           </view>
+          <view class="card-row" v-if="merchantTag">
+            <text class="row-label">商家</text>
+            <text class="row-value">{{ merchantTag }}</text>
+          </view>
+          <view class="card-row" v-if="foodItems">
+            <text class="row-label">餐品</text>
+            <text class="row-value">{{ foodItems }}</text>
+          </view>
+          <view class="card-row" v-if="serviceDuration">
+            <text class="row-label">服务时长</text>
+            <text class="row-value">{{ serviceDuration.label }}</text>
+          </view>
+          <view class="card-row" v-if="itemExpress">
+            <text class="row-label">物品</text>
+            <text class="row-value">{{ itemExpress.itemName }}</text>
+          </view>
+          <view class="card-row" v-if="itemExpress && itemExpress.weight">
+            <text class="row-label">重量</text>
+            <text class="row-value">{{ itemExpress.weight }}</text>
+          </view>
+          <view class="card-row" v-if="extraFee">
+            <text class="row-label">额外费用</text>
+            <text class="row-value">¥{{ extraFee.toFixed(2) }}</text>
+          </view>
+          <view v-if="taskTypeCode === 4 && !isPaperExpress && productTags.length" class="card-row">
+            <text class="row-label">商品</text>
+            <text class="row-value">{{ productTags.join('、') }}</text>
+          </view>
+          <view v-if="taskTypeCode === 4 && !isPaperExpress && productFeeText" class="card-row">
+            <text class="row-label">预估商品费</text>
+            <text class="row-value">¥{{ productFeeText.toFixed(2) }}</text>
+          </view>
           <view class="card-row" v-if="task.pickupCode">
-            <text class="row-label">取件码</text>
+            <text class="row-label">{{ pickupCodeLabel }}</text>
             <text class="row-value row-value--code">{{ task.pickupCode }}</text>
           </view>
         </view>
@@ -160,10 +182,6 @@
             <text class="row-label">报酬金额</text>
             <text class="row-value row-value--price">¥{{ rewardText }}</text>
           </view>
-          <view v-if="productFeeText" class="card-row">
-            <text class="row-label">预估商品费</text>
-            <text class="row-value">¥{{ productFeeText.toFixed(2) }}（含在总报酬中）</text>
-          </view>
           <view class="card-row">
             <text class="row-label">创建时间</text>
             <text class="row-value">{{ task.publishTime || '--' }}</text>
@@ -174,18 +192,46 @@
           </view>
         </view>
 
-        <view class="info-card" v-if="task.pickupAddress">
+        <view class="info-card" v-if="task.pickupAddress || merchantTag || foodItems || serviceDuration || itemExpress || extraFee || (taskTypeCode === 4 && !isPaperExpress && (productTags.length || productFeeText))">
           <view class="card-title">
             <view class="route-badge route-badge--from">起</view>
-            <text>{{ isQueueWait ? '代办信息' : '取件信息' }}</text>
+            <text>{{ pickupSectionTitle }}</text>
           </view>
-          <view class="card-row">
-            <text class="row-label">{{ isQueueWait ? '代办地址' : '取件地址' }}</text>
+          <view class="card-row" v-if="task.pickupAddress">
+            <text class="row-label">{{ pickupAddressLabel }}</text>
             <text class="row-value">{{ task.pickupAddress }}</text>
           </view>
-          <view class="desc-hidden" v-if="task.hasPickupCode">
+          <view class="card-row" v-if="merchantTag">
+            <text class="row-label">商家</text>
+            <text class="row-value">{{ merchantTag }}</text>
+          </view>
+          <view class="card-row" v-if="foodItems">
+            <text class="row-label">餐品</text>
+            <text class="row-value">{{ foodItems }}</text>
+          </view>
+          <view class="card-row" v-if="serviceDuration">
+            <text class="row-label">服务时长</text>
+            <text class="row-value">{{ serviceDuration.label }}</text>
+          </view>
+          <view class="card-row" v-if="itemExpress">
+            <text class="row-label">物品</text>
+            <text class="row-value">{{ itemExpress.itemName }}</text>
+          </view>
+          <view class="card-row" v-if="itemExpress && itemExpress.weight">
+            <text class="row-label">重量</text>
+            <text class="row-value">{{ itemExpress.weight }}</text>
+          </view>
+          <view v-if="taskTypeCode === 4 && !isPaperExpress && productTags.length" class="card-row">
+            <text class="row-label">商品</text>
+            <text class="row-value">{{ productTags.join('、') }}</text>
+          </view>
+          <view v-if="taskTypeCode === 4 && !isPaperExpress && productFeeText" class="card-row">
+            <text class="row-label">预估商品费</text>
+            <text class="row-value">¥{{ productFeeText.toFixed(2) }}</text>
+          </view>
+          <view class="desc-hidden" v-if="task.hasPickupCode && !task.pickupCode">
             <iconpark-icon name="locked-filled" size="16" color="#8F8D88" />
-            <text>取件码已隐藏，接单后方可查看</text>
+            <text>{{ pickupCodeLabel }}已隐藏，接单后方可查看</text>
           </view>
         </view>
 
@@ -256,7 +302,7 @@ import { onLoad } from '@dcloudio/uni-app'
 import { useStore } from '@/store/index.js'
 import { taskApi, orderApi } from '@/api'
 import { TASK_STATUS, TASK_TYPES, TASK_TYPE_META, TYPE_FROM_API, isQueueWaitType } from '@/utils/constants.js'
-import { parseDeliveryAddress, parseTaskSpecs, parseExpressPackagesFromSpecs, parseShoppingItemsFromSpecs, parseBookCountFromSpecs, parsePrintSpecsFromSpecs, parseMerchantInfoFromSpecs } from '@/utils/campus-data.js'
+import { parseDeliveryAddress, parseTaskSpecs, parseExpressPackagesFromSpecs, parseShoppingItemsFromSpecs, parseBookCountFromSpecs, parsePrintSpecsFromSpecs, parseMerchantInfoFromSpecs, parseFoodItemsFromSpecs, parseItemExpressFromSpecs, parseServiceDurationFromSpecs, parseExtraFeeFromSpecs } from '@/utils/campus-data.js'
 import { useSubmitLock } from '@/utils/submit-guard'
 import { SERVER_ORIGIN } from '@/utils/config'
 
@@ -415,6 +461,41 @@ const displayDescription = computed(() => {
 })
 
 const isQueueWait = computed(() => isQueueWaitType(task.value.subType))
+const isPaperExpress = computed(() => taskTypeCode.value === 4 && task.value.subType === '纸品速达')
+
+const pickupSectionTitle = computed(() => {
+  if (isQueueWait.value) return '代办信息'
+  if (taskTypeCode.value === 2) return '取餐信息'
+  if (taskTypeCode.value === 4 && !isPaperExpress.value) return '代购信息'
+  return '取件信息'
+})
+const pickupAddressLabel = computed(() => {
+  if (isQueueWait.value) return '代办地址'
+  if (taskTypeCode.value === 2) return '取餐地址'
+  if (taskTypeCode.value === 4 && !isPaperExpress.value) return '代购地址'
+  return '取件地址'
+})
+const pickupCodeLabel = computed(() => {
+  if (taskTypeCode.value === 2) return '取餐码'
+  return '取件码'
+})
+
+const foodItems = computed(() => {
+  if (taskTypeCode.value !== 2) return null
+  return parseFoodItemsFromSpecs(taskSpecs.value)
+})
+const serviceDuration = computed(() => {
+  if (!isQueueWait.value) return null
+  return parseServiceDurationFromSpecs(taskSpecs.value)
+})
+const itemExpress = computed(() => {
+  if (taskTypeCode.value !== 3) return null
+  return parseItemExpressFromSpecs(taskSpecs.value)
+})
+const extraFee = computed(() => {
+  if (taskTypeCode.value !== 5) return null
+  return parseExtraFeeFromSpecs(taskSpecs.value)
+})
 
 const stepItems = computed(() => {
   if (isQueueWait.value) {

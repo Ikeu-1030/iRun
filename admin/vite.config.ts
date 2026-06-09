@@ -16,9 +16,9 @@ export default defineConfig({
     proxy: {
       '/api': {
         // 开发环境
-        // target: 'http://localhost:8080',
-        // 测试环境
-        target: 'https://sedative-squishy-worry.ngrok-free.dev',
+        target: 'http://localhost:8080',
+        // 测试环境 (Ubuntu 内网穿透)
+        // target: 'https://sedative-squishy-worry.ngrok-free.dev',
         changeOrigin: true,
         configure: (proxy) => {
           proxy.on('proxyReq', (proxyReq, req) => {

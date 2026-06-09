@@ -42,8 +42,9 @@ public class RedissonConfiguration {
         Config config = new Config();
         log.info("开始创建RedissonClient对象...");
         config.useSingleServer().setAddress("redis://" + redisHost + ":" + redisPort)
-                .setDatabase(redisDatabase)
-                .setPassword(redisPassword);
+                .setDatabase(redisDatabase);
+                // Redis 密码认证（如 Redis 设置了密码请取消注释）
+                // .setPassword(redisPassword);
         return Redisson.create(config);
     }
 }

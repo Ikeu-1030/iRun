@@ -85,7 +85,7 @@ mysql -u root -p < runningerrands.sql
 ./runningerrands-server/mvnw install -DskipTests
 ./runningerrands-server/mvnw spring-boot:run
 # Server runs at http://localhost:8080/api
-# Default superadmin: admin / admin20260510
+# Default superadmin: admin / admin
 ```
 
 ### Admin Dashboard

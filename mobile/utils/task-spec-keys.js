@@ -12,8 +12,11 @@ export const SPEC_KEYS = {
   NAME: '名称',
   EST_PRODUCT_FEE: '预估商品费',
 
+  MERCHANT: '商家',
+  FOOD_ITEMS: '餐品',
+
   SERVICE_DURATION: '服务时长',
-  DURATION_LABEL: '时长标签',
+  SERVICE_END_TIME: '服务截止时间',
   BASE_SERVICE_FEE: '基础服务费',
 
   ITEM_NAME: '物品名称',
@@ -21,5 +24,10 @@ export const SPEC_KEYS = {
 
   BOOK_COUNT: '书本数量',
 
-  EXTRA_FEE: '额外费用'
+  PRINT_TYPE: '打印类型',
+  PRINT_SIDE: '打印方式',
+
+  EXTRA_FEE: '额外费用',
+
+  DELIVERY_FEE: '配送费'
 }

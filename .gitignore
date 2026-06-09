@@ -36,7 +36,7 @@ unpackage/
 *.sw?
 
 # ===== Sensitive Config =====
-doc/test_local_log.md
+docs/test_local_log.md
 application-dev.yml
 application-prod.yml
 application-local.yml
