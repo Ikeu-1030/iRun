@@ -1,1 +1,0 @@
-import{i as e}from"./index-BHWTpcBt.js";function t(t){return e({url:`/admin/logs`,method:`get`,params:t})}export{t};

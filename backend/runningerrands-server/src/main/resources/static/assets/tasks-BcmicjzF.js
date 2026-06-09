@@ -1,1 +1,0 @@
-import{i as e}from"./index-BHWTpcBt.js";function t(t){return e({url:`/admin/tasks`,method:`get`,params:t})}function n(t){return e({url:`/admin/tasks/${t}`,method:`get`})}function r(t,n){return e({url:`/admin/tasks/${t}/status`,method:`put`,params:{status:n}})}export{t as n,r,n as t};

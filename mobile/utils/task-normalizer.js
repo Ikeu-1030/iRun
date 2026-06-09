@@ -14,6 +14,7 @@ import {
   parseBookCountFromSpecs,
   parsePrintSpecsFromSpecs,
   parseMerchantInfoFromSpecs,
+  parseFoodItemsFromSpecs,
   parseExtraFeeFromSpecs
 } from './campus-data.js'
 import { TASK_TYPE_META, getTaskTypeLabel, TYPE_FROM_API } from './constants.js'
@@ -58,6 +59,7 @@ export function normalizeTaskCard(raw, opts = {}) {
     bookCount: null,
     printSpecs: null,
     merchantTag: null,
+    foodItems: null,
     extraFee: null,
     contactName: '',
     contactPhone: ''
@@ -69,9 +71,10 @@ export function normalizeTaskCard(raw, opts = {}) {
     if (pkg) card.packageInfo = pkg
   }
 
-  // type=2：代拿餐食（商家信息 / 奶茶咖啡代取）
+  // type=2：代拿餐食（商家/餐品/奶茶咖啡代取）
   if (taskType === 2) {
     card.merchantTag = parseMerchantInfoFromSpecs(specs)
+    card.foodItems = parseFoodItemsFromSpecs(specs)
   }
 
   // type=3：校内代办（服务时长 / 物品急送 / 书本数量 / 资料打印）

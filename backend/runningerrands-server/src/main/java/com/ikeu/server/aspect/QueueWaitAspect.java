@@ -60,7 +60,7 @@ public class QueueWaitAspect {
             }
 
             JSONObject specs = JSONUtil.parseObj(taskSpecs);
-            String serviceEndTimeStr = specs.getStr("serviceEndTime");
+            String serviceEndTimeStr = specs.getStr("服务截止时间");
             if (serviceEndTimeStr == null || serviceEndTimeStr.isBlank()) {
                 log.warn("办事代排任务 {} 的 taskSpecs 未包含 serviceEndTime，跳过调整", taskId);
                 return;

@@ -83,6 +83,8 @@
             </view>
             <view v-if="pickupAddress === '自定义'" class="form-label">自定义取餐地点</view>
             <input v-if="pickupAddress === '自定义'" class="form-input" placeholder="请输入具体取餐地点" v-model="customPickupAddress" />
+            <view class="form-label">商家信息</view>
+            <input class="form-input" placeholder="如：XX店/XX窗口" v-model="merchantInfo" />
           </template>
 
           <!-- 校内餐饮 → 选择餐厅 -->
@@ -817,12 +819,11 @@ async function onSubmit() {
       const fee = Math.ceil(duration / 10) * 5
       const endTime = new Date(Date.now() + duration * 60000)
       const pad = n => String(n).padStart(2, '0')
-      const serviceEndTime = `${endTime.getFullYear()}-${pad(endTime.getMonth() + 1)}-${pad(endTime.getDate())}T${pad(endTime.getHours())}:${pad(endTime.getMinutes())}:${pad(endTime.getSeconds())}`
+      const serviceEndTimeStr = `${endTime.getFullYear()}-${pad(endTime.getMonth() + 1)}-${pad(endTime.getDate())}T${pad(endTime.getHours())}:${pad(endTime.getMinutes())}:${pad(endTime.getSeconds())}`
       taskSpecsStr = JSON.stringify({
         服务时长: duration,
-        时长标签: `${duration}分钟`,
         基础服务费: fee,
-        serviceEndTime
+        服务截止时间: serviceEndTimeStr
       })
     } else if (taskType.value === 3 && subType.value === 32) {
       taskSpecsStr = JSON.stringify({ 书本数量: bookCount.value })
@@ -834,6 +835,11 @@ async function onSubmit() {
         预估商品费: estimatedProductFee.value > 0 ? Number(estimatedProductFee.value) : 0
       })
       subTypeValue = SUBTYPE_TO_VALUE[subType.value]
+    } else if (taskType.value === 2) {
+      taskSpecsStr = JSON.stringify({
+        商家: merchantInfo.value || '',
+        餐品: description.value || ''
+      })
     }
 
     // 办事代排不传 deliveryAddressId，后端标记无需送达
@@ -860,7 +866,7 @@ async function onSubmit() {
       publicDesc = description.value || ''
       privateNote = privateFoodNote.value || undefined
     } else if (taskType.value === 2 && subType.value === 21) {
-      publicDesc = merchantInfo.value ? `商家：${merchantInfo.value}；${description.value || ''}` : (description.value || '')
+      publicDesc = description.value || ''
       privateNote = privateFoodNote.value || undefined
     } else {
       publicDesc = description.value || ''
@@ -877,7 +883,7 @@ async function onSubmit() {
       privateNote: privateNote || undefined,
       taskSpecs: taskSpecsStr || undefined,
       reward: parseFloat(Number(bounty).toFixed(2)),
-      deliveryFee: baseFee.value,
+      deliveryFee: taskType.value === 3 && subType.value === 35 ? 0 : baseFee.value,
       productCost: parseFloat(Number(productFee).toFixed(2)),
       payPassword: pw,
       pickupCode: pickupCode.value || undefined,

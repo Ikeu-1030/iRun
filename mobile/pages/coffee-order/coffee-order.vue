@@ -176,7 +176,7 @@ async function onSubmit() {
     }
 
     const taskSpecsObj = {}
-    if (merchantInfo.value) taskSpecsObj.商家信息 = merchantInfo.value
+    if (merchantInfo.value) taskSpecsObj.商家 = merchantInfo.value
     const taskSpecsStr = Object.keys(taskSpecsObj).length > 0 ? JSON.stringify(taskSpecsObj) : undefined
 
     const bounty = showCustomBounty.value ? (customBounty.value || 0) : reward.value
