@@ -143,7 +143,7 @@ curl http://<宿主机IP>:8081/api/v3/api-docs
 
 ### 6.4 管理端登录
 
-- 默认超管账号：`admin` / `admin20260510`
+- 默认超管账号：`admin` / `admin`
 - 管理端 API 路径：`http://<宿主机IP>:8081/api/admin/**`
 
 ## 7. 停止服务
