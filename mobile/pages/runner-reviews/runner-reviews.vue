@@ -47,11 +47,14 @@
           <text v-for="t in review.tags" :key="t" class="review-tag">{{ t }}</text>
         </view>
 
-        <!-- 追加评价 -->
+        <!-- 追加评价（问答式嵌套展示） -->
         <view v-if="review.followUps && review.followUps.length" class="followups">
-          <view v-for="fu in review.followUps" :key="fu.reviewId" class="followup-item">
-            <text class="followup-text">{{ fu.reviewerNickname }}：{{ fu.content }}</text>
-            <text class="followup-time">{{ formatTime(fu.createdAt) }}</text>
+          <view v-for="fu in flattenThread(review)" :key="fu.reviewId" class="followup-item" :style="{ marginLeft: fu._depth * 40 + 'rpx' }">
+            <view class="followup-header">
+              <text class="followup-author">{{ fu.reviewerNickname || '对方' }}</text>
+              <text class="followup-time">{{ formatTime(fu.createdAt) }}</text>
+            </view>
+            <text class="followup-text">{{ fu.content }}</text>
           </view>
         </view>
 
@@ -124,6 +127,23 @@ function normalizeReview(raw) {
   }
 }
 
+/**
+ * 将嵌套追评树展平为带深度标记的列表
+ */
+function flattenThread(root) {
+  const items = []
+  function walk(review, depth) {
+    if (review.followUps && review.followUps.length) {
+      review.followUps.forEach(f => {
+        items.push({ ...f, _depth: depth })
+        walk(f, depth + 1)
+      })
+    }
+  }
+  walk(root, 1)
+  return items
+}
+
 function startReply(reviewId) {
   replyingTo.value = reviewId
   followUpText.value = ''
@@ -192,6 +212,8 @@ function onBack() { uni.navigateBack() }
 .followups{margin-top:16rpx;padding-top:16rpx;border-top:1rpx solid var(--outline-light)}
 .followup-item{display:flex;flex-direction:column;gap:4rpx;padding:12rpx 16rpx;background:var(--surface);border-radius:14rpx;margin-bottom:8rpx}
 .followup-item:last-child{margin-bottom:0}
+.followup-header{display:flex;align-items:center;gap:10rpx}
+.followup-author{font-size:22rpx;font-weight:600;color:var(--primary)}
 .followup-text{font-size:24rpx;color:var(--text-primary);line-height:1.5;word-break:break-all}
 .followup-time{font-size:20rpx;color:var(--text-tertiary)}
 

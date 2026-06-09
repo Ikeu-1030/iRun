@@ -108,7 +108,7 @@ public class OrderAutoCompleteChecker {
                             "您的任务 " + task.getTaskNo() + " 已超过24小时自动确认完成", order.getId());
                     notificationService.sendNotification(order.getRunnerId(),
                             StatusConstant.NOTICE_ORDER, "订单已自动完成",
-                            "您配送的任务 " + task.getTaskNo() + " 已自动确认完成，报酬已到账", order.getId());
+                            "您配送的任务 " + task.getTaskNo() + " 已自动确认完成", order.getId());
 
                     log.info("订单 {} 24h自动结算完成，报酬 {} 支付给跑腿员 {}", order.getId(), task.getReward(), order.getRunnerId());
                 } catch (InterruptedException e) {

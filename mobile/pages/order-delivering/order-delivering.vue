@@ -73,6 +73,10 @@
         <view v-if="merchantTag" class="package-tags">
           <text class="package-tag">商家：{{ merchantTag }}</text>
         </view>
+        <view v-if="itemExpress" class="package-tags">
+          <text class="package-tag">物品：{{ itemExpress.itemName }}</text>
+          <text class="package-tag" v-if="itemExpress.weight">重量：{{ itemExpress.weight }}</text>
+        </view>
         <text class="desc-text">{{ displayDescription }}</text>
       </view>
 
@@ -197,7 +201,7 @@ import { ref, computed } from 'vue'
 import { onLoad, onUnload } from '@dcloudio/uni-app'
 import { orderApi } from '@/api'
 import { TASK_TYPES, TASK_TYPE_META, TYPE_FROM_API, isQueueWaitType } from '@/utils/constants.js'
-import { parseTaskSpecs, parseExpressPackagesFromSpecs, parseShoppingItemsFromSpecs, parseBookCountFromSpecs, parsePrintSpecsFromSpecs, parseMerchantInfoFromSpecs } from '@/utils/campus-data.js'
+import { parseTaskSpecs, parseExpressPackagesFromSpecs, parseShoppingItemsFromSpecs, parseBookCountFromSpecs, parsePrintSpecsFromSpecs, parseMerchantInfoFromSpecs, parseItemExpressFromSpecs } from '@/utils/campus-data.js'
 import { useSubmitLock } from '@/utils/submit-guard'
 import UploadGrid from '@/components/upload-grid/upload-grid.vue'
 import { showToast } from '@/utils/toast'
@@ -399,6 +403,11 @@ const printSpecs = computed(() => {
 const merchantTag = computed(() => {
   if (taskTypeCode.value !== 2) return null
   return parseMerchantInfoFromSpecs(taskSpecs.value)
+})
+
+const itemExpress = computed(() => {
+  if (taskTypeCode.value !== 3) return null
+  return parseItemExpressFromSpecs(taskSpecs.value)
 })
 
 const stepItems = computed(() => {

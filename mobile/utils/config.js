@@ -19,19 +19,27 @@ try {
 
 const ENV = {
   develop: {
-    // 本地开发时后端在远程服务器，通过 ngrok 暴露
-    SERVER_ORIGIN: 'https://sedative-squishy-worry.ngrok-free.dev',
-    BASE_URL: 'https://sedative-squishy-worry.ngrok-free.dev/api',
-    WS_URL: 'wss://sedative-squishy-worry.ngrok-free.dev/api/ws'
+    // 本地开发
+    SERVER_ORIGIN: 'http://localhost:8080',
+    BASE_URL: 'http://localhost:8080/api',
+    WS_URL: 'ws://localhost:8080/api/ws'
+    // Ubuntu 内网穿透（需切换时取消下面注释）
+    // SERVER_ORIGIN: 'https://sedative-squishy-worry.ngrok-free.dev',
+    // BASE_URL: 'https://sedative-squishy-worry.ngrok-free.dev/api',
+    // WS_URL: 'wss://sedative-squishy-worry.ngrok-free.dev/api/ws'
   },
   trial: {
     // 测试环境 (ngrok 内网穿透)
     // SERVER_ORIGIN: 'https://test-api.runningerrands.com',
-    SERVER_ORIGIN: 'https://sedative-squishy-worry.ngrok-free.dev',
     // BASE_URL: 'https://test-api.runningerrands.com/api',
-    BASE_URL: 'https://sedative-squishy-worry.ngrok-free.dev/api',
-    // WS_URL: 'wss://test-api.runningerrands.com/api/ws',
-    WS_URL: 'wss://sedative-squishy-worry.ngrok-free.dev/api/ws'
+    // WS_URL: 'wss://test-api.runningerrands.com/api/ws'
+    SERVER_ORIGIN: 'http://localhost:8080',
+    BASE_URL: 'http://localhost:8080/api',
+    WS_URL: 'ws://localhost:8080/api/ws'
+    // Ubuntu 内网穿透（需切换时取消下面注释）
+    // SERVER_ORIGIN: 'https://sedative-squishy-worry.ngrok-free.dev',
+    // BASE_URL: 'https://sedative-squishy-worry.ngrok-free.dev/api',
+    // WS_URL: 'wss://sedative-squishy-worry.ngrok-free.dev/api/ws'
   },
   release: {
     SERVER_ORIGIN: 'https://api.runningerrands.com',
