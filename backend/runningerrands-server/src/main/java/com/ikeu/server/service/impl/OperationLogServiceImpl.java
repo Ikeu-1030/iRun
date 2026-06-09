@@ -15,8 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
-import static com.ikeu.common.constant.StatusConstant.ROLE_SUPER_ADMIN;
-
 /**
  * 操作日志服务实现，提供操作日志的分页条件查询。
  * 超管可查看所有日志，普通管理员仅可查看自己的日志。
