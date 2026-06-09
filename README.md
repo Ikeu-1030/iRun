@@ -85,7 +85,7 @@ mysql -u root -p < runningerrands.sql
 ./runningerrands-server/mvnw install -DskipTests
 ./runningerrands-server/mvnw spring-boot:run
 # 服务运行在 http://localhost:8080/api
-# 超管默认账号: admin / admin20260510
+# 超管默认账号: admin / admin
 ```
 
 ### 管理后台

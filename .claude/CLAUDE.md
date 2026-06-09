@@ -42,6 +42,7 @@ F:/ikeu_runningerrands/
 - **日志**: 操作日志用 `@OperationLog(module, action, description)`，参数支持 `#paramName` 占位符
 - **缓存**: 仪表盘用 Spring Cache（`RedisConstant.CACHE_DASHBOARD`），数据变更时 `@CacheEvict`
 - **SQL 同步**: 实体字段变更时同步更新 `runningerrands.sql`（CREATE TABLE + ALTER TABLE 语句）
+- **task_specs**: 任务规格存储为 JSON 列，key 统一使用中文（`包裹列表`、`商家`、`餐品`、`服务时长`、`服务截止时间` 等），禁止英文 key；`配送费` 由后端 `mergeTaskSpecs()` 注入，不作为独立列
 - **日志安全**: 不在日志中打印 token 明文、密码等敏感信息
 - **注释**: 采用JavaDoc注释，遵循阿里巴巴注释规范，类注释写明类的作用，标注作者(`@author`)和创建日期(`@since`)，方法注释注明方法逻辑，参数(`@param`)以及返回值(`@return`)，重要方法嵌入HTML标签详细描述
 
@@ -106,7 +107,7 @@ npx vite build         # 构建
 
 - 数据库名: `runningerrands`
 - 初始化: 执行 `runningerrands.sql`，`AdminInitializer` 启动时自动创建超管
-- 超管默认: `admin` / `admin20260510`（可通过 `runningerrands.admin.init.*` 配置覆盖）
+- 超管默认: `admin` / `admin`（可通过 `runningerrands.admin.init.*` 配置覆盖）
 - 密码存储: BCrypt（`PasswordConfiguration` → `BCryptPasswordEncoder`）
 
 ## 关键约定
