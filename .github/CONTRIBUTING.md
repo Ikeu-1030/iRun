@@ -5,6 +5,7 @@
 ```
 main    ← 只读，仅通过 PR 合并，禁止直接推送和强制推送
 master  ← 开发主分支，所有修改从此分支提交 PR 至 main
+pr/*    ← 您的pull分支，我们会定期查看拉取至master，也可以由您创建拉取请求至master
 feature/* ← 功能分支（可选，从 master 切出）
 ```
 
@@ -14,7 +15,7 @@ feature/* ← 功能分支（可选，从 master 切出）
 
 ## PR 流程
 
-1. 在 `master` 分支上完成开发和自测
+1. 在 `master` 分支上完成开发和自测/创建 `pr/*`完成自己的分支开发然后拉取请求至 `master`
 2. 确认变更通过代码审查（使用 `deep-code-reviewer` agent）
 3. 提交 PR 至 `main` 分支，使用 PR 模板填写完整信息
 4. 至少一名仓库管理员审查通过后方可合并
