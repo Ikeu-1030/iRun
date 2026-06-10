@@ -29,7 +29,7 @@ public class AdminInitializer implements ApplicationRunner {
     @Value("${runningerrands.admin.init.username:admin}")
     private String defaultUsername;
 
-    @Value("${runningerrands.admin.init.password:admin20260510}")
+    @Value("${runningerrands.admin.init.password:admin}")
     private String defaultPassword;
 
     @Value("${runningerrands.admin.init.name:系统管理员}")
