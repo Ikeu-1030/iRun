@@ -187,20 +187,6 @@ ALTER TABLE `task`
 ALTER TABLE `task`
     ADD INDEX `idx_task_hall` (`status`, `expire_time`, `created_at`);
 
--- 回填历史数据：从 task_specs JSON 提取配送费和商品费，反算小费
-UPDATE `task`
-SET `delivery_fee` = COALESCE(JSON_EXTRACT(`task_specs`, '$."配送费"'), 0),
-    `product_cost` = COALESCE(JSON_EXTRACT(`task_specs`, '$."预估商品费"'), 0),
-    `tip`          = `reward`
-        - COALESCE(JSON_EXTRACT(`task_specs`, '$."配送费"'), 0)
-        - COALESCE(JSON_EXTRACT(`task_specs`, '$."预估商品费"'), 0)
-WHERE `task_specs` IS NOT NULL;
-
--- 无 task_specs 的历史任务：全额记为小费
-UPDATE `task`
-SET `tip` = `reward`
-WHERE `task_specs` IS NULL;
-
 
 
 # ========================================== task_order表 ==========================================
