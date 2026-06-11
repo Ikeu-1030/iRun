@@ -42,8 +42,17 @@ public class OrderDetailVO implements Serializable {
     @Schema(description = "私密备注（仅发布者/接单员可见）")
     private String privateNote;
 
-    @Schema(description = "报酬")
+    @Schema(description = "报酬（合计）")
     private BigDecimal reward;
+
+    @Schema(description = "小费")
+    private BigDecimal tip;
+
+    @Schema(description = "配送费")
+    private BigDecimal deliveryFee;
+
+    @Schema(description = "预估商品费")
+    private BigDecimal productCost;
 
     @Schema(description = "订单状态")
     private Integer orderStatus;

@@ -42,8 +42,17 @@ public class TaskListVO implements Serializable {
     @Schema(name = "任务状态：1-待接单 2-已接单 3-配送中 4-待确认 5-已完成 6-已取消")
     private Integer status;
 
-    @Schema(name = "报酬")
+    @Schema(name = "报酬（合计）")
     private BigDecimal reward;
+
+    @Schema(name = "小费")
+    private BigDecimal tip;
+
+    @Schema(name = "配送费")
+    private BigDecimal deliveryFee;
+
+    @Schema(name = "预估商品费")
+    private BigDecimal productCost;
 
     @Schema(name = "取件地址")
     private String pickupAddress;

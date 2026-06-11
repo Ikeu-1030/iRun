@@ -1,0 +1,1 @@
+var e=`/api/logo.svg`;export{e as t};

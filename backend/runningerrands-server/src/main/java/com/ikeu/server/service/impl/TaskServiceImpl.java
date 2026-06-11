@@ -81,19 +81,13 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     }
 
     /**
-     * 合并任务规格JSON与配送费/商品费明细
+     * 确保 taskSpecs 不为空字符串，MyBatis-Plus 写入时需为有效 JSON。
      */
-    private String mergeTaskSpecs(String taskSpecs, BigDecimal deliveryFee, BigDecimal productCost) {
-        JSONObject json = (taskSpecs != null && !taskSpecs.isBlank())
-                ? JSONUtil.parseObj(taskSpecs)
-                : JSONUtil.createObj();
-        if (deliveryFee.compareTo(BigDecimal.ZERO) > 0) {
-            json.set("配送费", deliveryFee);
+    private String mergeTaskSpecs(String taskSpecs) {
+        if (taskSpecs != null && !taskSpecs.isBlank()) {
+            return taskSpecs;
         }
-        if (productCost.compareTo(BigDecimal.ZERO) > 0) {
-            json.set("预估商品费", productCost);
-        }
-        return json.toString();
+        return "{}";
     }
 
     /**
@@ -211,10 +205,10 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         if (user == null || Objects.equals(user.getStatus(), StatusConstant.DISABLE)) {
             throw new BusinessException(MessageConstant.USER_NOT_EXIST);
         }
-        // 计算合计支付金额（赏金 + 配送费 + 预估商品费）
+        // 计算合计支付金额（小费 + 配送费 + 预估商品费）
         BigDecimal deliveryFee = taskPublishDTO.getDeliveryFee() != null ? taskPublishDTO.getDeliveryFee() : BigDecimal.ZERO;
         BigDecimal productCost = taskPublishDTO.getProductCost() != null ? taskPublishDTO.getProductCost() : BigDecimal.ZERO;
-        BigDecimal totalAmount = taskPublishDTO.getReward().add(deliveryFee).add(productCost);
+        BigDecimal totalAmount = taskPublishDTO.getTip().add(deliveryFee).add(productCost);
 
         // 校验余额
         if (user.getBalance().compareTo(totalAmount) < 0) {
@@ -258,8 +252,11 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
         Task task = BeanUtil.copyProperties(taskPublishDTO, Task.class);
 
-        // reward 存储合计支付金额（赏金 + 配送费 + 预估商品费）
+        // reward 存储合计支付金额（小费 + 配送费 + 预估商品费）
         task.setReward(totalAmount);
+        task.setTip(taskPublishDTO.getTip());
+        task.setDeliveryFee(deliveryFee);
+        task.setProductCost(productCost);
 
         task.setTaskNo(taskNo);
         task.setPublisherId(userId);
@@ -268,9 +265,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             task.setSubType(taskPublishDTO.getSubType());
         }
 
-        // 合并 taskSpecs：将 deliveryFee 和 productCost 附加到 JSON 中供前端展示
-        String mergedSpecs = mergeTaskSpecs(taskPublishDTO.getTaskSpecs(), deliveryFee, productCost);
-        task.setTaskSpecs(mergedSpecs);
+        task.setTaskSpecs(mergeTaskSpecs(taskPublishDTO.getTaskSpecs()));
 
         if (taskPublishDTO.getImageUrls() != null) {
             task.setImageUrls(JSONUtil.toJsonStr(taskPublishDTO.getImageUrls()));

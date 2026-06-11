@@ -39,8 +39,17 @@ public class TaskDetailVO implements Serializable {
     @Schema(name = "私密备注")
     private String privateNote;
 
-    @Schema(name = "报酬")
+    @Schema(name = "报酬（合计）")
     private BigDecimal reward;
+
+    @Schema(name = "小费")
+    private BigDecimal tip;
+
+    @Schema(name = "配送费")
+    private BigDecimal deliveryFee;
+
+    @Schema(name = "预估商品费")
+    private BigDecimal productCost;
 
     @Schema(name = "取件地址")
     private String pickupAddress;

@@ -34,10 +34,10 @@ public class TaskPublishDTO implements Serializable {
     private String pickupCode;
 
     @NotNull
-    @DecimalMin(value = "0.0", message = "赏金不能为负数")
-    @DecimalMax(value = "50.0", message = "赏金最高不能超过50元")
-    @Schema(description = "赏金（跑腿员可获得的报酬，可为0）")
-    private BigDecimal reward;
+    @DecimalMin(value = "0.0", message = "小费不能为负数")
+    @DecimalMax(value = "50.0", message = "小费最高不能超过50元")
+    @Schema(description = "小费（跑腿员可获得的报酬，可为0）")
+    private BigDecimal tip;
 
     @DecimalMin(value = "0.0", message = "配送费不能为负数")
     @Schema(description = "配送费（基础配送费）")

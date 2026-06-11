@@ -59,9 +59,21 @@ public class Task implements Serializable {
     @TableField("pickup_code")
     private String pickupCode;
 
-    /** 报酬金额 */
+    /** 报酬金额（合计 = 小费 + 配送费 + 预估商品费） */
     @TableField("reward")
     private BigDecimal reward;
+
+    /** 小费 */
+    @TableField("tip")
+    private BigDecimal tip;
+
+    /** 配送费 */
+    @TableField("delivery_fee")
+    private BigDecimal deliveryFee;
+
+    /** 预估商品费 */
+    @TableField("product_cost")
+    private BigDecimal productCost;
 
     /** 取件地址 */
     @TableField("pickup_address")

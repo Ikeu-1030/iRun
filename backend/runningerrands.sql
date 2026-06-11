@@ -166,9 +166,7 @@ CREATE TABLE `task`
 ALTER TABLE `task`
     ADD COLUMN `require_sex` VARCHAR(2) DEFAULT '不限' COMMENT '要求接单人性别：男/女/不限' AFTER `pickup_code`;
 ALTER TABLE `task`
-    ADD COLUMN `task_specs` JSON DEFAULT NULL
-        COMMENT '任务规格JSON'
-        AFTER `sub_type`;
+    ADD COLUMN `task_specs` JSON DEFAULT NULL COMMENT '任务规格JSON' AFTER `sub_type`;
 ALTER TABLE `task`
     ADD COLUMN `contact_name` VARCHAR(32) DEFAULT '' COMMENT '收货联系人' AFTER `delivery_address`;
 ALTER TABLE `task`
@@ -179,10 +177,29 @@ ALTER TABLE `task`
     ADD COLUMN `public_desc` VARCHAR(256) DEFAULT '' COMMENT '任务公开描述' AFTER `sub_type`;
 ALTER TABLE `task`
     ADD COLUMN `private_note` VARCHAR(256) DEFAULT '' COMMENT '任务私密备注' AFTER `public_desc`;
+-- 费用明细拆分（小费 + 配送费 + 预估商品费 = reward）
+ALTER TABLE `task`
+    ADD COLUMN `tip`          DECIMAL(10, 2) NOT NULL DEFAULT 0 COMMENT '小费' AFTER `reward`,
+    ADD COLUMN `delivery_fee` DECIMAL(10, 2) NOT NULL DEFAULT 0 COMMENT '配送费' AFTER `tip`,
+    ADD COLUMN `product_cost` DECIMAL(10, 2) NOT NULL DEFAULT 0 COMMENT '预估商品费' AFTER `delivery_fee`;
 
 -- 任务大厅列表/搜索/筛选（覆盖 listTasksHall, searchTasks, filterTasks）
 ALTER TABLE `task`
     ADD INDEX `idx_task_hall` (`status`, `expire_time`, `created_at`);
+
+-- 回填历史数据：从 task_specs JSON 提取配送费和商品费，反算小费
+UPDATE `task`
+SET `delivery_fee` = COALESCE(JSON_EXTRACT(`task_specs`, '$."配送费"'), 0),
+    `product_cost` = COALESCE(JSON_EXTRACT(`task_specs`, '$."预估商品费"'), 0),
+    `tip`          = `reward`
+        - COALESCE(JSON_EXTRACT(`task_specs`, '$."配送费"'), 0)
+        - COALESCE(JSON_EXTRACT(`task_specs`, '$."预估商品费"'), 0)
+WHERE `task_specs` IS NOT NULL;
+
+-- 无 task_specs 的历史任务：全额记为小费
+UPDATE `task`
+SET `tip` = `reward`
+WHERE `task_specs` IS NULL;
 
 
 
@@ -334,7 +351,6 @@ ALTER TABLE `chat_message`
     ADD INDEX `idx_receiver_read_del` (`receiver_id`, `is_read`, `is_deleted`);
 
 
-
 # ========================================== task_image表 ==========================================
 DROP TABLE IF EXISTS `task_image`;
 CREATE TABLE IF NOT EXISTS `task_image`
@@ -342,8 +358,8 @@ CREATE TABLE IF NOT EXISTS `task_image`
     `id`         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     `task_id`    BIGINT UNSIGNED NOT NULL COMMENT '关联任务ID',
     `url`        VARCHAR(512)    NOT NULL COMMENT '图片URL',
-    `sort_order` TINYINT         DEFAULT 0 COMMENT '排序',
-    `created_at` DATETIME        DEFAULT CURRENT_TIMESTAMP,
+    `sort_order` TINYINT  DEFAULT 0 COMMENT '排序',
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     INDEX `idx_task_id` (`task_id`)
 ) COMMENT '任务图片表';
@@ -355,9 +371,9 @@ CREATE TABLE IF NOT EXISTS `task_image`
 DROP TABLE IF EXISTS `payment_idempotent`;
 CREATE TABLE IF NOT EXISTS `payment_idempotent`
 (
-    `id`                 BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    `idempotent_key`     VARCHAR(64)     NOT NULL,
-    `created_at`         DATETIME DEFAULT CURRENT_TIMESTAMP,
+    `id`             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `idempotent_key` VARCHAR(64)     NOT NULL,
+    `created_at`     DATETIME DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_idempotent_key` (`idempotent_key`)
@@ -375,12 +391,12 @@ CREATE TABLE `operation_log`
     `admin_name`     VARCHAR(32)     NOT NULL COMMENT '操作管理员姓名',
     `module`         VARCHAR(32)     NOT NULL COMMENT '操作模块',
     `action`         VARCHAR(32)     NOT NULL COMMENT '操作类型',
-    `description`    VARCHAR(255)             DEFAULT '' COMMENT '操作描述',
-    `request_method` VARCHAR(8)               DEFAULT '' COMMENT '请求方法',
-    `request_url`    VARCHAR(255)             DEFAULT '' COMMENT '请求URL',
-    `request_params` TEXT                      DEFAULT NULL COMMENT '请求参数',
-    `ip`             VARCHAR(45)              DEFAULT '' COMMENT '操作IP',
-    `created_at`     DATETIME                 DEFAULT CURRENT_TIMESTAMP,
+    `description`    VARCHAR(255) DEFAULT '' COMMENT '操作描述',
+    `request_method` VARCHAR(8)   DEFAULT '' COMMENT '请求方法',
+    `request_url`    VARCHAR(255) DEFAULT '' COMMENT '请求URL',
+    `request_params` TEXT         DEFAULT NULL COMMENT '请求参数',
+    `ip`             VARCHAR(45)  DEFAULT '' COMMENT '操作IP',
+    `created_at`     DATETIME     DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY (`id`),
     KEY `idx_admin` (`admin_id`),

@@ -28,7 +28,7 @@ feature/* ← 功能分支（可选，从 master 切出）
 <type>: <简短描述>
 
 feat: 新增跑腿员信用评分系统
-fix: 修复任务发布时赏金校验范围错误
+fix: 修复任务发布时小费校验范围错误
 docs: 更新 API 文档中的认证说明
 refactor: 抽取订单详情页共享 composable
 test: 为 TaskStateMachine 补充状态转换测试

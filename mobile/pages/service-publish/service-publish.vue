@@ -413,9 +413,9 @@
         </view>
         <template v-if="taskType === 4">
           <view class="form-label" style="margin-top:18rpx">预估商品费</view>
-          <view class="custom-bounty-row">
-            <text class="custom-bounty-unit">¥</text>
-            <input class="custom-bounty-input" name="digit" v-model.number="estimatedProductFee" placeholder="输入预估商品费用" />
+          <view class="custom-tip-row">
+            <text class="custom-tip-unit">¥</text>
+            <input class="custom-tip-input" name="digit" v-model.number="estimatedProductFee" placeholder="输入预估商品费用" />
           </view>
           <view class="info-hint" style="margin-top:12rpx">
             <iconpark-icon name="info" size="18" color="#FF6B4A" />
@@ -424,16 +424,16 @@
           <view class="fee-divider"></view>
         </template>
         <view class="fee-divider" v-if="taskType !== 4"></view>
-        <view class="form-label">赏金（提高接单率）</view>
-        <view class="chip-row bounty-chips">
-          <view class="chip" :class="{ 'chip--active': reward === 2 && !showCustomBounty }" @click="setReward(2)">¥2</view>
-          <view class="chip" :class="{ 'chip--active': reward === 5 && !showCustomBounty }" @click="setReward(5)">¥5</view>
-          <view class="chip" :class="{ 'chip--active': reward === 10 && !showCustomBounty }" @click="setReward(10)">¥10</view>
-          <view class="chip" :class="{ 'chip--active': showCustomBounty }" @click="toggleCustomReward">自定义</view>
+        <view class="form-label">小费（提高接单率）</view>
+        <view class="chip-row tip-chips">
+          <view class="chip" :class="{ 'chip--active': reward === 2 && !showCustomTip }" @click="setReward(2)">¥2</view>
+          <view class="chip" :class="{ 'chip--active': reward === 5 && !showCustomTip }" @click="setReward(5)">¥5</view>
+          <view class="chip" :class="{ 'chip--active': reward === 10 && !showCustomTip }" @click="setReward(10)">¥10</view>
+          <view class="chip" :class="{ 'chip--active': showCustomTip }" @click="toggleCustomReward">自定义</view>
         </view>
-        <view class="custom-bounty-row" v-if="showCustomBounty">
-          <text class="custom-bounty-unit">¥</text>
-          <input class="custom-bounty-input" name="digit" v-model.number="customBounty" placeholder="输入赏金金额" @input="onCustomBountyInput" />
+        <view class="custom-tip-row" v-if="showCustomTip">
+          <text class="custom-tip-unit">¥</text>
+          <input class="custom-tip-input" name="digit" v-model.number="customTip" placeholder="输入小费金额" @input="onCustomTipInput" />
         </view>
         <view class="fee-divider"></view>
         <view class="fee-row fee-row--total">
@@ -491,7 +491,7 @@ const deliveryContactName = ref('')
 const deliveryContactPhone = ref('')
 const requireSex = ref(undefined) // undefined=不限, '男'=仅男生, '女'=仅女生
 const reward = ref(0)
-const customBounty = ref(0)
+const customTip = ref(0)
 const uploadedUrls = ref([])
 const deadlineDate = ref('')
 const deadlineTime = ref('')
@@ -514,7 +514,7 @@ const privateFoodNote = ref('')
 const estimatedProductFee = ref(0)
 const productItems = ref([{ name: '', qty: 1 }])
 const { lock, unlock, locked: submitting } = useSubmitLock()
-const showCustomBounty = ref(false)
+const showCustomTip = ref(false)
 
 // 办事代排 subType=35 服务时长
 const serviceDurationOptions = [
@@ -570,9 +570,9 @@ const baseFee = computed(() => {
 })
 
 const totalReward = computed(() => {
-  const bounty = showCustomBounty.value ? customBounty.value || 0 : reward.value
+  const tip = showCustomTip.value ? customTip.value || 0 : reward.value
   const productFee = taskType.value === 4 ? (estimatedProductFee.value || 0) : 0
-  return baseFee.value + productFee + bounty
+  return baseFee.value + productFee + tip
 })
 
 const skipDelivery = computed(() => {
@@ -597,18 +597,18 @@ onLoad((options) => {
 })
 
 function setReward(val) {
-  showCustomBounty.value = false
+  showCustomTip.value = false
   reward.value = val
 }
 
 function toggleCustomReward() {
-  showCustomBounty.value = !showCustomBounty.value
-  if (showCustomBounty.value && customBounty.value === 0) {
-    customBounty.value = reward.value
+  showCustomTip.value = !showCustomTip.value
+  if (showCustomTip.value && customTip.value === 0) {
+    customTip.value = reward.value
   }
 }
 
-function onCustomBountyInput() { /* 自定义赏金由 totalReward 计算 */ }
+function onCustomTipInput() { /* 自定义小费由 totalReward 计算 */ }
 
 function onRestaurantChange(e) {
   pickupAddress.value = restaurants[Number(e.detail.value)]
@@ -774,7 +774,7 @@ async function onSubmit() {
   }
 
   // 弹出支付密码输入框（发布任务需付款）
-  const pw = await promptPayPassword('支付赏金')
+  const pw = await promptPayPassword('支付小费')
   if (!pw) return
 
   if (!lock()) return
@@ -873,7 +873,7 @@ async function onSubmit() {
       privateNote = undefined
     }
 
-    const bounty = showCustomBounty.value ? (customBounty.value || 0) : reward.value
+    const tip = showCustomTip.value ? (customTip.value || 0) : reward.value
     const productFee = taskType.value === 4 ? (estimatedProductFee.value || 0) : 0
 
     const payload = {
@@ -882,7 +882,7 @@ async function onSubmit() {
       publicDesc: publicDesc || undefined,
       privateNote: privateNote || undefined,
       taskSpecs: taskSpecsStr || undefined,
-      reward: parseFloat(Number(bounty).toFixed(2)),
+      tip: parseFloat(Number(tip).toFixed(2)),
       deliveryFee: taskType.value === 3 && subType.value === 35 ? 0 : baseFee.value,
       productCost: parseFloat(Number(productFee).toFixed(2)),
       payPassword: pw,
@@ -957,9 +957,9 @@ async function onSubmit() {
 .fee-value{font-size:28rpx;font-weight:600;color:var(--text-secondary)}
 .fee-total{font-size:38rpx;font-weight:700;color:var(--primary)}
 .fee-divider{height:1rpx;background:rgba(0,0,0,.04);margin:20rpx 0}
-.custom-bounty-row{display:flex;align-items:center;margin-top:16rpx;background:var(--surface);border-radius:20rpx;padding:14rpx 24rpx}
-.custom-bounty-unit{font-size:32rpx;font-weight:700;color:var(--primary);margin-right:8rpx}
-.custom-bounty-input{flex:1;font-size:28rpx;color:var(--text-primary);background:transparent}
+.custom-tip-row{display:flex;align-items:center;margin-top:16rpx;background:var(--surface);border-radius:20rpx;padding:14rpx 24rpx}
+.custom-tip-unit{font-size:32rpx;font-weight:700;color:var(--primary);margin-right:8rpx}
+.custom-tip-input{flex:1;font-size:28rpx;color:var(--text-primary);background:transparent}
 
 .time-picker-row{display:flex;gap:16rpx}
 .form-select--half{flex:1}

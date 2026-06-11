@@ -57,16 +57,16 @@
         <view class="card-title">费用明细</view>
         <view class="fee-row"><text class="fee-label">基础配送费</text><text class="fee-value">¥ {{ baseFee.toFixed(2) }}</text></view>
         <view class="fee-divider"></view>
-        <view class="form-label">赏金（提高接单率）</view>
+        <view class="form-label">小费（提高接单率）</view>
         <view class="chip-row">
-          <view class="chip" :class="{ 'chip--active': reward === 2 && !showCustomBounty }" @click="setReward(2)">¥2</view>
-          <view class="chip" :class="{ 'chip--active': reward === 5 && !showCustomBounty }" @click="setReward(5)">¥5</view>
-          <view class="chip" :class="{ 'chip--active': reward === 10 && !showCustomBounty }" @click="setReward(10)">¥10</view>
-          <view class="chip" :class="{ 'chip--active': showCustomBounty }" @click="toggleCustomReward">自定义</view>
+          <view class="chip" :class="{ 'chip--active': reward === 2 && !showCustomTip }" @click="setReward(2)">¥2</view>
+          <view class="chip" :class="{ 'chip--active': reward === 5 && !showCustomTip }" @click="setReward(5)">¥5</view>
+          <view class="chip" :class="{ 'chip--active': reward === 10 && !showCustomTip }" @click="setReward(10)">¥10</view>
+          <view class="chip" :class="{ 'chip--active': showCustomTip }" @click="toggleCustomReward">自定义</view>
         </view>
-        <view class="custom-bounty-row" v-if="showCustomBounty">
-          <text class="custom-bounty-unit">¥</text>
-          <input class="custom-bounty-input" name="digit" v-model.number="customBounty" placeholder="输入赏金金额" />
+        <view class="custom-tip-row" v-if="showCustomTip">
+          <text class="custom-tip-unit">¥</text>
+          <input class="custom-tip-input" name="digit" v-model.number="customTip" placeholder="输入小费金额" />
         </view>
         <view class="fee-divider"></view>
         <view class="fee-row fee-row--total"><text class="fee-label">合计支付</text><text class="fee-total">¥ {{ totalPrice.toFixed(2) }}</text></view>
@@ -105,8 +105,8 @@ const pickupCode = ref('')
 const description = ref('')
 const uploadedUrls = ref([])
 const reward = ref(0)
-const customBounty = ref(0)
-const showCustomBounty = ref(false)
+const customTip = ref(0)
+const showCustomTip = ref(false)
 const deliveryAddressId = ref(null)
 const deliveryLabel = ref('')
 const deliveryContactName = ref('')
@@ -116,8 +116,8 @@ const submitting = ref(false)
 
 const baseFee = 5
 const totalPrice = computed(() => {
-  const bounty = showCustomBounty.value ? customBounty.value || 0 : reward.value
-  return baseFee + bounty
+  const tip = showCustomTip.value ? customTip.value || 0 : reward.value
+  return baseFee + tip
 })
 
 function onPickupLocationChange(e) {
@@ -125,14 +125,14 @@ function onPickupLocationChange(e) {
 }
 
 function setReward(val) {
-  showCustomBounty.value = false
+  showCustomTip.value = false
   reward.value = val
 }
 
 function toggleCustomReward() {
-  showCustomBounty.value = !showCustomBounty.value
-  if (showCustomBounty.value && customBounty.value === 0) {
-    customBounty.value = reward.value || 5
+  showCustomTip.value = !showCustomTip.value
+  if (showCustomTip.value && customTip.value === 0) {
+    customTip.value = reward.value || 5
   }
 }
 
@@ -166,7 +166,7 @@ async function onSubmit() {
     return
   }
 
-  const pw = await promptPayPassword('支付赏金')
+  const pw = await promptPayPassword('支付小费')
   if (!pw) return
   submitting.value = true
   try {
@@ -179,14 +179,14 @@ async function onSubmit() {
     if (merchantInfo.value) taskSpecsObj.商家 = merchantInfo.value
     const taskSpecsStr = Object.keys(taskSpecsObj).length > 0 ? JSON.stringify(taskSpecsObj) : undefined
 
-    const bounty = showCustomBounty.value ? (customBounty.value || 0) : reward.value
+    const tip = showCustomTip.value ? (customTip.value || 0) : reward.value
 
     await taskApi.publishTask({
       type: TYPE_TO_API[2], subType: SUBTYPE_TO_VALUE[23],
       publicDesc: description.value || undefined,
       taskSpecs: taskSpecsStr,
       pickupCode: pickupCode.value || undefined,
-      reward: parseFloat(Number(bounty).toFixed(2)),
+      tip: parseFloat(Number(tip).toFixed(2)),
       deliveryFee: baseFee,
       productCost: 0,
       payPassword: pw,
@@ -255,9 +255,9 @@ function onBack() { uni.navigateBack() }
 .fee-value{font-size:28rpx;font-weight:600;color:var(--text-secondary)}
 .fee-total{font-size:38rpx;font-weight:700;color:var(--primary)}
 .fee-divider{height:1rpx;background:rgba(0,0,0,.04);margin:20rpx 0}
-.custom-bounty-row{display:flex;align-items:center;margin-top:16rpx;background:var(--surface);border-radius:20rpx;padding:14rpx 24rpx}
-.custom-bounty-unit{font-size:32rpx;font-weight:700;color:var(--primary);margin-right:8rpx}
-.custom-bounty-input{flex:1;font-size:28rpx;color:var(--text-primary);background:transparent}
+.custom-tip-row{display:flex;align-items:center;margin-top:16rpx;background:var(--surface);border-radius:20rpx;padding:14rpx 24rpx}
+.custom-tip-unit{font-size:32rpx;font-weight:700;color:var(--primary);margin-right:8rpx}
+.custom-tip-input{flex:1;font-size:28rpx;color:var(--text-primary);background:transparent}
 .bottom-bar{position:fixed;bottom:0;left:0;width:100%;background:var(--surface-raised);border-top:1rpx solid rgba(0,0,0,.06);padding:20rpx 32rpx;box-sizing:border-box;box-shadow:var(--shadow-md);z-index:50;padding-bottom:calc(20rpx + env(safe-area-inset-bottom))}
 .bottom-bar-row{display:flex;align-items:center;justify-content:space-between;gap:28rpx}
 .bottom-total{flex-shrink:0}
