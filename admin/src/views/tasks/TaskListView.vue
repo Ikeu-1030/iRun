@@ -22,7 +22,7 @@
               :style="{ color: taskTypeStyle(row.type).color, background: taskTypeStyle(row.type).bgColor }"
             >
               <el-icon class="task-type-label-icon"><component :is="taskTypeStyle(row.type).icon" /></el-icon>
-              {{ row.type }}
+              {{ taskTypeLabel(row.type) }}
             </span>
           </template>
         </el-table-column>
@@ -112,14 +112,28 @@ const validNextStatuses = computed(() => {
   return TASK_STATE_MACHINE[statusDialog.currentStatus] ?? []
 })
 
-const taskTypeStyleMap: Record<string, { color: string; bgColor: string; icon: any }> = {
-  '代取快递': { color: '#E8734A', bgColor: '#FFF2ED', icon: Box },
-  '代拿餐食': { color: '#2EB89E', bgColor: '#EDFAF7', icon: KnifeFork },
-  '校内代办': { color: '#5B9BD5', bgColor: '#EFF5FB', icon: Document },
-  '代购物品': { color: '#8B6BAE', bgColor: '#F6F1FA', icon: ShoppingCart },
-  '通用代办': { color: '#C8925D', bgColor: '#FDF3EB', icon: MoreFilled },
+const taskTypeLabelMap: Record<string, string> = {
+  '代取快递': '代取快递', 'daiqukuaidi': '代取快递',
+  '代拿餐食': '代拿餐食', 'dana canshi': '代拿餐食',
+  '校内代办': '校内代办', 'xiaonei daiban': '校内代办',
+  '代购物品': '代购物品', 'daigou wupin': '代购物品',
+  '通用代办': '通用代办', 'tongyong daiban': '通用代办',
 }
 
+const taskTypeStyleMap: Record<string, { color: string; bgColor: string; icon: any }> = {
+  '代取快递': { color: '#E8734A', bgColor: '#FFF2ED', icon: Box },
+  'daiqukuaidi': { color: '#E8734A', bgColor: '#FFF2ED', icon: Box },
+  '代拿餐食': { color: '#2EB89E', bgColor: '#EDFAF7', icon: KnifeFork },
+  'dana canshi': { color: '#2EB89E', bgColor: '#EDFAF7', icon: KnifeFork },
+  '校内代办': { color: '#5B9BD5', bgColor: '#EFF5FB', icon: Document },
+  'xiaonei daiban': { color: '#5B9BD5', bgColor: '#EFF5FB', icon: Document },
+  '代购物品': { color: '#8B6BAE', bgColor: '#F6F1FA', icon: ShoppingCart },
+  'daigou wupin': { color: '#8B6BAE', bgColor: '#F6F1FA', icon: ShoppingCart },
+  '通用代办': { color: '#C8925D', bgColor: '#FDF3EB', icon: MoreFilled },
+  'tongyong daiban': { color: '#C8925D', bgColor: '#FDF3EB', icon: MoreFilled },
+}
+
+function taskTypeLabel(type: string) { return taskTypeLabelMap[type] || type }
 function taskTypeStyle(type: string) {
   return taskTypeStyleMap[type] ?? { color: '#909399', bgColor: '#F5F5F5', icon: Document }
 }

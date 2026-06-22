@@ -7,7 +7,7 @@
 
 interface ExpressPackage {
   规格: string
-  费用: number
+  费用?: number
   数量: number
 }
 
@@ -56,7 +56,10 @@ export function parseTaskSpecsForAdmin(specsStr: string | null | undefined): str
 
   // 代取快递 - 包裹列表
   if (specs.包裹列表 && specs.包裹列表.length > 0) {
-    const pkgText = specs.包裹列表.map(p => `${p.规格} x${p.数量} (¥${p.费用})`).join(', ')
+    const pkgText = specs.包裹列表.map(p => {
+      const fee = p.费用 != null ? ` (¥${p.费用})` : ''
+      return `${p.规格} x${p.数量}${fee}`
+    }).join(', ')
     parts.push(`包裹: ${pkgText}`)
   }
 
