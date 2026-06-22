@@ -20,10 +20,10 @@
             <span v-else>-</span>
           </el-descriptions-item>
           <el-descriptions-item label="昵称">{{ user.nickname }}</el-descriptions-item>
-          <el-descriptions-item label="手机号">{{ user.phone }}</el-descriptions-item>
+          <el-descriptions-item label="手机号">{{ isSuperAdmin ? (user.phone || '-') : maskPhone(user.phone) }}</el-descriptions-item>
           <el-descriptions-item label="性别">{{ user.sex || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="真实姓名">{{ user.realName || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="学号">{{ user.studentId || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="真实姓名">{{ isSuperAdmin ? (user.realName || '-') : maskName(user.realName) }}</el-descriptions-item>
+          <el-descriptions-item label="学号">{{ isSuperAdmin ? (user.studentId || '-') : (user.studentId ? '****' + user.studentId.slice(-3) : '-') }}</el-descriptions-item>
           <el-descriptions-item label="学院">{{ user.campus || '-' }}</el-descriptions-item>
           <el-descriptions-item label="个性签名" :span="2">{{ user.signature || '-' }}</el-descriptions-item>
         </el-descriptions>
@@ -89,12 +89,25 @@ import { onMounted, ref, computed, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { Picture, InfoFilled, Checked, DataBoard } from '@element-plus/icons-vue'
 import { getUserDetail } from '@/api/users'
+import { useAuthStore } from '@/stores/auth'
 
 const route = useRoute()
+const authStore = useAuthStore()
+const isSuperAdmin = computed(() => authStore.adminInfo?.role === 1)
 const userId = ref(Number(route.params.id))
 const user = ref<any>(null)
 const loading = ref(false)
 const entered = ref(false)
+
+function maskPhone(phone: string | null | undefined): string {
+  if (!phone || phone.length < 7) return phone || '-'
+  return phone.slice(0, 3) + '****' + phone.slice(-4)
+}
+
+function maskName(name: string | null | undefined): string {
+  if (!name || name.length < 2) return name || '-'
+  return name.slice(0, 1) + '*'
+}
 
 const certifyImages = computed(() => {
   if (!user.value?.certifyImg) return []

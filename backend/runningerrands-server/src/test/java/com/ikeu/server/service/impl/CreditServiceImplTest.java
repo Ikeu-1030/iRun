@@ -80,7 +80,7 @@ class CreditServiceImplTest {
         creditService.processCreditOnComplete(1L);
 
         verify(creditLogMapper, never()).insert(any());
-        verify(runnerProfileMapper, never()).updateCreditScoreAndFreeze(anyLong(), anyInt(), anyInt(), anyInt());
+        verify(runnerProfileMapper, never()).updateCreditScoreAndFreeze(anyLong(), anyInt(), anyInt(), anyInt(), anyInt());
     }
 
     // ========== processCreditOnComplete — 各时段 ==========
@@ -113,7 +113,8 @@ class CreditServiceImplTest {
 
         verify(runnerProfileMapper).updateCreditScoreAndFreeze(
                 eq(100L), eq(CreditConstant.REWARD_EARLY),
-                eq(CreditConstant.CREDIT_FREEZE_THRESHOLD), eq(CreditConstant.CREDIT_FREEZE_DAYS));
+                eq(CreditConstant.CREDIT_FREEZE_THRESHOLD), eq(CreditConstant.CREDIT_FREEZE_DAYS),
+                eq(CreditConstant.CREDIT_MAX));
     }
 
     @Test
@@ -254,7 +255,8 @@ class CreditServiceImplTest {
         assertNull(creditLog.getRelatedOrderId());
 
         verify(runnerProfileMapper).updateCreditScoreAndFreeze(
-                eq(100L), eq(-10), eq(CreditConstant.CREDIT_FREEZE_THRESHOLD), eq(CreditConstant.CREDIT_FREEZE_DAYS));
+                eq(100L), eq(-10), eq(CreditConstant.CREDIT_FREEZE_THRESHOLD), eq(CreditConstant.CREDIT_FREEZE_DAYS),
+                eq(CreditConstant.CREDIT_MAX));
     }
 
     // ========== addCredit ==========
@@ -315,7 +317,8 @@ class CreditServiceImplTest {
 
         // freezeDays passed to SQL; freeze logic now computed atomically in DB
         verify(runnerProfileMapper).updateCreditScoreAndFreeze(
-                eq(100L), eq(-10), eq(CreditConstant.CREDIT_FREEZE_THRESHOLD), eq(CreditConstant.CREDIT_FREEZE_DAYS));
+                eq(100L), eq(-10), eq(CreditConstant.CREDIT_FREEZE_THRESHOLD), eq(CreditConstant.CREDIT_FREEZE_DAYS),
+                eq(CreditConstant.CREDIT_MAX));
     }
 
     @Test
@@ -339,7 +342,8 @@ class CreditServiceImplTest {
 
         // freeze logic now computed atomically in SQL
         verify(runnerProfileMapper).updateCreditScoreAndFreeze(
-                eq(100L), eq(10), eq(CreditConstant.CREDIT_FREEZE_THRESHOLD), eq(CreditConstant.CREDIT_FREEZE_DAYS));
+                eq(100L), eq(10), eq(CreditConstant.CREDIT_FREEZE_THRESHOLD), eq(CreditConstant.CREDIT_FREEZE_DAYS),
+                eq(CreditConstant.CREDIT_MAX));
     }
 
     // ========== 分数下限 ==========

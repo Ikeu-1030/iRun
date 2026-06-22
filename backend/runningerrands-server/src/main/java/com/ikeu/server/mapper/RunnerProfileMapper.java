@@ -34,27 +34,29 @@ public interface RunnerProfileMapper extends BaseMapper<RunnerProfile> {
      * 回到阈值以上时仅清除由信用分冻结触发的封禁（ban_until IS NOT NULL）。
      * ban_until 完全在 SQL 内计算，消除 TOCTOU 竞态。
      *
-     * @param userId 用户ID
-     * @param delta 信用分增量（可为负数）
+     * @param userId          用户ID
+     * @param delta           信用分增量（可为负数）
      * @param freezeThreshold 冻结阈值（低于该值触发冻结）
-     * @param freezeDays 冻结天数
+     * @param freezeDays      冻结天数
+     * @param maxScore        信用分上限（通常为100）
      */
     @Update("UPDATE runner_profile SET " +
-            "credit_score = GREATEST(0, credit_score + #{delta}), " +
+            "credit_score = LEAST(#{maxScore}, GREATEST(0, credit_score + #{delta})), " +
             "is_banned = CASE " +
-            "WHEN GREATEST(0, credit_score + #{delta}) < #{freezeThreshold} THEN 1 " +
-            "WHEN GREATEST(0, credit_score + #{delta}) >= #{freezeThreshold} AND is_banned = 1 AND ban_until IS NOT NULL THEN 0 " +
+            "WHEN LEAST(#{maxScore}, GREATEST(0, credit_score + #{delta})) < #{freezeThreshold} THEN 1 " +
+            "WHEN LEAST(#{maxScore}, GREATEST(0, credit_score + #{delta})) >= #{freezeThreshold} AND is_banned = 1 AND ban_until IS NOT NULL THEN 0 " +
             "ELSE is_banned END, " +
             "ban_until = CASE " +
-            "WHEN GREATEST(0, credit_score + #{delta}) < #{freezeThreshold} THEN " +
+            "WHEN LEAST(#{maxScore}, GREATEST(0, credit_score + #{delta})) < #{freezeThreshold} THEN " +
             "  CASE WHEN is_banned = 1 AND ban_until IS NOT NULL AND ban_until > NOW() THEN ban_until " +
             "       ELSE DATE_ADD(NOW(), INTERVAL #{freezeDays} DAY) END " +
-            "WHEN GREATEST(0, credit_score + #{delta}) >= #{freezeThreshold} AND is_banned = 1 AND ban_until IS NOT NULL THEN NULL " +
+            "WHEN LEAST(#{maxScore}, GREATEST(0, credit_score + #{delta})) >= #{freezeThreshold} AND is_banned = 1 AND ban_until IS NOT NULL THEN NULL " +
             "ELSE ban_until END " +
             "WHERE user_id = #{userId}")
     void updateCreditScoreAndFreeze(@Param("userId") Long userId, @Param("delta") int delta,
                                     @Param("freezeThreshold") int freezeThreshold,
-                                    @Param("freezeDays") int freezeDays);
+                                    @Param("freezeDays") int freezeDays,
+                                    @Param("maxScore") int maxScore);
 
     /**
      * 原子恢复信用分并解冻（仅对冻结期满的跑腿员生效）。

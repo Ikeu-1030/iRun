@@ -49,10 +49,12 @@ public class JwtTokenAdminInterceptor implements HandlerInterceptor {
             log.debug("管理端 jwt 校验, token length: {}", token.length());
             Claims claims = jwtUtil.parseAdminAccessToken(token);
             Long adminId = jwtUtil.getAdminIdFromClaims(claims);
+            Integer role = claims.get("role", Integer.class);
             log.info("当前管理员 id: {}", adminId);
 
             // 3. 存入 ThreadLocal，供后续请求处理使用
             BaseContext.setCurrentId(adminId);
+            if (role != null) BaseContext.setCurrentRole(role);
             return true;
         } catch (Exception e) {
             log.error("管理端 token 校验失败: {}", e.getMessage());

@@ -174,6 +174,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .nickname("用户" + userRegisterDTO.getPhone().substring(7))
                 .avatarUrl(DEFAULT_AVATAR_URL)
                 .balance(BigDecimal.ZERO)
+                .registerType(1) // 手机号注册
                 .status(StatusConstant.ENABLE)
                 .isCertify(StatusConstant.NO)
                 .createdAt(LocalDateTime.now())
@@ -227,6 +228,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             }
             // 微信注册用户（registerType=2）禁止密码登录，仅允许验证码或微信OAuth登录
             if (user.getRegisterType() != null && user.getRegisterType() == 2) {
+                throw new UnauthorizedException(MessageConstant.WECHAT_USER_NO_PASSWORD);
+            }
+            if (user.getPassword() == null) {
                 throw new UnauthorizedException(MessageConstant.WECHAT_USER_NO_PASSWORD);
             }
             if (!passwordEncoder.matches(userLoginDTO.getPassword(), user.getPassword())) {
@@ -362,9 +366,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new UnauthorizedException(MessageConstant.USER_NOT_LOGIN);
         }
         String pattern = RedisConstant.USER_REFRESH_TOKEN_PREFIX + userId + ":*";
-        var keys = redisTemplate.keys(pattern);
-        if (keys != null && !keys.isEmpty()) {
-            redisTemplate.delete(keys);
+        try (var cursor = redisTemplate.scan(org.springframework.data.redis.core.ScanOptions.scanOptions()
+                .match(pattern).count(100).build())) {
+            while (cursor.hasNext()) {
+                redisTemplate.delete(cursor.next());
+            }
         }
         log.info("用户 {} 退出登录，已清除 refresh token", userId);
     }

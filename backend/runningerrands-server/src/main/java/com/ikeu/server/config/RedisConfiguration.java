@@ -2,7 +2,7 @@ package com.ikeu.server.config;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.ikeu.common.constant.RedisConstant;
 import com.ikeu.common.json.JacksonObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -68,8 +68,13 @@ public class RedisConfiguration {
         log.info("开始创建Redis缓存管理器...");
 
         JacksonObjectMapper mapper = new JacksonObjectMapper();
-        mapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance,
-                ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+        var ptv = BasicPolymorphicTypeValidator.builder()
+                .allowIfSubType("com.ikeu.model.")
+                .allowIfSubType("java.util.")
+                .allowIfSubType("java.math.")
+                .allowIfSubType("java.time.")
+                .build();
+        mapper.activateDefaultTyping(ptv, ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
 
         Jackson2JsonRedisSerializer<Object> serializer = new Jackson2JsonRedisSerializer<>(mapper, Object.class);
 

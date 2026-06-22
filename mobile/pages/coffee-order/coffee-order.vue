@@ -172,6 +172,10 @@ async function onSubmit() {
     uni.showToast({ title: '请输入取餐地点', icon: 'none' })
     return
   }
+  if (!description.value) {
+    uni.showToast({ title: '请填写商品详情', icon: 'none' })
+    return
+  }
   if (!deliveryAddressId.value) {
     uni.showToast({ title: '请选择配送地址', icon: 'none' })
     return

@@ -47,7 +47,9 @@ public class TaskPublishDTO implements Serializable {
     @Schema(description = "预估商品费（代购类任务的商品费用）")
     private BigDecimal productCost;
 
-    @Schema(description = "取件地址（可不填，默认'无需取件'）")
+    @NotBlank(message = "取件地址不能为空")
+    @Size(max = 255, message = "取件地址最长255个字符")
+    @Schema(description = "取件地址")
     private String pickupAddress;
 
     @Schema(description = "取件地址经度")

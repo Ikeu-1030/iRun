@@ -190,12 +190,11 @@ async function loadData() {
   statCards.value.forEach((card, i) => {
     const el = countRefs.value[i]
     if (el && card.raw > 0) {
-      gsap.from(el, {
-        innerText: 0, duration: 1.2, ease: 'power2.out',
-        snap: { innerText: 1 },
+      const obj = { val: 0 }
+      gsap.to(obj, {
+        val: card.raw, duration: 1.2, ease: 'power2.out',
         onUpdate() {
-          const v = Math.round(Number(el.innerText))
-          el.innerText = card.value
+          el.innerText = formatNum(Math.round(obj.val))
         },
       })
     }

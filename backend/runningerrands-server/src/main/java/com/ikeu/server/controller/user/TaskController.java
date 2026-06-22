@@ -13,10 +13,12 @@ import com.ikeu.server.annotation.RequireCertify;
 import com.ikeu.server.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
-
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 
 /**
@@ -28,6 +30,7 @@ import java.math.BigDecimal;
 @RestController
 @RequestMapping("/task")
 @RequiredArgsConstructor
+@Validated
 public class TaskController {
 
     private final TaskService taskService;
@@ -75,8 +78,8 @@ public class TaskController {
             @RequestParam(required = false) BigDecimal maxReward,
             @RequestParam(required = false) BigDecimal lng,
             @RequestParam(required = false) BigDecimal lat,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "1") @Min(1) int page,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size) {
         PageResult<TaskListVO> result = taskService.listTasksHall(type, subType, minReward, maxReward, lng, lat, page, size);
         return Result.success(result);
     }
@@ -96,8 +99,8 @@ public class TaskController {
     @GetMapping("/mine")
     public Result<PageResult<TaskListVO>> myPublished(
             @RequestParam(required = false) Integer status,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "1") @Min(1) int page,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size) {
         Long userId = BaseContext.getCurrentId();
         return Result.success(taskService.listMyPublishedTasks(userId, status, page, size));
     }
@@ -160,8 +163,8 @@ public class TaskController {
             @RequestParam(required = false) String type,
             @RequestParam(required = false) BigDecimal minReward,
             @RequestParam(required = false) BigDecimal maxReward,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "1") @Min(1) int page,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size) {
         return Result.success(taskService.searchTasks(keyword, type, minReward, maxReward, page, size));
     }
 
@@ -190,8 +193,8 @@ public class TaskController {
             @RequestParam(required = false) String requireSex,
             @RequestParam(required = false) BigDecimal minReward,
             @RequestParam(required = false) BigDecimal maxReward,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "1") @Min(1) int page,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size) {
         return Result.success(taskService.filterTasks(type, pickupAddress, deliveryAddress,
                 requireSex, minReward, maxReward, page, size));
     }
@@ -215,8 +218,8 @@ public class TaskController {
             @RequestParam BigDecimal lng,
             @RequestParam BigDecimal lat,
             @RequestParam(defaultValue = "5") Double radiusKm,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "1") @Min(1) int page,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size) {
         return Result.success(taskService.listTasksNearby(lng, lat, radiusKm, page, size));
     }
 

@@ -1,11 +1,13 @@
 <script>
 import { classifyError, isErrorType, ErrorType } from '@/utils/error'
 import { showToast } from '@/utils/toast'
+import { refreshBanners } from '@/utils/banner-cache.js'
 
 export default {
   onLaunch() {
     console.log('App Launch')
     this.setupGlobalErrorHandler()
+    refreshBanners()
   },
   onShow() {
     console.log('App Show')

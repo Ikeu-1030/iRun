@@ -12,6 +12,9 @@ public final class CreditConstant {
     /** 初始信用分 */
     public static final int CREDIT_INITIAL = 100;
 
+    /** 信用分上限 */
+    public static final int CREDIT_MAX = 100;
+
     /** 冻结阈值（低于该值触发冻结，恢复时也恢复至此值） */
     public static final int CREDIT_FREEZE_THRESHOLD = 60;
 

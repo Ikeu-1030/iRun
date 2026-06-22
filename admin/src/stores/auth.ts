@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { getAdminToken, setAdminToken, removeAdminToken, setAdminRefreshToken, removeAdminRefreshToken } from '@/utils/request'
+import { getAdminToken, setAdminToken, removeAdminToken, setAdminRefreshToken, removeAdminRefreshToken } from '@/utils/tokenStore'
 import { getAdminInfo } from '@/api/auth'
 import router from '@/router'
 

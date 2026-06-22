@@ -538,12 +538,14 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             paymentService.refundForTask(userId, taskId, task.getReward());
             log.info("任务 {} 已取消，退款 {} 元给用户 {}", taskId, task.getReward(), userId);
 
-            // 事务提交后清除缓存
+            // 事务提交后清除缓存（含空结果标记）
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override
                 public void afterCommit() {
                     Objects.requireNonNull(cacheManager.getCache(RedisConstant.CACHE_TASK_HALL)).clear();
                     Objects.requireNonNull(cacheManager.getCache(RedisConstant.CACHE_TASK_DETAIL)).clear();
+                    var nullKeys = stringRedisTemplate.keys(RedisConstant.TASK_HALL_NULL_PREFIX + "*");
+                    if (nullKeys != null && !nullKeys.isEmpty()) stringRedisTemplate.delete(nullKeys);
                 }
             });
         } catch (InterruptedException e) {

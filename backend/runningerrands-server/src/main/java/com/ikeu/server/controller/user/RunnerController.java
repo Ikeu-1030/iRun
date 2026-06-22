@@ -12,7 +12,10 @@ import com.ikeu.server.service.RunnerProfileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +29,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/runner")
 @RequiredArgsConstructor
+@Validated
 public class RunnerController {
 
     private final RunnerProfileService runnerProfileService;
@@ -130,7 +134,7 @@ public class RunnerController {
     @GetMapping("/leaderboard")
     public Result<List<RunnerRankingVO>> leaderboard(
             @RequestParam(defaultValue = "orders") String sortBy,
-            @RequestParam(defaultValue = "10") int limit) {
+            @RequestParam(defaultValue = "10") @Min(1) @Max(100) int limit) {
         return Result.success(runnerProfileService.getLeaderboard(sortBy, limit));
     }
 

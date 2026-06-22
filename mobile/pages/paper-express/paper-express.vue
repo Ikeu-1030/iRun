@@ -228,7 +228,7 @@ async function onSubmit() {
 
     await taskApi.publishTask({
       type: TYPE_TO_API[4], subType: SUBTYPE_TO_VALUE[41],
-      publicDesc: remark.value || undefined,
+      publicDesc: remark.value || description.value || undefined,
       taskSpecs: taskSpecsStr,
       tip: parseFloat(Number(tip).toFixed(2)),
       deliveryFee: baseFee,

@@ -305,6 +305,7 @@ public class TaskOrderServiceImpl extends ServiceImpl<TaskOrderMapper, TaskOrder
 
             // 5. 更新订单状态
             order.setStatus(StatusConstant.ORDER_CANCELLED);
+            order.setCancelTime(LocalDateTime.now());
             order.setCancelReason(dto.getReason() != null ? dto.getReason() : "配送员主动取消");
             updateById(order);
 

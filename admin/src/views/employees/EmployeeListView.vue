@@ -27,10 +27,13 @@
             </template>
             <template v-else>
               <el-button type="primary" link @click="openEdit(row)">编辑</el-button>
-              <el-button v-if="row.status === 1" type="warning" link @click="toggleStatus(row, false)">停用</el-button>
-              <el-button v-else type="success" link @click="toggleStatus(row, true)">启用</el-button>
-              <el-button type="warning" link @click="resetPwd(row)">重置密码</el-button>
-              <el-button type="danger" link @click="deleteEmp(row)">删除</el-button>
+              <template v-if="row.id !== currentAdminId">
+                <el-button v-if="row.status === 1" type="warning" link @click="toggleStatus(row, false)">停用</el-button>
+                <el-button v-else type="success" link @click="toggleStatus(row, true)">启用</el-button>
+                <el-button type="warning" link @click="resetPwd(row)">重置密码</el-button>
+                <el-button type="danger" link @click="deleteEmp(row)">删除</el-button>
+              </template>
+              <span v-else class="text-gray" style="font-size:12px">当前账户</span>
             </template>
           </template>
         </el-table-column>
@@ -80,10 +83,14 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { listEmployees, createEmployee, updateEmployee, toggleEmployeeStatus, resetEmployeePassword, deleteEmployee } from '@/api/employees'
 import { ADMIN_ROLES } from '@/utils/constants'
+import { useAuthStore } from '@/stores/auth'
+
+const authStore = useAuthStore()
+const currentAdminId = computed(() => authStore.adminInfo?.adminId)
 
 const loading = ref(false)
 const tableData = ref<any[]>([])

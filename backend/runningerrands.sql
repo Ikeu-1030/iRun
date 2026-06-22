@@ -1,3 +1,4 @@
+SET NAMES utf8mb4;
 DROP DATABASE IF EXISTS runningerrands;
 CREATE DATABASE IF NOT EXISTS runningerrands DEFAULT CHARSET utf8mb4 COLLATE utf8mb4_general_ci;
 USE runningerrands;
@@ -63,6 +64,8 @@ CREATE TABLE `user_address`
     `lng`           DECIMAL(10, 7) DEFAULT NULL COMMENT '地址经度',
     `lat`           DECIMAL(10, 7) DEFAULT NULL COMMENT '地址纬度',
     `is_default`    TINYINT        DEFAULT 0 COMMENT '是否默认地址',
+    `created_at`    DATETIME       DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at`    DATETIME       DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
 
     PRIMARY KEY (`id`),
     KEY `idx_user_id` (`user_id`)
@@ -142,9 +145,10 @@ CREATE TABLE `admin`
     `status`          TINYINT  DEFAULT 1 COMMENT '状态：0-禁用，1-正常',
     `last_login_time` DATETIME DEFAULT NULL COMMENT '最后登录时间',
     `created_at`      DATETIME DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`      DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
 
     PRIMARY KEY (`id`),
-    KEY `idx_phone` (`phone`)
+    UNIQUE KEY `uk_phone` (`phone`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='管理员表';
 
@@ -187,7 +191,7 @@ CREATE TABLE `task`
   DEFAULT CHARSET = utf8mb4 COMMENT ='任务表';
 
 ALTER TABLE `task`
-    ADD COLUMN `require_sex` VARCHAR(2) DEFAULT '不限' COMMENT '要求接单人性别：男/女/不限' AFTER `pickup_code`;
+    ADD COLUMN `require_sex` VARCHAR(8) DEFAULT '' COMMENT '要求接单人性别：男/女，空字符串表示不限' AFTER `pickup_code`;
 ALTER TABLE `task`
     ADD COLUMN `task_specs` JSON DEFAULT NULL COMMENT '任务规格JSON' AFTER `sub_type`;
 ALTER TABLE `task`
@@ -229,15 +233,14 @@ CREATE TABLE `task_order`
     `pickup_proof_img`   JSON COMMENT '取货凭证图片JSON集合',
     `deliver_proof_img`  JSON COMMENT '送达凭证图片JSON集合',
     `is_deleted`         TINYINT  DEFAULT 0 COMMENT '0-未删除 1-已删除',
+    `cancel_reason`      VARCHAR(255) DEFAULT '' COMMENT '取消原因',
+    `cancel_time`        DATETIME DEFAULT NULL COMMENT '取消时间',
 
     PRIMARY KEY (`id`),
     KEY `idx_runner_status` (`runner_id`, `status`),
     KEY `idx_accept_time` (`accept_time`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='任务执行订单表';
-
-ALTER TABLE `task_order`
-    ADD COLUMN `cancel_reason` VARCHAR(255) DEFAULT '' COMMENT '取消原因';
 
 -- 按任务ID查询（覆盖 getOrderDetailByTaskId, cancelTask 关联订单查询）
 ALTER TABLE `task_order`
@@ -423,7 +426,7 @@ CREATE TABLE `system_config`
 (
     `id`           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     `config_key`   VARCHAR(64)     NOT NULL UNIQUE COMMENT '配置键',
-    `config_value` VARCHAR(512)    NOT NULL DEFAULT '' COMMENT '配置值',
+    `config_value` VARCHAR(1024)   NOT NULL DEFAULT '' COMMENT '配置值',
     `config_group` VARCHAR(32)     NOT NULL COMMENT '分组：基础设置/订单规则/跑腿限制/费率设置',
     `value_type`   VARCHAR(16)              DEFAULT 'string' COMMENT '值类型：string/int/decimal',
     `description`  VARCHAR(256)             DEFAULT '' COMMENT '配置说明',
@@ -444,7 +447,9 @@ VALUES ('platform.hotline', '400-000-0000', '基础设置', 'string', '平台客
        ('runner.max_concurrent', '5', '跑腿限制', 'int', '跑腿员最大同时接单数'),
        ('runner.min_credit_score', '60', '跑腿限制', 'int', '跑腿员最低接单信用分'),
        ('platform.fee_rate', '5.00', '费率设置', 'decimal', '平台服务费抽成比例（%）'),
-       ('upload.max_daily', '20', '上传限制', 'int', '每用户每日最大上传文件次数');
+       ('upload.max_daily', '20', '上传限制', 'int', '每用户每日最大上传文件次数'),
+       ('banner.interval_seconds', '3', '轮播图', 'int', '首页轮播图切换间隔（秒），1-10'),
+       ('banner.images', '', '轮播图', 'string', '首页轮播图图片URL，逗号分隔，最多5张');
 
 
 
@@ -468,3 +473,42 @@ ALTER TABLE `transaction_record`
 -- chat_message表：会话消息分页查询（按时间排序）
 ALTER TABLE `chat_message`
     ADD INDEX `idx_conversation_time` (`sender_id`, `receiver_id`, `created_at`);
+
+# ========================================== 1.0 发版前约束修复 ==========================================
+
+-- task表：补全NOT NULL约束（应用层已保证非空）
+ALTER TABLE `task`
+    MODIFY COLUMN `pickup_address` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '取件地址',
+    MODIFY COLUMN `contact_name` VARCHAR(32) NOT NULL DEFAULT '' COMMENT '收货联系人',
+    MODIFY COLUMN `contact_phone` CHAR(11) NOT NULL DEFAULT '' COMMENT '收货联系电话',
+    MODIFY COLUMN `public_desc` VARCHAR(256) NOT NULL DEFAULT '' COMMENT '任务公开描述',
+    MODIFY COLUMN `private_note` VARCHAR(256) NOT NULL DEFAULT '' COMMENT '任务私密备注';
+
+-- task_order表：cancel_reason仅在取消时有值，应允许NULL
+ALTER TABLE `task_order`
+    MODIFY COLUMN `cancel_reason` VARCHAR(255) DEFAULT NULL COMMENT '取消原因';
+
+-- task_order表：删除冗余索引（idx_runner_deleted被idx_runner_accept前缀覆盖）
+ALTER TABLE `task_order`
+    DROP INDEX `idx_runner_deleted`;
+
+-- task_order表：配送超时检查器按预计送达时间查询
+ALTER TABLE `task_order`
+    ADD INDEX `idx_expect_finish` (`expect_finish_time`, `status`);
+
+-- runner_profile表：并发接单数扩宽为SMALLINT（TINYINT上限127）
+ALTER TABLE `runner_profile`
+    MODIFY COLUMN `max_concurrent_orders` SMALLINT DEFAULT 3 COMMENT '最大同时接单数',
+    MODIFY COLUMN `current_orders` SMALLINT DEFAULT 0 COMMENT '当前进行中的订单数';
+
+-- chat_message表：删除冗余索引（idx_conversation被idx_conversation_time前缀覆盖）
+ALTER TABLE `chat_message`
+    DROP INDEX `idx_conversation`;
+
+-- payment_idempotent表：清理任务按时间范围查询
+ALTER TABLE `payment_idempotent`
+    ADD INDEX `idx_created_at` (`created_at`);
+
+-- system_config表：config_value扩容至1024，支持轮播图等多URL长配置
+ALTER TABLE `system_config`
+    MODIFY COLUMN `config_value` VARCHAR(1024) NOT NULL DEFAULT '' COMMENT '配置值';

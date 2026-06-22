@@ -6,9 +6,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ikeu.common.constant.MessageConstant;
 import com.ikeu.common.constant.RedisConstant;
 import com.ikeu.common.constant.StatusConstant;
+import com.ikeu.common.context.BaseContext;
 import com.ikeu.common.exception.BusinessException;
 import com.ikeu.common.exception.NotFoundException;
 import com.ikeu.common.result.PageResult;
+import com.ikeu.common.utils.PiiMaskUtil;
 import com.ikeu.model.entity.RunnerProfile;
 import com.ikeu.model.entity.User;
 import com.ikeu.model.vo.UserInfoVO;
@@ -45,8 +47,10 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Override
     public PageResult<UserInfoVO> listUsers(Integer status, Integer isCertify, String keyword, int page, int size) {
         Page<User> p = userMapper.selectUsersWithKeyword(new Page<>(page, size), status, isCertify, keyword);
+        boolean mask = !Integer.valueOf(1).equals(BaseContext.getCurrentRole());
         List<UserInfoVO> records = p.getRecords().stream()
                 .map(u -> BeanUtil.copyProperties(u, UserInfoVO.class))
+                .peek(vo -> { if (mask) maskPii(vo); })
                 .collect(Collectors.toList());
         return new PageResult<>(p.getTotal(), records);
     }
@@ -78,6 +82,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         if (rp != null) {
             vo.setVerifyStatus(rp.getVerifyStatus());
         }
+        if (!Integer.valueOf(1).equals(BaseContext.getCurrentRole())) maskPii(vo);
         return vo;
     }
 
@@ -98,5 +103,11 @@ public class AdminUserServiceImpl implements AdminUserService {
         user.setUpdatedAt(LocalDateTime.now());
         userMapper.updateById(user);
         log.info("管理员审核用户 {} 实名认证，结果：{}，备注：{}", userId, isCertify, remark);
+    }
+
+    private void maskPii(UserInfoVO vo) {
+        vo.setPhone(PiiMaskUtil.maskPhone(vo.getPhone()));
+        vo.setRealName(PiiMaskUtil.maskRealName(vo.getRealName()));
+        vo.setStudentId(PiiMaskUtil.maskStudentId(vo.getStudentId()));
     }
 }

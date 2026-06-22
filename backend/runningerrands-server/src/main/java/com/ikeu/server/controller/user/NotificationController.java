@@ -7,7 +7,10 @@ import com.ikeu.model.vo.NotificationVO;
 import com.ikeu.server.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,6 +25,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/notification")
 @RequiredArgsConstructor
+@Validated
 public class NotificationController {
 
     private final NotificationService notificationService;
@@ -41,8 +45,8 @@ public class NotificationController {
     @GetMapping
     public Result<PageResult<NotificationVO>> list(
             @RequestParam(required = false) Integer isRead,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "1") @Min(1) int page,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size) {
         Long userId = BaseContext.getCurrentId();
         return Result.success(notificationService.listNotifications(userId, isRead, page, size));
     }

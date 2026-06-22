@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { getAdminToken } from '@/utils/request'
+import { getAdminToken } from '@/utils/tokenStore'
 import { useAuthStore } from '@/stores/auth'
 
 const router = createRouter({

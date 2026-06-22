@@ -3,8 +3,7 @@ import type { AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 import { ElMessage } from 'element-plus'
 import router from '@/router'
 import { useAuthStore } from '@/stores/auth'
-
-export {
+import {
   getAdminToken,
   setAdminToken,
   removeAdminToken,
@@ -13,8 +12,21 @@ export {
   removeAdminRefreshToken,
 } from './tokenStore'
 
+export {
+  getAdminToken,
+  setAdminToken,
+  removeAdminToken,
+  getAdminRefreshToken,
+  setAdminRefreshToken,
+  removeAdminRefreshToken,
+}
+
 let isRefreshing = false
-let refreshQueue: Array<(token: string) => void> = []
+let refreshQueue: Array<{
+  resolve: (value: unknown) => void
+  reject: (reason: unknown) => void
+  config: InternalAxiosRequestConfig
+}> = []
 
 // 开发环境 (Vite proxy 转发到 Ngrok 后端)
 const API_BASE = '/api'
@@ -81,14 +93,20 @@ service.interceptors.response.use(
           if (adminId) {
             authStore.adminInfo = { adminId, username, name, role }
           }
-          refreshQueue.forEach(cb => cb(token))
+          refreshQueue.forEach(({ resolve, config }) => {
+            config.headers['token'] = token
+            resolve(service(config))
+          })
           refreshQueue = []
 
           if (error.config) {
             error.config.headers['token'] = token
             return service(error.config)
           }
+          return Promise.reject(error)
         } catch {
+          refreshQueue.forEach(({ reject }) => reject(new Error('Token refresh failed')))
+          refreshQueue = []
           removeAdminToken()
           removeAdminRefreshToken()
           ElMessage.error('登录已过期，请重新登录')
@@ -98,13 +116,8 @@ service.interceptors.response.use(
           isRefreshing = false
         }
       } else {
-        return new Promise(resolve => {
-          refreshQueue.push((token: string) => {
-            if (error.config) {
-              error.config.headers['token'] = token
-              resolve(service(error.config))
-            }
-          })
+        return new Promise((resolve, reject) => {
+          refreshQueue.push({ resolve, reject, config: error.config! })
         })
       }
     }

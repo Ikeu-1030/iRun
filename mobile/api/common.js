@@ -71,6 +71,28 @@ export function getAnnouncement() {
 }
 
 /**
+ * 获取首页轮播图
+ * @returns {Promise<{images: string[], interval: number}>}
+ */
+export function getBanners() {
+  return new Promise((resolve) => {
+    uni.request({
+      url: SERVER_ORIGIN + '/api/common/banners',
+      method: 'GET',
+      success(res) {
+        const body = res.data
+        if (body?.code === 1 && body.data?.images?.length) {
+          resolve(body.data)
+        } else {
+          resolve({ images: [], interval: 3 })
+        }
+      },
+      fail() { resolve({ images: [], interval: 3 }) }
+    })
+  })
+}
+
+/**
  * 多文件上传 (顺序上传)
  * @param {string[]} filePaths
  * @returns {Promise<string[]>}

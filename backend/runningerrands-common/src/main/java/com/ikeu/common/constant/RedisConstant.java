@@ -38,6 +38,7 @@ public final class RedisConstant {
     public static final String ORDER_AUTO_COMPLETE_LOCK_KEY = "order:autoComplete:lock";    // 24h自动结算锁
     public static final String NOTIFICATION_CLEANUP_LOCK_KEY = "notification:cleanup:lock"; // 通知清理锁
     public static final String CREDIT_RECOVERY_LOCK_KEY = "credit:recovery:lock"; // 信用分恢复定时任务锁
+    public static final String PAYMENT_IDEMPOTENT_CLEANUP_LOCK_KEY = "payment:idempotent:cleanup:lock"; // 支付幂等清理锁
 
     // ========== 缓存击穿防护锁 ==========
     public static final String TASK_HALL_LOCK_KEY = "task:hall:lock:";              // 任务大厅分页缓存互斥锁前缀
@@ -56,6 +57,7 @@ public final class RedisConstant {
 
     // ========== 速率限制 ==========
     public static final String USER_SMS_RATE_KEY = "user:sms:rate:";           // 用户短信发送速率限制
+    public static final String USER_LOGIN_RATE_KEY = "user:login:rate:";       // 用户登录速率限制
     public static final String USER_REFRESH_RATE_KEY = "user:refresh:rate:";   // 用户刷新令牌速率限制
     public static final String ADMIN_LOGIN_RATE_KEY = "admin:login:rate:";     // 管理员登录速率限制
     public static final String ADMIN_REFRESH_RATE_KEY = "admin:refresh:rate:"; // 管理员刷新速率限制
