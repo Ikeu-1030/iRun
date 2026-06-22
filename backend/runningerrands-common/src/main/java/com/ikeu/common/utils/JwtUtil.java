@@ -43,7 +43,13 @@ public class JwtUtil {
 
     private static final int MIN_KEY_BYTES = 32; // HMAC-SHA256 requires >= 256 bits
 
-    /** 启动时校验 JWT 密钥已配置且满足最小长度，防止空密钥导致运行时 WeakKeyException。 */
+    /** 已知弱密钥前缀（Docker .env.example 中的占位密钥），生产环境禁止使用 */
+    private static final String[] WEAK_KEY_PREFIXES = {
+        "docker-admin-secret-key", "docker-user-secret-key",
+        "change-me", "changeme", "your-secret", "your_admin_secret", "your_user_secret"
+    };
+
+    /** 启动时校验 JWT 密钥已配置且满足最小长度，并拒绝已知弱密钥，防止空密钥导致运行时 WeakKeyException。 */
     @PostConstruct
     public void validateKeys() {
         String adminKey = jwtProperties.getAdminSecretKey();
@@ -55,6 +61,10 @@ public class JwtUtil {
             throw new IllegalStateException(
                     "JWT admin secret key is too short (min " + MIN_KEY_BYTES + " bytes for HS256).");
         }
+        if (isWeakKey(adminKey)) {
+            throw new IllegalStateException(
+                    "JWT admin secret key is a known weak/default value. Generate a strong random key for production.");
+        }
         String userKey = jwtProperties.getUserSecretKey();
         if (userKey == null || userKey.isBlank()) {
             throw new IllegalStateException(
@@ -64,7 +74,19 @@ public class JwtUtil {
             throw new IllegalStateException(
                     "JWT user secret key is too short (min " + MIN_KEY_BYTES + " bytes for HS256).");
         }
+        if (isWeakKey(userKey)) {
+            throw new IllegalStateException(
+                    "JWT user secret key is a known weak/default value. Generate a strong random key for production.");
+        }
         log.info("JWT secret keys validated successfully");
+    }
+
+    private boolean isWeakKey(String key) {
+        String lower = key.toLowerCase();
+        for (String prefix : WEAK_KEY_PREFIXES) {
+            if (lower.startsWith(prefix)) return true;
+        }
+        return false;
     }
 
     // ========== 密钥获取 ==========

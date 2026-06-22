@@ -175,6 +175,7 @@ public final class MessageConstant {
     public static final String ADMIN_DELETE_SUCCESS = "管理员已删除";
     public static final String ADMIN_PASSWORD_RESET = "密码重置成功";
     public static final String CANNOT_DELETE_SELF = "不能删除自己的账户";
+    public static final String CANNOT_DELETE_SUPER_ADMIN = "不能删除超级管理员";
     public static final String CANNOT_DISABLE_SELF = "不能停用自己的账户";
     public static final String ADMIN_MUST_BE_NORMAL = "只能创建普通管理员";
     public static final String TASK_STATUS_UPDATED = "任务状态已更新";

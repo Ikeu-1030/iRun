@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * 用户地址簿实体类
@@ -57,4 +58,13 @@ public class UserAddress implements Serializable {
     /** 是否默认地址 */
     @TableField("is_default")
     private Integer isDefault;
+
+    /** 创建时间 */
+    @TableField(value = "created_at", fill = FieldFill.INSERT)
+    private LocalDateTime createdAt;
+
+    /** 更新时间 */
+    @TableField(value = "updated_at", fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updatedAt;
+
 }

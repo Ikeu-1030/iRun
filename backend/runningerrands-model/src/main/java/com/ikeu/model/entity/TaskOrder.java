@@ -66,9 +66,13 @@ public class TaskOrder implements Serializable {
     @TableField("deliver_proof_img")
     private String deliverProofImgs;
 
-        /** 取消原因（Status = 5） */
+    /** 取消原因（Status = 5） */
     @TableField("cancel_reason")
     private String cancelReason;
+
+    /** 取消时间 */
+    @TableField("cancel_time")
+    private LocalDateTime cancelTime;
 
     /** 是否标记为删除：0-否，1-是 */
     @TableField("is_deleted")
