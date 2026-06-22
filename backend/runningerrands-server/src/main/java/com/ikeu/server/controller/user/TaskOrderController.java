@@ -12,11 +12,13 @@ import com.ikeu.server.annotation.RequireCertify;
 import com.ikeu.server.service.TaskOrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import jakarta.validation.Valid;
 
 /**
  * 订单流程管理接口，提供接单、取货、送达、确认完成、取消和详情查看等操作。
@@ -28,6 +30,7 @@ import jakarta.validation.Valid;
 @RequestMapping("/order")
 @RequiredArgsConstructor
 @Slf4j
+@Validated
 public class TaskOrderController {
 
     private final TaskOrderService taskOrderService;
@@ -171,8 +174,8 @@ public class TaskOrderController {
     @GetMapping("/mine")
     public Result<PageResult<OrderListVO>> myAcceptOrders(
             @RequestParam(required = false) Integer status,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "1") @Min(1) int page,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size) {
         Long userId = BaseContext.getCurrentId();
         return Result.success(taskOrderService.listMyAcceptOrders(userId, status, page, size));
     }

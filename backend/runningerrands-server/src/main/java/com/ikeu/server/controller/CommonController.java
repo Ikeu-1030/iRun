@@ -7,6 +7,7 @@ import com.ikeu.common.utils.AliOssUtil;
 import com.ikeu.common.utils.JwtUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.ikeu.model.entity.SystemConfig;
+import com.ikeu.model.vo.BannerVO;
 import com.ikeu.server.mapper.SystemConfigMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -42,6 +44,18 @@ public class CommonController {
     private final JwtUtil jwtUtil;
     private final StringRedisTemplate stringRedisTemplate;
 
+    private static final String DEFAULT_AVATAR_PATH = "static/imgs/default_avatar.jpg";
+
+    private static final String CONFIG_KEY_UPLOAD_DAILY = "upload.max_daily";
+    private static final String CONFIG_KEY_PLATFORM_ANNOUNCEMENT = "platform.announcement";
+    private static final String CONFIG_KEY_BANNER_IMAGES = "banner.images";
+    private static final String CONFIG_KEY_BANNER_INTERVAL = "banner.interval_seconds";
+
+    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 单文件最大 5MB
+    private static final int UPLOAD_DAILY_DEFAULT = 20; // 默认每用户每日上传限额
+    private static final int BANNER_INTERVAL_DEFAULT = 3; // 轮播图默认间隔秒数
+
+    /** 允许上传的文件类型 */
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of(
             ".jpg", ".jpeg", ".png", ".gif", ".webp",
             ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".txt"
@@ -57,9 +71,6 @@ public class CommonController {
      * @param file 上传的文件
      * @return 文件访问URL
      */
-    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 单文件最大 5MB
-    private static final int UPLOAD_DAILY_DEFAULT = 20; // 默认每用户每日上传限额
-
     @PostMapping("/common/upload")
     @Operation(summary = "文件上传接口")
     public Result<String> upload(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
@@ -92,7 +103,7 @@ public class CommonController {
         // 每用户每日上传次数限制（从系统配置读取，先校验再消耗配额）
         int maxDaily = UPLOAD_DAILY_DEFAULT;
         SystemConfig uploadConfig = systemConfigMapper.selectOne(
-                new LambdaQueryWrapper<SystemConfig>().eq(SystemConfig::getConfigKey, "upload.max_daily"));
+                new LambdaQueryWrapper<SystemConfig>().eq(SystemConfig::getConfigKey, CONFIG_KEY_UPLOAD_DAILY));
         if (uploadConfig != null && uploadConfig.getConfigValue() != null) {
             try { maxDaily = Integer.parseInt(uploadConfig.getConfigValue()); } catch (NumberFormatException ignored) {}
         }
@@ -135,9 +146,39 @@ public class CommonController {
     @Operation(summary = "获取平台公告")
     public Result<String> getAnnouncement() {
         SystemConfig config = systemConfigMapper.selectOne(
-                new LambdaQueryWrapper<SystemConfig>().eq(SystemConfig::getConfigKey, "platform.announcement"));
+                new LambdaQueryWrapper<SystemConfig>().eq(SystemConfig::getConfigKey, CONFIG_KEY_PLATFORM_ANNOUNCEMENT));
         if (config == null) return Result.successData("");
         return Result.successData(config.getConfigValue());
+    }
+
+
+
+    /**
+     * 获取首页轮播图，返回图片URL列表和切换间隔。
+     * @return 轮播图数据：images（URL列表）和 interval（秒）
+     */
+    @GetMapping("/common/banners")
+    @Operation(summary = "获取首页轮播图")
+    public Result<BannerVO> getBanners() {
+        var imagesCfg = systemConfigMapper.selectOne(
+                new LambdaQueryWrapper<SystemConfig>().eq(SystemConfig::getConfigKey, CONFIG_KEY_BANNER_IMAGES));
+        var intervalCfg = systemConfigMapper.selectOne(
+                new LambdaQueryWrapper<SystemConfig>().eq(SystemConfig::getConfigKey, CONFIG_KEY_BANNER_INTERVAL));
+
+        ArrayList<String> images = new ArrayList<>();
+        if (imagesCfg != null && imagesCfg.getConfigValue() != null && !imagesCfg.getConfigValue().isBlank()) {
+            for (String s : imagesCfg.getConfigValue().split(",")) {
+                String trimmed = s.trim();
+                if (!trimmed.isEmpty()) images.add(trimmed);
+            }
+        }
+
+        int interval = BANNER_INTERVAL_DEFAULT;
+        if (intervalCfg != null && intervalCfg.getConfigValue() != null) {
+            try { interval = Integer.parseInt(intervalCfg.getConfigValue()); } catch (NumberFormatException ignored) {}
+        }
+
+        return Result.successData(BannerVO.builder().images(images).interval(interval).build());
     }
 
     /**
@@ -151,9 +192,9 @@ public class CommonController {
     @GetMapping("/imgs/default_avatar.jpg")
     @Operation(summary = "获取默认头像")
     public ResponseEntity<Resource> defaultAvatar() throws IOException {
-        ClassPathResource resource = new ClassPathResource("static/imgs/default_avatar.jpg");
+        ClassPathResource resource = new ClassPathResource(DEFAULT_AVATAR_PATH);
         if (!resource.exists()) {
-            log.error("默认头像文件不存在: static/imgs/default_avatar.jpg");
+            log.error("默认头像文件不存在:" + DEFAULT_AVATAR_PATH);
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok()

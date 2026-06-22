@@ -20,6 +20,7 @@ import com.ikeu.server.mapper.TaskMapper;
 import com.ikeu.server.mapper.TaskOrderMapper;
 import com.ikeu.server.mapper.UserMapper;
 import com.ikeu.server.service.AdminTaskService;
+import com.ikeu.server.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
@@ -53,6 +54,7 @@ public class AdminTaskServiceImpl implements AdminTaskService {
     private final CacheManager cacheManager;
     private final StringRedisTemplate stringRedisTemplate;
     private final RedissonClient redissonClient;
+    private final PaymentService paymentService;
 
     /**
      * 分页查询所有任务，关联发布者信息填充昵称/头像，支持按状态筛选。
@@ -174,9 +176,10 @@ public class AdminTaskServiceImpl implements AdminTaskService {
                 TaskOrder order = taskOrderMapper.selectOne(wrapper);
                 if (order != null) {
                     order.setStatus(StatusConstant.ORDER_CANCELLED);
-                    order.setConfirmTime(LocalDateTime.now());
+                    order.setCancelTime(LocalDateTime.now());
                     taskOrderMapper.updateById(order);
-                    log.info("同步取消关联订单 {} (任务 {})", order.getId(), taskId);
+                    paymentService.refundForTask(task.getPublisherId(), taskId, task.getReward());
+                    log.info("同步取消关联订单 {} 并退款 (任务 {})", order.getId(), taskId);
                 }
             }
         } catch (InterruptedException e) {
@@ -192,6 +195,7 @@ public class AdminTaskServiceImpl implements AdminTaskService {
         clearCache(RedisConstant.CACHE_DASHBOARD);
         clearCache(RedisConstant.CACHE_TASK_HALL);
         clearCache(RedisConstant.CACHE_TASK_DETAIL);
+        clearCache(RedisConstant.CACHE_LEADERBOARD);
         var nullKeys = stringRedisTemplate.keys(RedisConstant.TASK_HALL_NULL_PREFIX + "*");
         if (nullKeys != null && !nullKeys.isEmpty()) stringRedisTemplate.delete(nullKeys);
     }

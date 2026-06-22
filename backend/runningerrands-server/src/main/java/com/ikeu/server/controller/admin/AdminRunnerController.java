@@ -9,7 +9,10 @@ import com.ikeu.server.annotation.RequireRole;
 import com.ikeu.server.service.AdminRunnerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/admin")
 @RequiredArgsConstructor
+@Validated
 public class AdminRunnerController {
 
     private final AdminRunnerService adminRunnerService;
@@ -31,8 +35,8 @@ public class AdminRunnerController {
     public Result<PageResult<RunnerManageVO>> listRunners(
             @RequestParam(required = false) Integer verifyStatus,
             @RequestParam(required = false) String keyword,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "1") @Min(1) int page,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size) {
         return Result.success(adminRunnerService.listRunners(verifyStatus, keyword, page, size));
     }
 

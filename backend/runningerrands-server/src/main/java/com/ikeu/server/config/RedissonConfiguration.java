@@ -5,6 +5,7 @@ import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.StringUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -42,9 +43,8 @@ public class RedissonConfiguration {
         Config config = new Config();
         log.info("开始创建RedissonClient对象...");
         config.useSingleServer().setAddress("redis://" + redisHost + ":" + redisPort)
-                .setDatabase(redisDatabase);
-                // Redis 密码认证（如 Redis 设置了密码请取消注释）
-                // .setPassword(redisPassword);
+                .setDatabase(redisDatabase)
+                .setPassword(StringUtils.hasText(redisPassword) ? redisPassword : null);
         return Redisson.create(config);
     }
 }

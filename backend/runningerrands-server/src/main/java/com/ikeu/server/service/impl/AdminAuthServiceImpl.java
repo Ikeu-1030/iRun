@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -77,8 +78,11 @@ public class AdminAuthServiceImpl extends ServiceImpl<AdminMapper, Admin> implem
         admin.setLastLoginTime(LocalDateTime.now());
         updateById(admin);
 
-        String accessToken = jwtUtil.generateAdminAccessToken(Map.of(JwtClaimsConstant.ADMIN_ID, admin.getId()));
-        String refreshToken = jwtUtil.generateAdminRefreshToken(Map.of(JwtClaimsConstant.ADMIN_ID, admin.getId()));
+        var claims = new HashMap<String, Object>();
+        claims.put(JwtClaimsConstant.ADMIN_ID, admin.getId());
+        claims.put("role", admin.getRole());
+        String accessToken = jwtUtil.generateAdminAccessToken(claims);
+        String refreshToken = jwtUtil.generateAdminRefreshToken(claims);
 
         var refreshClaims = jwtUtil.parseAdminRefreshToken(refreshToken);
         String jti = refreshClaims.get(JwtClaimsConstant.JTI, String.class);
@@ -162,8 +166,11 @@ public class AdminAuthServiceImpl extends ServiceImpl<AdminMapper, Admin> implem
             throw new UnauthorizedException(MessageConstant.ACCOUNT_DISABLED_OR_NOT_EXIST);
         }
 
-        String newAccessToken = jwtUtil.generateAdminAccessToken(Map.of(JwtClaimsConstant.ADMIN_ID, adminId));
-        String newRefreshToken = jwtUtil.generateAdminRefreshToken(Map.of(JwtClaimsConstant.ADMIN_ID, adminId));
+        var newTokenClaims = new java.util.HashMap<String, Object>();
+        newTokenClaims.put(JwtClaimsConstant.ADMIN_ID, adminId);
+        newTokenClaims.put("role", admin.getRole());
+        String newAccessToken = jwtUtil.generateAdminAccessToken(newTokenClaims);
+        String newRefreshToken = jwtUtil.generateAdminRefreshToken(newTokenClaims);
 
         var newClaims = jwtUtil.parseAdminRefreshToken(newRefreshToken);
         String newJti = newClaims.get(JwtClaimsConstant.JTI, String.class);
@@ -198,9 +205,11 @@ public class AdminAuthServiceImpl extends ServiceImpl<AdminMapper, Admin> implem
     public void logout(Long adminId) {
         if (adminId == null) return;
         String pattern = RedisConstant.ADMIN_REFRESH_TOKEN_PREFIX + adminId + ":*";
-        var keys = redisTemplate.keys(pattern);
-        if (keys != null && !keys.isEmpty()) {
-            redisTemplate.delete(keys);
+        try (var cursor = redisTemplate.scan(org.springframework.data.redis.core.ScanOptions.scanOptions()
+                .match(pattern).count(100).build())) {
+            while (cursor.hasNext()) {
+                redisTemplate.delete(cursor.next());
+            }
         }
         log.info("管理员 {} 退出登录，已清除 refresh token", adminId);
     }

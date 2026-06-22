@@ -115,7 +115,7 @@ public class CreditServiceImpl implements CreditService {
         }
 
         int scoreBefore = profile.getCreditScore() != null ? profile.getCreditScore() : CreditConstant.CREDIT_INITIAL;
-        int scoreAfter = Math.max(0, scoreBefore + delta);
+        int scoreAfter = Math.min(CreditConstant.CREDIT_MAX, Math.max(0, scoreBefore + delta));
 
         CreditLog creditLog = CreditLog.builder()
                 .runnerId(runnerId)
@@ -129,7 +129,8 @@ public class CreditServiceImpl implements CreditService {
         creditLogMapper.insert(creditLog);
 
         runnerProfileMapper.updateCreditScoreAndFreeze(runnerId, delta,
-                CreditConstant.CREDIT_FREEZE_THRESHOLD, CreditConstant.CREDIT_FREEZE_DAYS);
+                CreditConstant.CREDIT_FREEZE_THRESHOLD, CreditConstant.CREDIT_FREEZE_DAYS,
+                CreditConstant.CREDIT_MAX);
 
         // 重查最终状态用于日志（SQL 内已原子完成冻结/解冻，此处仅为可观测性）
         RunnerProfile after = runnerProfileMapper.selectOne(

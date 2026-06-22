@@ -97,7 +97,7 @@ public class OrderTimeoutChecker {
                     }
 
                     Task task = taskMapper.selectById(order.getTaskId());
-                    if (task != null && !Objects.equals(task.getStatus(), StatusConstant.TASK_WAITING)) {
+                    if (task != null && Objects.equals(task.getStatus(), StatusConstant.TASK_ACCEPTED)) {
                         task.setStatus(StatusConstant.TASK_WAITING);
                         task.setUpdatedAt(now);
                         taskMapper.updateById(task);

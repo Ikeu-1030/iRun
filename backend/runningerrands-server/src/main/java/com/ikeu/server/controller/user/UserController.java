@@ -35,7 +35,8 @@ public class UserController {
     private final UserService userService;
     private final StringRedisTemplate stringRedisTemplate;
 
-    private static final int SMS_RATE_LIMIT_MAX = 5; // 每IP每分钟最多5条
+    private static final int SMS_RATE_LIMIT_MAX = 5;   // 每IP每分钟最多5条
+    private static final int LOGIN_RATE_MAX = 10;       // 每IP每分钟最多10次登录
 
     @Operation(summary = "发送短信验证码")
     @PostMapping("/send")
@@ -82,7 +83,10 @@ public class UserController {
      */
     @Operation(summary = "用户登录")
     @PostMapping("/login")
-    public Result<UserLoginVO> login(@Valid @RequestBody UserLoginDTO loginDTO) {
+    public Result<UserLoginVO> login(@Valid @RequestBody UserLoginDTO loginDTO, HttpServletRequest request) {
+        if (isRateLimited(request, RedisConstant.USER_LOGIN_RATE_KEY, LOGIN_RATE_MAX)) {
+            throw new BusinessException(MessageConstant.LOGIN_FAIL_LOCKED_USER);
+        }
         UserLoginVO userLoginVO = userService.login(loginDTO);
         return Result.success(userLoginVO);
     }
@@ -344,5 +348,14 @@ public class UserController {
         Long userId = BaseContext.getCurrentId();
         userService.deleteAccount(userId);
         return Result.success(MessageConstant.ACCOUNT_DELETED);
+    }
+
+    /** IP 级速率限制，复用 admin 登录限流模式。 */
+    private boolean isRateLimited(HttpServletRequest request, String keyPrefix, int max) {
+        String ip = WebUtil.getClientIp(request);
+        String key = keyPrefix + ip;
+        Long n = stringRedisTemplate.opsForValue().increment(key);
+        if (n == 1) stringRedisTemplate.expire(key, 60, TimeUnit.SECONDS);
+        return n > max;
     }
 }

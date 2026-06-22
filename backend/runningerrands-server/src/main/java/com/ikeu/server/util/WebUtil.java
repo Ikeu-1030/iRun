@@ -24,10 +24,11 @@ public final class WebUtil {
         if (ip == null || ip.isBlank()) {
             ip = request.getRemoteAddr();
         }
+        if (ip == null) return "unknown";
         int comma = ip.indexOf(',');
         if (comma > 0) {
             ip = ip.substring(0, comma).trim();
         }
-        return ip != null ? ip : "unknown";
+        return ip;
     }
 }

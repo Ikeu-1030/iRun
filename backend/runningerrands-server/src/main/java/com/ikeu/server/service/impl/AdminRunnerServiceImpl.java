@@ -5,9 +5,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ikeu.common.constant.MessageConstant;
 import com.ikeu.common.constant.RedisConstant;
 import com.ikeu.common.constant.StatusConstant;
+import com.ikeu.common.context.BaseContext;
 import com.ikeu.common.exception.BusinessException;
 import com.ikeu.common.exception.NotFoundException;
 import com.ikeu.common.result.PageResult;
+import com.ikeu.common.utils.PiiMaskUtil;
 import com.ikeu.model.entity.RunnerProfile;
 import com.ikeu.model.entity.User;
 import com.ikeu.model.vo.RunnerManageVO;
@@ -71,6 +73,7 @@ public class AdminRunnerServiceImpl implements AdminRunnerService {
                         row -> (Long) row.get("user_id"),
                         row -> (BigDecimal) row.get("total_income")));
 
+        boolean mask = !Integer.valueOf(1).equals(BaseContext.getCurrentRole());
         List<RunnerManageVO> records = p.getRecords().stream().map(rp -> {
             User u = userMap.get(rp.getUserId());
             RunnerManageVO vo = BeanUtil.copyProperties(rp, RunnerManageVO.class);
@@ -82,6 +85,7 @@ public class AdminRunnerServiceImpl implements AdminRunnerService {
                 vo.setNickname(u.getNickname());
                 vo.setPhone(u.getPhone());
             }
+            if (mask) maskPii(vo);
             return vo;
         }).collect(Collectors.toList());
 
@@ -115,7 +119,14 @@ public class AdminRunnerServiceImpl implements AdminRunnerService {
             vo.setNickname(u.getNickname());
             vo.setPhone(u.getPhone());
         }
+        if (!Integer.valueOf(1).equals(BaseContext.getCurrentRole())) maskPii(vo);
         return vo;
+    }
+
+    /** PII 脱敏：非超管角色隐藏手机号和真实姓名。 */
+    private void maskPii(RunnerManageVO vo) {
+        vo.setPhone(PiiMaskUtil.maskPhone(vo.getPhone()));
+        vo.setRealName(PiiMaskUtil.maskRealName(vo.getRealName()));
     }
 
     /**

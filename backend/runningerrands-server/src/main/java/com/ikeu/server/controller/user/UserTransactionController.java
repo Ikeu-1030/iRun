@@ -13,8 +13,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -30,6 +33,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/user/transactions")
 @RequiredArgsConstructor
+@Validated
 public class UserTransactionController {
 
     private final TransactionService transactionService;
@@ -74,8 +78,8 @@ public class UserTransactionController {
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
             @Parameter(description = "结束日期（yyyy-MM-dd HH:mm:ss）")
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
-            @Parameter(description = "页码") @RequestParam(defaultValue = "1") int page,
-            @Parameter(description = "每页条数") @RequestParam(defaultValue = "10") int size) {
+            @Parameter(description = "页码") @RequestParam(defaultValue = "1") @Min(1) int page,
+            @Parameter(description = "每页条数") @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size) {
         Long userId = BaseContext.getCurrentId();
         PageResult<TransactionVO> result = transactionService.listUserTransactions(userId, type, start, end, page, size);
         return Result.success(result);

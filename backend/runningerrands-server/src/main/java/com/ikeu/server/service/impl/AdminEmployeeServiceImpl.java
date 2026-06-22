@@ -209,7 +209,7 @@ public class AdminEmployeeServiceImpl extends ServiceImpl<AdminMapper, Admin> im
         if (admin == null) throw new NotFoundException(MessageConstant.ADMIN_NOT_EXIST);
         // 禁止删除超管
         if (admin.getRole() == ROLE_SUPER_ADMIN) {
-            throw new BusinessException(MessageConstant.CANNOT_DELETE_SELF);
+            throw new BusinessException(MessageConstant.CANNOT_DELETE_SUPER_ADMIN);
         }
 
         removeById(id);
