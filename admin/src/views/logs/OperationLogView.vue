@@ -71,8 +71,23 @@ async function fetchData() {
   } finally { loading.value = false }
 }
 
+const SENSITIVE_KEYS = ['password', 'payPassword', 'newPassword', 'newPayPassword', 'token', 'refreshToken', 'code', 'idNumber']
+
+function redact(obj: any): any {
+  if (obj == null) return obj
+  if (Array.isArray(obj)) return obj.map(redact)
+  if (typeof obj === 'object') {
+    const out: any = {}
+    for (const key of Object.keys(obj)) {
+      out[key] = SENSITIVE_KEYS.includes(key) ? '***' : redact(obj[key])
+    }
+    return out
+  }
+  return obj
+}
+
 function formatJson(str: string) {
-  try { return JSON.stringify(JSON.parse(str), null, 2) } catch { return str }
+  try { return JSON.stringify(redact(JSON.parse(str)), null, 2) } catch { return str }
 }
 
 function search() {

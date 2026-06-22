@@ -108,11 +108,18 @@ const formActionsRef = ref<HTMLElement>()
 const footerRef = ref<HTMLElement>()
 
 // ---- 全屏粒子系统 ----
-let animId = 0
-let particles: { x: number; y: number; vx: number; vy: number; r: number; alpha: number; alphaDir: number }[] = []
+type Particle = { x: number; y: number; vx: number; vy: number; r: number; alpha: number; alphaDir: number }
 
-function initParticles(w: number, h: number) {
-  particles = []
+let _animId = 0
+let _resizeHandler: (() => void) | null = null
+
+onUnmounted(() => {
+  if (_animId) cancelAnimationFrame(_animId)
+  if (_resizeHandler) window.removeEventListener('resize', _resizeHandler)
+})
+
+function initParticles(particles: Particle[], w: number, h: number) {
+  particles.length = 0
   const count = Math.min(80, Math.floor((w * h) / 12000))
   for (let i = 0; i < count; i++) {
     particles.push({
@@ -127,7 +134,7 @@ function initParticles(w: number, h: number) {
   }
 }
 
-function drawParticles(ctx: CanvasRenderingContext2D, w: number, h: number) {
+function drawParticles(particles: Particle[], ctx: CanvasRenderingContext2D, w: number, h: number) {
   ctx.clearRect(0, 0, w, h)
   for (const p of particles) {
     p.x += p.vx
@@ -168,6 +175,8 @@ function startCanvas() {
   const ctx = canvas.getContext('2d')
   if (!ctx) return
 
+  const particles: Particle[] = []
+
   const resize = () => {
     const w = window.innerWidth
     const h = window.innerHeight
@@ -176,23 +185,19 @@ function startCanvas() {
     canvas.style.width = w + 'px'
     canvas.style.height = h + 'px'
     ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0)
-    initParticles(w, h)
+    initParticles(particles, w, h)
   }
   resize()
   window.addEventListener('resize', resize)
+  _resizeHandler = resize
 
   const loop = () => {
     const w = canvas.width / devicePixelRatio
     const h = canvas.height / devicePixelRatio
-    drawParticles(ctx, w, h)
-    animId = requestAnimationFrame(loop)
+    drawParticles(particles, ctx, w, h)
+    _animId = requestAnimationFrame(loop)
   }
   loop()
-
-  onUnmounted(() => {
-    cancelAnimationFrame(animId)
-    window.removeEventListener('resize', resize)
-  })
 }
 
 // ---- 文字拆分 ----
@@ -211,7 +216,6 @@ function splitText(el: HTMLElement) {
 // ---- GSAP Timeline ----
 async function runEntranceAnimation() {
   await nextTick()
-  startCanvas()
 
   const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
 
@@ -274,8 +278,10 @@ async function runEntranceAnimation() {
 
 // ---- 登录 ----
 async function handleLogin() {
-  const valid = await formRef.value.validate().catch(() => false)
-  if (!valid) return
+  if (!form.username || !form.password) {
+    ElMessage.error('请输入用户名和密码')
+    return
+  }
   loading.value = true
   try {
     const data = await loginApi(form)
@@ -294,6 +300,7 @@ async function handleLogin() {
   }
 }
 
+onMounted(startCanvas)
 onMounted(runEntranceAnimation)
 </script>
 

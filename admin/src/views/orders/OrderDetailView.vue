@@ -62,7 +62,7 @@
           <el-descriptions-item label="取件地址" :span="2">{{ detail.pickupAddress || '-' }}</el-descriptions-item>
           <el-descriptions-item label="送达地址" :span="2">{{ detail.deliveryAddress || '-' }}</el-descriptions-item>
           <el-descriptions-item label="收货联系人" :span="2">{{ detail.contactName || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="收货联系电话" :span="2">{{ detail.contactPhone || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="收货联系电话" :span="2">{{ isSuperAdmin ? (detail.contactPhone || '-') : maskPhone(detail.contactPhone) }}</el-descriptions-item>
           <el-descriptions-item label="公开描述" :span="2">{{ detail.publicDesc || '-' }}</el-descriptions-item>
           <el-descriptions-item v-if="detail.privateNote" label="私密备注" :span="2">{{ detail.privateNote }}</el-descriptions-item>
         </el-descriptions>
@@ -78,8 +78,8 @@
           <el-descriptions-item label="跑腿员昵称">{{ detail.runnerNickname || '-' }}</el-descriptions-item>
           <el-descriptions-item label="发布者用户名">{{ detail.publisherUsername || '-' }}</el-descriptions-item>
           <el-descriptions-item label="跑腿员用户名">{{ detail.runnerUsername || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="发布者手机">{{ detail.publisherPhone || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="跑腿员手机">{{ detail.runnerPhone || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="发布者手机">{{ isSuperAdmin ? (detail.publisherPhone || '-') : maskPhone(detail.publisherPhone) }}</el-descriptions-item>
+          <el-descriptions-item label="跑腿员手机">{{ isSuperAdmin ? (detail.runnerPhone || '-') : maskPhone(detail.runnerPhone) }}</el-descriptions-item>
         </el-descriptions>
       </el-card>
 
@@ -158,11 +158,19 @@ import { Picture, Box, KnifeFork, Document, ShoppingCart, MoreFilled } from '@el
 import { getOrderDetail } from '@/api/orders'
 import { ORDER_STATUS } from '@/utils/constants'
 import { parseTaskSpecsForAdmin } from '@/utils/task-specs-parser'
+import { useAuthStore } from '@/stores/auth'
 
 const route = useRoute()
+const authStore = useAuthStore()
+const isSuperAdmin = computed(() => authStore.adminInfo?.role === 1)
 const loading = ref(false)
 const entered = ref(false)
 const detail = reactive<any>({})
+
+function maskPhone(phone: string | null | undefined): string {
+  if (!phone || phone.length < 7) return phone || '-'
+  return phone.slice(0, 3) + '****' + phone.slice(-4)
+}
 
 const orderStatusStyleMap: Record<number, { color: string; bgColor: string }> = {
   1: { color: '#8492A6', bgColor: '#EFF2F7' },  // 待取货

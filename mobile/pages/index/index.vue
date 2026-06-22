@@ -54,8 +54,21 @@
         </uni-search-bar>
       </view>
 
-      <!-- 活动横幅 -->
-      <view class="banner-section">
+      <!-- 轮播图 / 活动横幅 -->
+      <view v-if="bannerImages.length > 0" class="banner-swiper-wrap">
+        <swiper class="banner-swiper" :autoplay="true" :interval="bannerInterval * 1000" :duration="500" circular :current="currentIndex" :indicator-dots="bannerImages.length > 1" indicator-color="rgba(255,255,255,0.4)" indicator-active-color="#fff" @change="onBannerChange">
+          <swiper-item v-for="(url, idx) in bannerImages" :key="idx">
+            <image :src="url" mode="aspectFill" class="banner-swiper-img" />
+          </swiper-item>
+        </swiper>
+        <view v-if="bannerImages.length > 1" class="banner-arrow banner-arrow--left" @click.stop="prevBanner">
+          <text class="banner-arrow-icon">‹</text>
+        </view>
+        <view v-if="bannerImages.length > 1" class="banner-arrow banner-arrow--right" @click.stop="nextBanner">
+          <text class="banner-arrow-icon">›</text>
+        </view>
+      </view>
+      <view v-else class="banner-section">
         <view class="banner-bg"></view>
         <view class="banner-overlay">
           <view class="banner-tag"><text>限时活动</text></view>
@@ -171,6 +184,7 @@ import { ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { useStore } from '@/store/index.js'
 import { taskApi, notificationApi, commonApi } from '@/api'
+import { getBannerSnapshot, refreshBanners } from '@/utils/banner-cache.js'
 import { requireCertified } from '@/utils/error'
 import CustomTabbar from '@/components/custom-tabbar/custom-tabbar.vue'
 import { showToast } from '@/utils/toast'
@@ -181,6 +195,29 @@ const scrollHeight = sysInfo.windowHeight - sysInfo.statusBarHeight - 44
 const searchValue = ref('')
 const unreadCount = ref(0)
 const announcement = ref('🎉 代购物品新上线！前100单免配送费，快来体验吧～')
+
+const banner = getBannerSnapshot()
+const bannerImages = ref(banner.images)
+const bannerInterval = ref(banner.interval)
+const currentIndex = ref(0)
+let manualSwitching = false
+
+function onBannerChange(e) {
+  if (manualSwitching) { manualSwitching = false; return }
+  currentIndex.value = e.detail.current
+}
+
+function prevBanner() {
+  manualSwitching = true
+  const len = bannerImages.value.length
+  currentIndex.value = (currentIndex.value - 1 + len) % len
+}
+
+function nextBanner() {
+  manualSwitching = true
+  const len = bannerImages.value.length
+  currentIndex.value = (currentIndex.value + 1) % len
+}
 
 const services = [
   { typeValue: 1, title: '代取快递', desc: '驿站包裹极速达', iconName: 'express', color: 'blue' },
@@ -268,6 +305,11 @@ onShow(() => {
   }
   loadUnread()
   loadAnnouncement()
+  refreshBanners().then(() => {
+    const snap = getBannerSnapshot()
+    bannerImages.value = snap.images
+    bannerInterval.value = snap.interval
+  })
 })
 </script>
 
@@ -303,7 +345,39 @@ onShow(() => {
 .search-section :deep(.uni-searchbar__box) { border-radius: 48rpx !important; box-shadow: var(--shadow-sm); border: 1rpx solid var(--outline-light); height: 88rpx !important; }
 .search-section :deep(.uni-searchbar) { padding: 0 !important; }
 
-/* Banner — 珊瑚→青绿渐变 */
+/* Banner 轮播图 */
+.banner-swiper-wrap { margin-top: 24rpx; position: relative; }
+.banner-swiper { height: 320rpx; border-radius: var(--radius-lg); overflow: hidden; }
+.banner-swiper-img { width: 100%; height: 100%; }
+
+/* 左右箭头 — 半透明白色圆形，毛玻璃效果 */
+.banner-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(12rpx);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.08);
+}
+.banner-arrow:active { background: rgba(255, 255, 255, 0.55); transform: translateY(-50%) scale(0.92); }
+.banner-arrow--left  { left: 16rpx; }
+.banner-arrow--right { right: 16rpx; }
+.banner-arrow-icon {
+  font-size: 36rpx;
+  font-weight: 300;
+  color: var(--text-primary);
+  line-height: 1;
+  margin-top: -2rpx;
+}
+
+/* Banner — 珊瑚→青绿渐变（无轮播图时的静态占位） */
 .banner-section { margin-top: 24rpx; height: 320rpx; border-radius: var(--radius-lg); overflow: hidden; position: relative; }
 .banner-bg { width: 100%; height: 100%; position: absolute; top: 0; left: 0; background: linear-gradient(135deg, var(--primary) 0%, #FF8B72 35%, var(--secondary) 80%, #1FA89B 100%); background-size: 200% 200%; animation: bannerShift 8s ease-in-out infinite alternate; }
 @keyframes bannerShift { 0% { background-position: 0% 0%; } 100% { background-position: 100% 100%; } }

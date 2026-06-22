@@ -9,6 +9,19 @@
       </view>
 
       <view class="form-card">
+        <view class="card-title">取件信息 <text class="required">*</text></view>
+        <view class="form-label">打印地点</view>
+        <view class="addr-row">
+          <view class="addr-badge addr-badge--pickup">取</view>
+          <picker mode="selector" :range="pickupLocations" @change="onPickupLoc" style="flex:1">
+            <view class="form-select"><text :class="{ 'form-select-placeholder': !pickupAddress }">{{ pickupAddress || '请选择打印地点' }}</text><text class="select-arrow">▼</text></view>
+          </picker>
+        </view>
+        <view v-if="pickupAddress === '自定义地点'" class="form-label">自定义打印地点</view>
+        <input v-if="pickupAddress === '自定义地点'" class="form-input" placeholder="请输入具体打印地点" v-model="customPickupAddress" />
+      </view>
+
+      <view class="form-card">
         <view class="card-title">打印设置</view>
         <view class="form-label">打印类型</view>
         <view class="chip-row">
@@ -110,6 +123,9 @@ import UploadGrid from '@/components/upload-grid/upload-grid.vue'
 const sysInfo = uni.getSystemInfoSync()
 const scrollHeight = sysInfo.windowHeight - sysInfo.statusBarHeight - 44
 
+const pickupLocations = ['文印中心', '图书馆打印室', '教学楼打印点', '自定义地点']
+const pickupAddress = ref('')
+const customPickupAddress = ref('')
 const printType = ref('bw')
 const printSide = ref('double')
 const description = ref('')
@@ -153,6 +169,10 @@ onLoad(() => {
   restoreDraft()
 })
 
+function onPickupLoc(e) {
+  pickupAddress.value = pickupLocations[e.detail.value]
+}
+
 function setReward(val) {
   showCustomTip.value = false
   reward.value = val
@@ -190,6 +210,14 @@ function onDeadlineTimeChange(e) {
 }
 
 async function onSubmit() {
+  if (!pickupAddress.value) {
+    uni.showToast({ title: '请选择打印地点', icon: 'none' })
+    return
+  }
+  if (pickupAddress.value === '自定义地点' && !customPickupAddress.value) {
+    uni.showToast({ title: '请输入具体打印地点', icon: 'none' })
+    return
+  }
   if (!deliveryAddressId.value) {
     uni.showToast({ title: '请选择配送地址', icon: 'none' })
     return
@@ -217,6 +245,9 @@ async function onSubmit() {
 
     const tip = showCustomTip.value ? (customTip.value || 0) : reward.value
 
+    let actualPickup = pickupAddress.value
+    if (pickupAddress.value === '自定义地点') actualPickup = customPickupAddress.value
+
     await taskApi.publishTask({
       type: TYPE_TO_API[3], subType: SUBTYPE_TO_VALUE[31],
       publicDesc: description.value || undefined,
@@ -225,6 +256,7 @@ async function onSubmit() {
       deliveryFee: baseFee,
       productCost: 0,
       payPassword: pw,
+      pickupAddress: actualPickup || undefined,
       deliveryAddressId: deliveryAddressId.value || undefined,
       contactName: deliveryContactName.value || undefined,
       contactPhone: deliveryContactPhone.value || undefined,

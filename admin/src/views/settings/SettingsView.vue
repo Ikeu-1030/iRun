@@ -30,7 +30,56 @@
             {{ group.name }}
           </span>
         </template>
-        <div class="config-rows">
+        <template v-if="group.name === '轮播图'">
+          <div class="banner-manage">
+            <div v-for="(url, idx) in bannerImages" :key="idx" class="banner-item">
+              <img :src="url" class="banner-thumb" />
+              <div class="banner-item-actions">
+                <el-button size="small" :disabled="idx === 0" @click="moveBanner(idx, -1)">
+                  <el-icon><ArrowUp /></el-icon> 上移
+                </el-button>
+                <el-button size="small" :disabled="idx === bannerImages.length - 1" @click="moveBanner(idx, 1)">
+                  <el-icon><ArrowDown /></el-icon> 下移
+                </el-button>
+                <el-button size="small" type="danger" @click="removeBanner(idx)">
+                  <el-icon><Delete /></el-icon> 删除
+                </el-button>
+              </div>
+            </div>
+
+            <div v-if="bannerImages.length < 5" class="banner-upload-area">
+              <input
+                :ref="(el: any) => fileInputEl = el"
+                type="file"
+                accept="image/png,image/jpeg,image/gif,image/webp"
+                class="file-input-hidden"
+                @change="onFileChange"
+              />
+              <el-button type="primary" :loading="uploading" @click="triggerFileUpload">
+                <el-icon><Upload /></el-icon> 上传图片（{{ bannerImages.length }}/5）
+              </el-button>
+            </div>
+            <div v-else class="banner-limit-hint">已达到上限（5 张），请先删除再添加</div>
+
+            <div class="banner-interval-row">
+              <div class="config-info">
+                <span class="config-label">轮播间隔</span>
+                <span class="config-key">banner.interval_seconds</span>
+              </div>
+              <div class="config-value-area">
+                <el-input-number
+                  v-model="bannerInterval"
+                  :min="1"
+                  :max="10"
+                  size="small"
+                  @change="saveBannerInterval"
+                />
+                <span class="interval-unit">秒</span>
+              </div>
+            </div>
+          </div>
+        </template>
+        <div v-else class="config-rows">
           <div v-for="item in group.items" :key="item.configKey" class="config-row">
             <div class="config-info">
               <span class="config-label">{{ item.description || item.configKey }}</span>
@@ -64,8 +113,9 @@
 <script setup lang="ts">
 import { onMounted, ref, computed, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Setting, Document, Van, Money, UploadFilled } from '@element-plus/icons-vue'
+import { Setting, Document, Van, Money, UploadFilled, Picture, ArrowUp, ArrowDown, Delete, Upload } from '@element-plus/icons-vue'
 import { getSettings, updateSettings } from '@/api/settings'
+import request from '@/utils/request'
 
 const loading = ref(false)
 const entered = ref(false)
@@ -73,12 +123,18 @@ const configs = ref<any[]>([])
 const editingKey = ref<string | null>(null)
 const editValue = ref('')
 
+let fileInputEl: HTMLInputElement | null = null
+const bannerImages = ref<string[]>([])
+const bannerInterval = ref(3)
+const uploading = ref(false)
+
 const groupMeta: Record<string, any> = {
   '基础设置': { color: '#5B9BD5', bgColor: '#EFF5FB', icon: Setting, order: 1 },
   '订单规则': { color: '#2EB89E', bgColor: '#EDFAF7', icon: Document, order: 2 },
   '跑腿限制': { color: '#C8925D', bgColor: '#FDF3EB', icon: Van, order: 3 },
   '费率设置': { color: '#8B6BAE', bgColor: '#F6F1FA', icon: Money, order: 4 },
   '上传限制': { color: '#E8734A', bgColor: '#FFF2ED', icon: UploadFilled, order: 5 },
+  '轮播图': { color: '#D946EF', bgColor: '#FDF2FE', icon: Picture, order: 6 },
 }
 
 const lastUpdated = computed(() => {
@@ -107,6 +163,85 @@ const groups = computed(() => {
     }))
     .sort((a, b) => a.order - b.order)
 })
+
+function parseBannerData() {
+  const imagesCfg = configs.value.find((c: any) => c.configKey === 'banner.images')
+  const intervalCfg = configs.value.find((c: any) => c.configKey === 'banner.interval_seconds')
+  bannerImages.value = imagesCfg?.configValue
+    ? imagesCfg.configValue.split(',').map((s: string) => s.trim()).filter(Boolean)
+    : []
+  bannerInterval.value = intervalCfg?.configValue
+    ? Math.min(10, Math.max(1, parseInt(intervalCfg.configValue, 10) || 3))
+    : 3
+}
+
+async function saveBannerImages() {
+  const cfg = configs.value.find((c: any) => c.configKey === 'banner.images')
+  if (!cfg) return
+  const newValue = bannerImages.value.join(',')
+  try {
+    await updateSettings({ items: [{ configKey: 'banner.images', configValue: newValue }] })
+    cfg.configValue = newValue
+    ElMessage.success('轮播图已更新')
+  } catch { /* handled by interceptor */ }
+}
+
+function moveBanner(idx: number, dir: number) {
+  const arr = [...bannerImages.value]
+  const target = idx + dir
+  if (target < 0 || target >= arr.length) return
+  ;[arr[idx], arr[target]] = [arr[target], arr[idx]]
+  bannerImages.value = arr
+  saveBannerImages()
+}
+
+async function removeBanner(idx: number) {
+  bannerImages.value = bannerImages.value.filter((_, i) => i !== idx)
+  await saveBannerImages()
+}
+
+function triggerFileUpload() {
+  fileInputEl?.click()
+}
+
+async function onFileChange(e: Event) {
+  const input = e.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+  if (file.size > 5 * 1024 * 1024) {
+    ElMessage.warning('图片大小不能超过 5MB')
+    input.value = ''
+    return
+  }
+  if (!['image/png', 'image/jpeg', 'image/gif', 'image/webp'].includes(file.type)) {
+    ElMessage.warning('仅支持 PNG、JPEG、GIF、WebP 格式')
+    input.value = ''
+    return
+  }
+  uploading.value = true
+  try {
+    const fd = new FormData()
+    fd.append('file', file)
+    const url = await request({ url: '/common/upload', method: 'post', data: fd, headers: { 'Content-Type': 'multipart/form-data' } })
+    bannerImages.value = [...bannerImages.value, url as string]
+    await saveBannerImages()
+  } catch { /* handled by interceptor */ }
+  finally {
+    uploading.value = false
+    input.value = ''
+  }
+}
+
+async function saveBannerInterval() {
+  const cfg = configs.value.find((c: any) => c.configKey === 'banner.interval_seconds')
+  if (!cfg) return
+  const val = String(bannerInterval.value)
+  try {
+    await updateSettings({ items: [{ configKey: 'banner.interval_seconds', configValue: val }] })
+    cfg.configValue = val
+    ElMessage.success('轮播间隔已更新')
+  } catch { /* handled by interceptor */ }
+}
 
 function formatValue(item: any) {
   const v = item.configValue
@@ -147,6 +282,7 @@ onMounted(async () => {
   loading.value = true
   try {
     configs.value = (await getSettings()) as any[]
+    parseBannerData()
   } finally {
     loading.value = false
   }
@@ -262,6 +398,65 @@ onMounted(async () => {
 
 .edit-input {
   width: 160px;
+}
+
+/* ===== 轮播图管理 ===== */
+.banner-manage {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.banner-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  background: var(--neutral-layer);
+  border-radius: 8px;
+}
+
+.banner-thumb {
+  width: 200px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.banner-item-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.banner-upload-area {
+  padding: 4px 0;
+}
+
+.file-input-hidden {
+  display: none;
+}
+
+.banner-limit-hint {
+  font-size: 13px;
+  color: var(--text-placeholder);
+  padding: 4px 0;
+}
+
+.banner-interval-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-top: 1px solid var(--neutral-outline-light);
+  margin-top: 4px;
+}
+
+.interval-unit {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-left: 2px;
 }
 
 /* ===== 入场动画 ===== */

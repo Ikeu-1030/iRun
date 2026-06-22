@@ -112,7 +112,7 @@ async function onRecharge() {
   if (!lock()) return
   try {
     await transactionApi.recharge(amount, pw)
-    store.updateBalance(store.userInfo.balance + amount)
+    await store.fetchUserInfo()
     uni.showToast({ title: '充值成功', icon: 'success' })
     rechargeCustom.value = ''
     rechargeSelected.value = '50'
@@ -138,7 +138,7 @@ async function onWithdraw() {
   if (!lock()) return
   try {
     await transactionApi.withdraw(amount, pw)
-    store.updateBalance(store.userInfo.balance - amount)
+    await store.fetchUserInfo()
     uni.showToast({ title: '提现成功', icon: 'success' })
     withdrawAmount.value = ''
   } catch (e) {
