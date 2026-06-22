@@ -149,7 +149,7 @@ cyan("Phase 4: Publish Task")
 import json as j
 task_specs = j.dumps({"包裹列表":[{"规格":"小件","数量":1}]}, ensure_ascii=False)
 r = api_post("/task/publish", {
-    "type":"daiqukuaidi", "subType":"小件快递",
+    "type":"代取快递", "subType":"小件快递",
     "publicDesc":"E2E全链路测试-代取快递", "privateNote":"取件码:TEST001",
     "taskSpecs": task_specs,
     "tip":3, "deliveryFee":5, "productCost":0, "payPassword":"123456",

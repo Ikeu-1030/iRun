@@ -165,7 +165,7 @@ ADDR_A_ID=$(python -c "import json; d=json.load(open('$TMPDIR/alist.json',encodi
 python -c "
 import json
 json.dump({
-    'type':'daiqukuaidi','subType':'小件快递',
+    'type':'代取快递','subType':'小件快递',
     'publicDesc':'E2E-代取快递测试','privateNote':'取件码:SF12345678',
     'taskSpecs':json.dumps({'包裹列表':[{'规格':'小件','数量':1}]}),
     'tip':3,'deliveryFee':5,'productCost':0,'payPassword':'123456',

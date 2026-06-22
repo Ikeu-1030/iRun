@@ -496,7 +496,7 @@ RESP=$(curl -s -w "\n%{http_code}" -X POST $API/task/publish \
   -H "Content-Type: application/json" \
   -H "authentication: $TOKEN_A" \
   -d '{
-    "type":"daiqukuaidi",
+    "type":"代取快递",
     "subType":"小件快递",
     "publicDesc":"测试代取快递 — 菜鸟驿站取顺丰小件",
     "privateNote":"取件码: SF12345678",
@@ -542,7 +542,7 @@ RESP=$(curl -s -w "\n%{http_code}" -X POST $API/task/publish \
   -H "Content-Type: application/json" \
   -H "authentication: $TOKEN_A" \
   -d '{
-    "type":"dana canshi",
+    "type":"代拿餐食",
     "subType":"校外餐饮",
     "publicDesc":"测试代拿餐食 — 校门口麻辣烫店取餐",
     "privateNote":"要加辣",
@@ -581,7 +581,7 @@ RESP=$(curl -s -w "\n%{http_code}" -X POST $API/task/publish \
   -H "Content-Type: application/json" \
   -H "authentication: $TOKEN_A" \
   -d '{
-    "type":"xiaonei daiban",
+    "type":"校内代办",
     "subType":"物品急送",
     "publicDesc":"测试物品急送 — 教学楼→宿舍楼送文件",
     "privateNote":"放在门口桌上即可",
@@ -614,7 +614,7 @@ RESP=$(curl -s -w "\n%{http_code}" -X POST $API/task/publish \
   -H "Content-Type: application/json" \
   -H "authentication: $TOKEN_A" \
   -d '{
-    "type":"daigou wupin",
+    "type":"代购物品",
     "subType":"校内代购",
     "publicDesc":"测试代购 — 超市买文具",
     "privateNote":"要晨光品牌",
