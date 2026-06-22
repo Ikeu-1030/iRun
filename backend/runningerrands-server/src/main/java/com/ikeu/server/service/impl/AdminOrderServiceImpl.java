@@ -7,11 +7,13 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ikeu.common.constant.MessageConstant;
 import com.ikeu.common.constant.RedisConstant;
 import com.ikeu.common.constant.StatusConstant;
+import com.ikeu.common.context.BaseContext;
 import com.ikeu.common.enums.OrderStateMachine;
 import com.ikeu.common.enums.TaskStateMachine;
 import com.ikeu.common.exception.BusinessException;
 import com.ikeu.common.exception.NotFoundException;
 import com.ikeu.common.result.PageResult;
+import com.ikeu.common.utils.PiiMaskUtil;
 import com.ikeu.model.entity.Task;
 import com.ikeu.model.entity.TaskOrder;
 import com.ikeu.model.entity.User;
@@ -143,7 +145,7 @@ public class AdminOrderServiceImpl implements AdminOrderService {
                 ? JSONUtil.toList(order.getPickupProofImgs(), String.class) : Collections.emptyList());
         vo.setDeliverProofImgs(order.getDeliverProofImgs() != null
                 ? JSONUtil.toList(order.getDeliverProofImgs(), String.class) : Collections.emptyList());
-        vo.setCancelTime(order.getStatus().equals(StatusConstant.ORDER_CANCELLED) ? order.getConfirmTime() : null);
+        vo.setCancelTime(order.getStatus().equals(StatusConstant.ORDER_CANCELLED) ? order.getCancelTime() : null);
 
         if (publisher != null) {
             vo.setPublisherPhone(publisher.getPhone());
@@ -156,6 +158,11 @@ public class AdminOrderServiceImpl implements AdminOrderService {
             vo.setRunnerAvatar(runner.getAvatarUrl());
             vo.setRunnerNickname(runner.getNickname());
             vo.setRunnerUsername(runner.getUsername());
+        }
+
+        if (!Integer.valueOf(1).equals(BaseContext.getCurrentRole())) {
+            vo.setPublisherPhone(PiiMaskUtil.maskPhone(vo.getPublisherPhone()));
+            vo.setRunnerPhone(PiiMaskUtil.maskPhone(vo.getRunnerPhone()));
         }
 
         return vo;
@@ -172,7 +179,7 @@ public class AdminOrderServiceImpl implements AdminOrderService {
      */
     @Override
     @Transactional
-    @CacheEvict(value = {RedisConstant.CACHE_DASHBOARD, RedisConstant.CACHE_TASK_HALL}, allEntries = true)
+    @CacheEvict(value = {RedisConstant.CACHE_DASHBOARD, RedisConstant.CACHE_TASK_HALL, RedisConstant.CACHE_LEADERBOARD, RedisConstant.CACHE_TASK_DETAIL}, allEntries = true)
     public void updateOrderStatus(Long orderId, Integer status) {
         // 先查订单获取 taskId，再以 taskId 加锁，与用户端及定时任务共用同一把锁
         TaskOrder order = taskOrderMapper.selectById(orderId);
@@ -194,7 +201,7 @@ public class AdminOrderServiceImpl implements AdminOrderService {
             LocalDateTime now = LocalDateTime.now();
             order.setStatus(status);
             if (status.equals(StatusConstant.ORDER_COMPLETED)) order.setConfirmTime(now);
-            if (status.equals(StatusConstant.ORDER_CANCELLED)) order.setConfirmTime(now);
+            if (status.equals(StatusConstant.ORDER_CANCELLED)) order.setCancelTime(now);
             taskOrderMapper.updateById(order);
 
             if (task != null) {
