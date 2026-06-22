@@ -202,7 +202,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
                     "default-src 'self'; script-src 'self'; " +
                     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
                     "font-src 'self' https://fonts.gstatic.com; " +
-                    "img-src 'self' data: blob:; connect-src 'self' wss:; " +
+                    "img-src 'self' data: blob: https://*.aliyuncs.com; connect-src 'self' wss:; " +
                     "frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
             chain.doFilter(request, response);
         });

@@ -3,6 +3,14 @@ import type { AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 import { ElMessage } from 'element-plus'
 import router from '@/router'
 import { useAuthStore } from '@/stores/auth'
+import {
+  getAdminToken,
+  setAdminToken,
+  removeAdminToken,
+  getAdminRefreshToken,
+  setAdminRefreshToken,
+  removeAdminRefreshToken,
+} from './tokenStore'
 
 export {
   getAdminToken,
@@ -11,7 +19,7 @@ export {
   getAdminRefreshToken,
   setAdminRefreshToken,
   removeAdminRefreshToken,
-} from './tokenStore'
+}
 
 let isRefreshing = false
 let refreshQueue: Array<(token: string) => void> = []
@@ -88,7 +96,9 @@ service.interceptors.response.use(
             error.config.headers['token'] = token
             return service(error.config)
           }
+          return Promise.reject(error)
         } catch {
+          refreshQueue = [] // 刷新失败，导航已触发，直接清空队列
           removeAdminToken()
           removeAdminRefreshToken()
           ElMessage.error('登录已过期，请重新登录')
@@ -98,11 +108,13 @@ service.interceptors.response.use(
           isRefreshing = false
         }
       } else {
-        return new Promise(resolve => {
+        return new Promise((resolve, reject) => {
           refreshQueue.push((token: string) => {
             if (error.config) {
               error.config.headers['token'] = token
               resolve(service(error.config))
+            } else {
+              reject(error)
             }
           })
         })

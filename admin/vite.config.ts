@@ -13,7 +13,7 @@ function securityPlugin(): Plugin {
         "script-src 'self'",
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
         "font-src 'self' https://fonts.gstatic.com",
-        "img-src 'self' data: blob:",
+        "img-src 'self' data: blob: https://*.aliyuncs.com",
         "connect-src 'self'",
         "frame-ancestors 'none'",
         "base-uri 'self'",
@@ -42,7 +42,7 @@ export default defineConfig({
       'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
     },
     proxy: {
-      '^/api/(admin|user/|common|ws)': {
+      '^/api/(admin|user/|common|ws|imgs)': {
         target: 'http://localhost:8080',
         changeOrigin: true,
         configure: (proxy) => {
