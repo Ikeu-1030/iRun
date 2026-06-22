@@ -107,7 +107,6 @@ class SecurityHardeningTest {
 
     @Test
     void smsRateLimit_underLimit_shouldBeAllowed() {
-        // Simulate IP-based counter: first call returns count 1 (under 5 limit)
         String ip = "192.168.1.1";
         String rateKey = "user:sms:rate:" + ip;
 
@@ -115,10 +114,11 @@ class SecurityHardeningTest {
         when(valueOps.increment(rateKey)).thenReturn(1L);
 
         Long count = redisTemplate.opsForValue().increment(rateKey);
-        if (count == 1) redisTemplate.expire(rateKey, 60, TimeUnit.SECONDS);
+        redisTemplate.expire(rateKey, 60, TimeUnit.SECONDS);
 
         assertEquals(1L, count);
         assertTrue(count <= 5, "Should be under SMS rate limit");
+        verify(redisTemplate).expire(rateKey, 60, TimeUnit.SECONDS);
     }
 
     @Test
@@ -130,9 +130,11 @@ class SecurityHardeningTest {
         when(valueOps.increment(rateKey)).thenReturn(5L);
 
         Long count = redisTemplate.opsForValue().increment(rateKey);
+        redisTemplate.expire(rateKey, 60, TimeUnit.SECONDS);
 
         assertEquals(5L, count);
         assertTrue(count <= 5, "Count at limit (5) should still be allowed");
+        verify(redisTemplate).expire(rateKey, 60, TimeUnit.SECONDS);
     }
 
     @Test
@@ -144,23 +146,26 @@ class SecurityHardeningTest {
         when(valueOps.increment(rateKey)).thenReturn(6L);
 
         Long count = redisTemplate.opsForValue().increment(rateKey);
+        redisTemplate.expire(rateKey, 60, TimeUnit.SECONDS);
 
         assertTrue(count > 5, "Count exceeds limit");
-        // In controller: throw new BusinessException(MessageConstant.SMS_RATE_LIMITED);
         assertEquals(MessageConstant.SMS_RATE_LIMITED, "短信发送频率过高，请稍后再试");
+        verify(redisTemplate).expire(rateKey, 60, TimeUnit.SECONDS);
     }
 
     @Test
-    void smsRateLimit_expireSetOnFirstIncrement() {
+    void smsRateLimit_expireAlwaysSet() {
         String ip = "10.0.0.1";
         String rateKey = "user:sms:rate:" + ip;
 
+        // Even on subsequent increments (count > 1), expire must be set
         when(redisTemplate.opsForValue()).thenReturn(valueOps);
-        when(valueOps.increment(rateKey)).thenReturn(1L);
+        when(valueOps.increment(rateKey)).thenReturn(3L);
 
         Long count = redisTemplate.opsForValue().increment(rateKey);
-        if (count == 1) redisTemplate.expire(rateKey, 60, TimeUnit.SECONDS);
+        redisTemplate.expire(rateKey, 60, TimeUnit.SECONDS);
 
+        assertEquals(3L, count);
         verify(redisTemplate).expire(rateKey, 60, TimeUnit.SECONDS);
     }
 
@@ -180,9 +185,9 @@ class SecurityHardeningTest {
     void updateCreditScoreAndFreeze_parameterSignature_hasCorrectArity() throws NoSuchMethodException {
         var method = com.ikeu.server.mapper.RunnerProfileMapper.class
                 .getDeclaredMethod("updateCreditScoreAndFreeze",
-                        Long.class, int.class, int.class, int.class);
-        assertNotNull(method, "updateCreditScoreAndFreeze(Lon, int, int, int) must exist");
-        assertEquals(4, method.getParameterCount(),
-                "Must accept 4 parameters: userId, delta, freezeThreshold, freezeDays");
+                        Long.class, int.class, int.class, int.class, int.class);
+        assertNotNull(method, "updateCreditScoreAndFreeze(Long, int, int, int, int) must exist");
+        assertEquals(5, method.getParameterCount(),
+                "Must accept 5 parameters: userId, delta, freezeThreshold, freezeDays, maxScore");
     }
 }

@@ -70,8 +70,8 @@ public class AdminAuthController {
         String ip = WebUtil.getClientIp(request);
         String key = keyPrefix + ip;
         Long n = stringRedisTemplate.opsForValue().increment(key);
-        if (n == 1) stringRedisTemplate.expire(key, 60, TimeUnit.SECONDS);
-        return n > max;
+        stringRedisTemplate.expire(key, 60, TimeUnit.SECONDS);
+        return n != null && n > max;
     }
 
     /**

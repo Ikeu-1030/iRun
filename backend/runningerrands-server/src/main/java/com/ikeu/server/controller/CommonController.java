@@ -114,7 +114,7 @@ public class CommonController {
             return Result.error(MessageConstant.UPLOAD_LIMIT_EXCEEDED);
         }
         Long dailyCount = stringRedisTemplate.opsForValue().increment(dailyKey);
-        if (dailyCount == 1) stringRedisTemplate.expire(dailyKey, 1, TimeUnit.DAYS);
+        stringRedisTemplate.expire(dailyKey, 1, TimeUnit.DAYS);
 
         log.info("文件上传：{}", file.getOriginalFilename());
 
@@ -177,6 +177,7 @@ public class CommonController {
         if (intervalCfg != null && intervalCfg.getConfigValue() != null) {
             try { interval = Integer.parseInt(intervalCfg.getConfigValue()); } catch (NumberFormatException ignored) {}
         }
+        interval = Math.min(10, Math.max(1, interval));
 
         return Result.successData(BannerVO.builder().images(images).interval(interval).build());
     }

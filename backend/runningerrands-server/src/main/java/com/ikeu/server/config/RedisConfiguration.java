@@ -69,7 +69,6 @@ public class RedisConfiguration {
 
         JacksonObjectMapper mapper = new JacksonObjectMapper();
         var ptv = BasicPolymorphicTypeValidator.builder()
-                .allowIfBaseType(Object.class)
                 .allowIfSubType("com.ikeu.model.")
                 .allowIfSubType("java.util.")
                 .allowIfSubType("java.math.")

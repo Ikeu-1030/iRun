@@ -22,7 +22,11 @@ export {
 }
 
 let isRefreshing = false
-let refreshQueue: Array<(token: string) => void> = []
+let refreshQueue: Array<{
+  resolve: (value: unknown) => void
+  reject: (reason: unknown) => void
+  config: InternalAxiosRequestConfig
+}> = []
 
 // 开发环境 (Vite proxy 转发到 Ngrok 后端)
 const API_BASE = '/api'
@@ -89,7 +93,10 @@ service.interceptors.response.use(
           if (adminId) {
             authStore.adminInfo = { adminId, username, name, role }
           }
-          refreshQueue.forEach(cb => cb(token))
+          refreshQueue.forEach(({ resolve, config }) => {
+            config.headers['token'] = token
+            resolve(service(config))
+          })
           refreshQueue = []
 
           if (error.config) {
@@ -98,7 +105,8 @@ service.interceptors.response.use(
           }
           return Promise.reject(error)
         } catch {
-          refreshQueue = [] // 刷新失败，导航已触发，直接清空队列
+          refreshQueue.forEach(({ reject }) => reject(new Error('Token refresh failed')))
+          refreshQueue = []
           removeAdminToken()
           removeAdminRefreshToken()
           ElMessage.error('登录已过期，请重新登录')
@@ -109,14 +117,7 @@ service.interceptors.response.use(
         }
       } else {
         return new Promise((resolve, reject) => {
-          refreshQueue.push((token: string) => {
-            if (error.config) {
-              error.config.headers['token'] = token
-              resolve(service(error.config))
-            } else {
-              reject(error)
-            }
-          })
+          refreshQueue.push({ resolve, reject, config: error.config! })
         })
       }
     }

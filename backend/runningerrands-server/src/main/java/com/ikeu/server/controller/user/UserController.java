@@ -45,8 +45,8 @@ public class UserController {
         String ip = WebUtil.getClientIp(request);
         String rateKey = RedisConstant.USER_SMS_RATE_KEY + ip;
         Long count = stringRedisTemplate.opsForValue().increment(rateKey);
-        if (count == 1) stringRedisTemplate.expire(rateKey, 60, TimeUnit.SECONDS);
-        if (count > SMS_RATE_LIMIT_MAX) {
+        stringRedisTemplate.expire(rateKey, 60, TimeUnit.SECONDS);
+        if (count != null && count > SMS_RATE_LIMIT_MAX) {
             throw new BusinessException(MessageConstant.SMS_RATE_LIMITED);
         }
 
@@ -147,8 +147,8 @@ public class UserController {
         String ip = WebUtil.getClientIp(request);
         String key = RedisConstant.USER_REFRESH_RATE_KEY + ip;
         Long n = stringRedisTemplate.opsForValue().increment(key);
-        if (n == 1) stringRedisTemplate.expire(key, 60, TimeUnit.SECONDS);
-        return n > REFRESH_RATE_MAX;
+        stringRedisTemplate.expire(key, 60, TimeUnit.SECONDS);
+        return n != null && n > REFRESH_RATE_MAX;
     }
 
     /**
@@ -355,7 +355,7 @@ public class UserController {
         String ip = WebUtil.getClientIp(request);
         String key = keyPrefix + ip;
         Long n = stringRedisTemplate.opsForValue().increment(key);
-        if (n == 1) stringRedisTemplate.expire(key, 60, TimeUnit.SECONDS);
-        return n > max;
+        stringRedisTemplate.expire(key, 60, TimeUnit.SECONDS);
+        return n != null && n > max;
     }
 }
