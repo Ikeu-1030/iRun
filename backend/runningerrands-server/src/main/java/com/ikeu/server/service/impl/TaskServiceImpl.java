@@ -643,7 +643,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         Map<Integer, Long> statusCountMap = new HashMap<>();
         long total = 0;
         for (Map<String, Object> row : rows) {
-            Integer status = (Integer) row.get("COALESCE(status, 0)");
+            Integer status = ((Number) row.get("COALESCE(status, 0)")).intValue();
             Long cnt = ((Number) row.get("COUNT(*)")).longValue();
             statusCountMap.put(status, cnt);
             total += cnt;
