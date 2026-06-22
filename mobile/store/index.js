@@ -154,11 +154,6 @@ export const useStore = defineStore('main', {
       persistPayPassword(true)
     },
 
-    // ---------- 钱包 ----------
-    updateBalance(balance) {
-      this.userInfo.balance = balance
-    },
-
     // ---------- 退出 ----------
     async logout() {
       try { await userApi.logout() } catch (e) { /* ignore */ }
