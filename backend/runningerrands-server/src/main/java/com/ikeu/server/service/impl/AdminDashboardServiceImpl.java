@@ -43,9 +43,12 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
     private final TaskOrderMapper taskOrderMapper;
     private final RunnerProfileMapper runnerProfileMapper;
 
-    private static final Map<String, String> TYPE_LABEL_MAP = Map.of(
-            "代取快递", "代取快递", "代拿餐食", "代拿餐食",
-            "校内代办", "校内代办", "代购物品", "代购物品", "通用代办", "通用代办");
+    private static final Map<String, String> TYPE_LABEL_MAP = Map.ofEntries(
+            Map.entry("代取快递", "代取快递"), Map.entry("daiqukuaidi", "代取快递"),
+            Map.entry("代拿餐食", "代拿餐食"), Map.entry("dana canshi", "代拿餐食"),
+            Map.entry("校内代办", "校内代办"), Map.entry("xiaonei daiban", "校内代办"),
+            Map.entry("代购物品", "代购物品"), Map.entry("daigou wupin", "代购物品"),
+            Map.entry("通用代办", "通用代办"), Map.entry("tongyong daiban", "通用代办"));
 
     /**
      * 统计卡片摘要：用户/任务/订单总数、认证/在线跑腿员数、今日新增/完成量、今日交易额。

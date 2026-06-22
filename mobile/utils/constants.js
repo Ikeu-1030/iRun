@@ -137,7 +137,13 @@ export function getTaskTypeLabel(type) {
 export const TYPE_TO_API = { 1: '代取快递', 2: '代拿餐食', 3: '校内代办', 4: '代购物品', 5: '通用代办' }
 
 /** 中文 type → Integer（API 响应解析用） */
-export const TYPE_FROM_API = { '代取快递': 1, '代拿餐食': 2, '校内代办': 3, '代购物品': 4, '通用代办': 5 }
+export const TYPE_FROM_API = {
+  '代取快递': 1, 'daiqukuaidi': 1,
+  '代拿餐食': 2, 'dana canshi': 2,
+  '校内代办': 3, 'xiaonei daiban': 3,
+  '代购物品': 4, 'daigou wupin': 4,
+  '通用代办': 5, 'tongyong daiban': 5
+}
 
 /** Integer → String subType（API 请求用） */
 export const SUBTYPE_TO_VALUE = {
