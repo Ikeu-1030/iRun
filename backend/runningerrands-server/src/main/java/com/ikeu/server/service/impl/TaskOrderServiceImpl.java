@@ -146,7 +146,7 @@ public class TaskOrderServiceImpl extends ServiceImpl<TaskOrderMapper, TaskOrder
             title = "订单已被接取",
             content = "您的任务 #taskNo 已被接单"
     )
-    public void acceptOrder(Long runnerId, Long taskId) {
+    public Long acceptOrder(Long runnerId, Long taskId) {
         // 1. 获取任务，校验任务状态
         Task task = taskMapper.selectById(taskId);
         if (task == null) throw new BusinessException(MessageConstant.TASK_NOT_EXIST);
@@ -238,6 +238,8 @@ public class TaskOrderServiceImpl extends ServiceImpl<TaskOrderMapper, TaskOrder
             Objects.requireNonNull(cacheManager.getCache(RedisConstant.CACHE_TASK_DETAIL)).clear();
             var nullKeys = stringRedisTemplate.keys(RedisConstant.TASK_HALL_NULL_PREFIX + "*");
             if (nullKeys != null && !nullKeys.isEmpty()) stringRedisTemplate.delete(nullKeys);
+
+            return order.getId();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new BusinessException(MessageConstant.ERROR);
@@ -622,6 +624,14 @@ public class TaskOrderServiceImpl extends ServiceImpl<TaskOrderMapper, TaskOrder
         return vo;
     }
 
+    /**
+     * 对手机号进行脱敏处理，保留后4位，其余用*替换。
+     *
+     * <p>示例：13812345678 -> ****5678
+     *
+     * @param phone 原始手机号（可为null）
+     * @return 脱敏后的手机号；若为null或长度不足4则原样返回
+     */
     private String maskPhone(String phone) {
         if (phone == null || phone.length() <= 4) return phone;
         return "*".repeat(phone.length() - 4) + phone.substring(phone.length() - 4);
@@ -726,7 +736,16 @@ public class TaskOrderServiceImpl extends ServiceImpl<TaskOrderMapper, TaskOrder
     }
 
     /**
-     * 软删除订单，仅允许发布者或配送员删除已完成且完成时间超过7天的订单
+     * 软删除订单，仅允许发布者或配送员删除已完成且完成时间超过7天的订单。
+     *
+     * <p>校验逻辑：
+     * <ol>
+     *   <li>订单存在且未删除</li>
+     *   <li>当前用户为发布者或配送员</li>
+     *   <li>订单状态为"已完成"</li>
+     *   <li>完成时间距当前超过7天</li>
+     *   <li>订单未被标记为删除</li>
+     * </ol>
      *
      * @param userId 当前用户ID
      * @param orderId 订单ID

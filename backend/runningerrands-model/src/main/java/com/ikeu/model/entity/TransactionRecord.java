@@ -12,7 +12,13 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * 资金流水表实体类
+ * 交易记录表实体类，映射 transaction_record 表。
+ *
+ * <p>包含交易用户、关联任务、金额、交易类型（支出/收入/充值/提现/退款）、
+ * 交易前后余额等字段。
+ *
+ * @author ikeu
+ * @since 2026/06/22
  */
 @Data
 @Builder

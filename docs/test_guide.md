@@ -1,3 +1,22 @@
+# 测试指南
+
+## E2E 全链路测试（推荐）
+
+```bash
+# 完整验证：28 项 API 快速检查
+bash e2e/scripts/quick-verify.sh
+
+# 订单全生命周期：注册→认证→跑腿员→发布→接单→取货→送达→完成→评价
+python e2e/scripts/full_flow.py
+
+# 清理测试数据
+bash e2e/scripts/teardown.sh
+```
+
+详见 `.agent/e2e-business-flow-tracker/` 完整工作流文档。
+
+---
+
 # 测试环境部署文档
 
 ## 环境信息

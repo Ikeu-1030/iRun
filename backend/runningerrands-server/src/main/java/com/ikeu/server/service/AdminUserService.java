@@ -1,5 +1,7 @@
 package com.ikeu.server.service;
 
+import com.ikeu.common.exception.BusinessException;
+import com.ikeu.common.exception.NotFoundException;
 import com.ikeu.common.result.PageResult;
 import com.ikeu.model.vo.UserInfoVO;
 
@@ -27,6 +29,7 @@ public interface AdminUserService {
      *
      * @param userId  用户 ID
      * @param enabled true 启用，false 禁用
+     * @throws NotFoundException 用户不存在时抛出
      */
     void toggleUserStatus(Long userId, Boolean enabled);
 
@@ -35,6 +38,7 @@ public interface AdminUserService {
      *
      * @param userId 用户 ID
      * @return 用户详情 VO
+     * @throws NotFoundException 用户不存在时抛出
      */
     UserInfoVO getUserDetail(Long userId);
 
@@ -44,6 +48,8 @@ public interface AdminUserService {
      * @param userId    用户 ID
      * @param isCertify 审核后的认证状态（通过/拒绝）
      * @param remark    审核备注说明
+     * @throws NotFoundException 用户不存在时抛出
+     * @throws BusinessException 用户不在审核中状态时抛出
      */
     void reviewUserCertification(Long userId, Integer isCertify, String remark);
 }

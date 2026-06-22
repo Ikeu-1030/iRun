@@ -26,6 +26,7 @@ public interface AdminSystemConfigService extends IService<SystemConfig> {
     /**
      * 批量更新配置值，写入后清除缓存
      * @param dto 批量更新请求 DTO
+     * @throws BusinessException 配置项不存在或值类型不匹配时抛出
      */
     void batchUpdate(SystemConfigBatchUpdateDTO dto);
 }

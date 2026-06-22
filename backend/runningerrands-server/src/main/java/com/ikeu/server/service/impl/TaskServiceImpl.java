@@ -114,14 +114,6 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         return taskListVO;
     }
 
-    /**
-     * 执行分页查询并构建TaskListVO结果
-     *
-     * @param page 页码
-     * @param size 每页条数
-     * @param wrapper 查询条件包装器
-     * @return PageResult<TaskListVO> 分页任务列表结果
-     */
     /** 将分页 Task 结果批量转换为 TaskListVO */
     private PageResult<TaskListVO> buildTaskListResult(Page<Task> taskPage) {
         if (taskPage.getRecords().isEmpty()) {
@@ -196,7 +188,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
      */
     @Override
     @Transactional
-    public void publishTask(Long userId, TaskPublishDTO taskPublishDTO) {
+    public String publishTask(Long userId, TaskPublishDTO taskPublishDTO) {
         // 校验支付密码
         paymentService.verifyPayPassword(userId, taskPublishDTO.getPayPassword());
         // 校验用户状态
@@ -309,6 +301,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                 if (nullKeys != null && !nullKeys.isEmpty()) stringRedisTemplate.delete(nullKeys);
             }
         });
+
+        return task.getTaskNo();
     }
 
     /**

@@ -10,7 +10,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * 批量更新系统配置请求 DTO
+ * SystemConfigBatchUpdateDTO
  * @author ikeu
  * @since 2026/06/18
  */
