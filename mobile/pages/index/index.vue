@@ -77,14 +77,15 @@
         </view>
       </view>
 
-      <uni-notice-bar
-        class="mt-24"
-        showIcon
-        scrollable
-        :text="announcement"
-        backgroundColor="transparent"
-        color="#FF6B4A"
-      />
+      <view class="notice-wrap">
+        <uni-notice-bar
+          showIcon
+          scrollable
+          :text="announcement"
+          backgroundColor="transparent"
+          color="#FF6B4A"
+        />
+      </view>
 
       <!-- 四大服务入口 -->
       <view class="service-grid">
@@ -344,6 +345,9 @@ onShow(() => {
 .cert-banner-arrow text { font-size: var(--text-sm); font-weight: 500; color: var(--primary); }
 .search-section :deep(.uni-searchbar__box) { border-radius: 48rpx !important; box-shadow: var(--shadow-sm); border: 1rpx solid var(--outline-light); height: 88rpx !important; }
 .search-section :deep(.uni-searchbar) { padding: 0 !important; }
+
+/* 公告滚动条 */
+.notice-wrap { margin-top: 24rpx; background: var(--surface); border-radius: 18rpx; border-left: 5rpx solid var(--primary); }
 
 /* Banner 轮播图 */
 .banner-swiper-wrap { margin-top: 24rpx; position: relative; }

@@ -133,6 +133,10 @@ async function onWithdraw() {
     uni.showToast({ title: '余额不足', icon: 'none' })
     return
   }
+  if (amount < 10) {
+    uni.showToast({ title: '最低提现金额为10元', icon: 'none' })
+    return
+  }
   const pw = await promptPayPassword('提现')
   if (!pw) return
   if (!lock()) return
