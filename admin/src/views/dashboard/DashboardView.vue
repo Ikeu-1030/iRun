@@ -23,7 +23,7 @@
       </el-col>
       <el-col :span="12">
         <el-card class="chart-card" ref="chartCard2Ref">
-          <template #header><span class="chart-title">近7天收入趋势</span></template>
+          <template #header><span class="chart-title">近7天交易额趋势</span></template>
           <v-chart :option="revenueTrendOption" style="height: 300px" autoresize />
         </el-card>
       </el-col>

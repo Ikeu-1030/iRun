@@ -60,14 +60,15 @@ public interface TaskMapper extends BaseMapper<Task> {
     List<Map<String, Object>> countTasksByStatus(@Param("userId") Long userId);
 
     /**
-     * 统计指定时间之后完成的任务报酬总额（数据库侧 SUM，避免全字段拉取）。
+     * 统计指定时间之后完成的任务报酬总额（通过关联订单确认时间避免 updated_at 漂移）。
      *
      * @param status 任务状态
-     * @param since 起始时间
+     * @param since 订单确认起始时间
      * @return 报酬总额
      */
-    @Select("SELECT COALESCE(SUM(reward), 0) FROM task " +
-            "WHERE status = #{status} AND updated_at >= #{since}")
+    @Select("SELECT COALESCE(SUM(t.reward), 0) FROM task t " +
+            "JOIN task_order o ON o.task_id = t.id " +
+            "WHERE t.status = #{status} AND o.confirm_time >= #{since}")
     BigDecimal sumRewardByStatusSince(@Param("status") Integer status,
                                                 @Param("since") java.time.LocalDateTime since);
 
@@ -75,10 +76,11 @@ public interface TaskMapper extends BaseMapper<Task> {
     @Select("SELECT type AS name, COUNT(*) AS value FROM task GROUP BY type")
     List<Map<String, Object>> countTasksByType();
 
-    /** 统计近N天每日完成任务报酬总额 */
-    @Select("SELECT DATE(updated_at) AS date, COALESCE(SUM(reward), 0) AS value " +
-            "FROM task WHERE status = #{status} AND updated_at >= #{since} " +
-            "GROUP BY DATE(updated_at) ORDER BY date")
+    /** 统计近N天每日完成任务报酬总额（按订单确认时间分组，避免 updated_at 漂移） */
+    @Select("SELECT DATE(o.confirm_time) AS date, COALESCE(SUM(t.reward), 0) AS value " +
+            "FROM task t JOIN task_order o ON o.task_id = t.id " +
+            "WHERE t.status = #{status} AND o.confirm_time >= #{since} " +
+            "GROUP BY DATE(o.confirm_time) ORDER BY date")
     List<Map<String, Object>> sumRewardPerDay(@Param("status") Integer status,
                                               @Param("since") LocalDateTime since);
 

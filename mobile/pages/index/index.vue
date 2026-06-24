@@ -23,7 +23,7 @@
       <view v-if="store.isLoggedIn && store.userInfo.isCertify !== 2" class="cert-banner" :class="'cert-banner--' + store.userInfo.isCertify" @click="goCertify">
         <view class="cert-banner-icon">
           <iconpark-icon v-if="store.userInfo.isCertify === 0" name="locked-filled" size="20" color="#e67e22" />
-          <iconpark-icon v-else-if="store.userInfo.isCertify === 1" name="clock-filled" size="20" color="#FF6B4A" />
+          <iconpark-icon v-else-if="store.userInfo.isCertify === 1" name="hourglass" size="20" color="#FF6B4A" />
           <iconpark-icon v-else name="closeempty" size="20" color="#ba1a1a" />
         </view>
         <view class="cert-banner-body">

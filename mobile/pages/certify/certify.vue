@@ -67,7 +67,7 @@
       <template v-else-if="state === 'pending'">
         <view class="status-card">
           <view class="status-icon status-icon--pending">
-            <iconpark-icon name="clock-filled" size="48" color="#e67e22" />
+            <iconpark-icon name="hourglass" size="48" color="#e67e22" />
           </view>
           <text class="status-title">认证审核中</text>
           <text class="status-desc">你的学生身份认证正在审核中，通常会在24小时内完成</text>
