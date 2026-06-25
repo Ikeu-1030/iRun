@@ -60,15 +60,15 @@ graph TB
     subgraph 服务层["Spring Boot 3.2.0 / Java 21"]
         D[管理端拦截器<br/>JwtTokenAdminInterceptor]
         E[用户端拦截器<br/>JwtTokenUserInterceptor]
-        F[17 个 Controller]
-        G[21 个 Service]
-        H[13 个 Mapper]
-        I[6 个定时任务]
+        F[Controller]
+        G[Service]
+        H[Mapper]
+        I[定时任务]
         J[STOMP WebSocket<br/>聊天 + 通知推送]
     end
 
     subgraph 中间件
-        K[(MySQL 8<br/>14 张表)]
+        K[(MySQL 8<br/>持久化存储)]
         L[(Redis 7<br/>缓存 / 锁 / 限流)]
     end
 
