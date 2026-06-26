@@ -195,7 +195,7 @@ const sysInfo = uni.getSystemInfoSync()
 const scrollHeight = sysInfo.windowHeight - sysInfo.statusBarHeight - 44
 const searchValue = ref('')
 const unreadCount = ref(0)
-const announcement = ref('🎉 代购物品新上线！前100单免配送费，快来体验吧～')
+const announcement = ref('欢迎使用小i跑腿！')
 
 const banner = getBannerSnapshot()
 const bannerImages = ref(banner.images)

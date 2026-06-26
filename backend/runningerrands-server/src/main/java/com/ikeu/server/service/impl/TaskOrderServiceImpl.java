@@ -193,10 +193,18 @@ public class TaskOrderServiceImpl extends ServiceImpl<TaskOrderMapper, TaskOrder
             if (!lock.tryLock(RedisConstant.LOCK_WAIT_TIME, RedisConstant.LOCK_EXPIRE, TimeUnit.SECONDS)) {
                 throw new BusinessException(MessageConstant.SYSTEM_BUSY);
             }
-            // 二次校验任务状态与过期时间
+            // 二次校验任务状态与过期时间（锁内 Double-Check，消除 TOCTOU 窗口）
             Task latestTask = taskMapper.selectById(taskId);
-            if (latestTask == null || !Objects.equals(latestTask.getStatus(), StatusConstant.TASK_WAITING)) {
-                throw new BusinessException(MessageConstant.ORDER_STATUS_CHANGED);
+            if (latestTask == null) {
+                throw new BusinessException(MessageConstant.TASK_NOT_EXIST);
+            }
+            if (Objects.equals(latestTask.getStatus(), StatusConstant.TASK_CANCELLED)) {
+                // 场景：锁等待期间任务被发布者取消/管理员取消/超时自动取消
+                throw new BusinessException(MessageConstant.TASK_ALREADY_CANCELLED);
+            }
+            if (!Objects.equals(latestTask.getStatus(), StatusConstant.TASK_WAITING)) {
+                // 场景：锁等待期间另一个跑腿员抢先获取锁并接单成功，任务状态已变为 ACCEPTED
+                throw new BusinessException(MessageConstant.TASK_ALREADY_ACCEPTED);
             }
             if (latestTask.getExpireTime().isBefore(LocalDateTime.now())) {
                 throw new BusinessException(MessageConstant.TASK_EXPIRED);
