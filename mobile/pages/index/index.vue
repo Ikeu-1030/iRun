@@ -222,9 +222,9 @@ function nextBanner() {
 
 const services = [
   { typeValue: 1, title: '代取快递', desc: '驿站包裹极速达', iconName: 'express', color: 'blue' },
-  { typeValue: 2, title: '代取餐食', desc: '食堂外卖送到寝', icon: 'fire', color: 'orange', iconColor: '#e67e22' },
+  { typeValue: 2, title: '代取餐食', desc: '食堂外卖送到寝', icon: 'snacks', color: 'orange', iconColor: '#e67e22' },
   { typeValue: 3, title: '校内代办', desc: '急送跑腿帮办事', icon: 'campusErrand', color: 'green', iconColor: '#4c5e86' },
-  { typeValue: 4, title: '代购物品', desc: '超市代购送到寝', icon: 'shop', color: 'teal', iconColor: '#0891B2' }
+  { typeValue: 4, title: '代购物品', desc: '超市代购送到寝', icon: 'shoppingBag', color: 'teal', iconColor: '#0891B2' }
 ]
 
 // 加载通知未读数

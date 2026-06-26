@@ -109,10 +109,10 @@ export const TASK_STATUS_BADGE = {
 
 // ---------- 任务类型 → 图标/颜色映射 ----------
 export const TASK_TYPE_META = {
-  1: { icon: 'express', color: '#FF6B4A', bg: '#FFF0ED' },
-  2: { icon: 'fire', color: '#e67e22', bg: '#fff7ed' },
+  1: { icon: 'expressDelivery', color: '#FF6B4A', bg: '#FFF0ED' },
+  2: { icon: 'snacks', color: '#e67e22', bg: '#fff7ed' },
   3: { icon: 'campusErrand', color: '#4e5f82', bg: '#f0fdf4' },
-  4: { icon: 'shop', color: '#0891B2', bg: '#ecf2ff' },
+  4: { icon: 'shoppingBag', color: '#0891B2', bg: '#ecf2ff' },
   5: { icon: 'compose', color: '#7C3AED', bg: '#F5F3FF' }
 }
 
