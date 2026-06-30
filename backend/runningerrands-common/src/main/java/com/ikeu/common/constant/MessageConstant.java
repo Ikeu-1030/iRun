@@ -90,6 +90,7 @@ public final class MessageConstant {
     public static final String TASK_TIMEOUT_CANCEL = "任务超时无人接单，已自动取消";
     public static final String TASK_CANCEL_SUCCESS = "任务取消成功";
     public static final String NEED_SELECT_DELIVERY_ADDRESS = "该任务类型必须选择送达地址";
+    public static final String TASK_TYPE_INVALID = "无效的任务类型";
 
 
     // ========== 订单相关 ==========

@@ -196,6 +196,10 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         if (user == null || Objects.equals(user.getStatus(), StatusConstant.DISABLE)) {
             throw new BusinessException(MessageConstant.USER_NOT_EXIST);
         }
+        // 校验任务类型
+        if (taskPublishDTO.getType() == null || !TaskTypeConstant.ALL_TYPES.contains(taskPublishDTO.getType())) {
+            throw new ParamErrorException(MessageConstant.TASK_TYPE_INVALID);
+        }
         // 计算合计支付金额（小费 + 配送费 + 预估商品费）
         BigDecimal deliveryFee = taskPublishDTO.getDeliveryFee() != null ? taskPublishDTO.getDeliveryFee() : BigDecimal.ZERO;
         BigDecimal productCost = taskPublishDTO.getProductCost() != null ? taskPublishDTO.getProductCost() : BigDecimal.ZERO;
