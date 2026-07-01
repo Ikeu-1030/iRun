@@ -51,6 +51,7 @@ public class AdminTaskServiceImpl implements AdminTaskService {
 
     private final TaskMapper taskMapper;
     private final TaskOrderMapper taskOrderMapper;
+    private final RunnerProfileMapper runnerProfileMapper;
     private final UserMapper userMapper;
     private final CacheManager cacheManager;
     private final StringRedisTemplate stringRedisTemplate;
