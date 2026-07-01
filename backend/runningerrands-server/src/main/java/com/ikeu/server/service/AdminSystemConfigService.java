@@ -1,6 +1,7 @@
 package com.ikeu.server.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.ikeu.common.exception.BusinessException;
 import com.ikeu.model.dto.SystemConfigBatchUpdateDTO;
 import com.ikeu.model.entity.SystemConfig;
 import com.ikeu.model.vo.SystemConfigVO;

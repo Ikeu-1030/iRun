@@ -61,6 +61,7 @@ public class TaskOrderServiceImpl extends ServiceImpl<TaskOrderMapper, TaskOrder
     private final RunnerProfileMapper runnerProfileMapper;
     private final ReviewMapper reviewMapper;
     private final PaymentService paymentService;
+    private final NotificationService notificationService;
     private final RedissonClient redissonClient;
     private final CacheManager cacheManager;
     private final StringRedisTemplate stringRedisTemplate;
@@ -544,6 +545,36 @@ public class TaskOrderServiceImpl extends ServiceImpl<TaskOrderMapper, TaskOrder
                 lock.unlock();
             }
         }
+    }
+
+    /**
+     * 定时任务触发自动完成订单，独立事务，单条失败不回滚其他订单。
+     */
+    @Override
+    @Transactional
+    public void autoCompleteOrder(TaskOrder order, Task task, int autoConfirmHours) {
+        order.setConfirmTime(LocalDateTime.now());
+        order.setStatus(StatusConstant.ORDER_COMPLETED);
+        taskOrderMapper.updateById(order);
+
+        task.setStatus(StatusConstant.TASK_COMPLETED);
+        task.setUpdatedAt(LocalDateTime.now());
+        taskMapper.updateById(task);
+
+        runnerProfileMapper.decrementCurrentOrders(order.getRunnerId());
+
+        if (paymentService.payToRunner(order.getRunnerId(), order.getTaskId(), task.getReward())) {
+            runnerProfileMapper.incrementCompletedStats(order.getRunnerId());
+        }
+
+        notificationService.sendNotification(task.getPublisherId(),
+                StatusConstant.NOTICE_ORDER, "订单已自动确认",
+                "您的任务 " + task.getTaskNo() + " 已超过" + autoConfirmHours + "小时自动确认完成", order.getId());
+        notificationService.sendNotification(order.getRunnerId(),
+                StatusConstant.NOTICE_ORDER, "订单已自动完成",
+                "您配送的任务 " + task.getTaskNo() + " 已自动确认完成", order.getId());
+
+        log.info("订单 {} {}h自动结算完成，报酬 {} 支付给跑腿员 {}", order.getId(), autoConfirmHours, task.getReward(), order.getRunnerId());
     }
 
     /**

@@ -6,6 +6,7 @@ import com.ikeu.common.result.PageResult;
 import com.ikeu.common.result.Result;
 import com.ikeu.model.dto.CancelTaskDTO;
 import com.ikeu.model.dto.TaskPublishDTO;
+import com.ikeu.model.entity.Task;
 import com.ikeu.model.vo.TaskDetailVO;
 import com.ikeu.model.vo.TaskListVO;
 import com.ikeu.model.vo.TaskPublishVO;
@@ -50,9 +51,10 @@ public class TaskController {
     @PostMapping("/publish")
     public Result<TaskPublishVO> publish(@Valid @RequestBody TaskPublishDTO taskPublishDTO) {
         Long userId = BaseContext.getCurrentId();
-        String taskNo = taskService.publishTask(userId, taskPublishDTO);
+        Task task = taskService.publishTask(userId, taskPublishDTO);
         return Result.success(TaskPublishVO.builder()
-                .taskNo(taskNo)
+                .taskId(task.getId())
+                .taskNo(task.getTaskNo())
                 .build());
     }
 

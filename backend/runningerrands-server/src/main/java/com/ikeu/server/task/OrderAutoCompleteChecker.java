@@ -37,11 +37,9 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class OrderAutoCompleteChecker {
 
+    private final TaskOrderService taskOrderService;
     private final TaskOrderMapper orderMapper;
     private final TaskMapper taskMapper;
-    private final RunnerProfileMapper runnerProfileMapper;
-    private final PaymentService paymentService;
-    private final NotificationService notificationService;
     private final RedissonClient redissonClient;
     private final CacheManager cacheManager;
     private final SystemConfigMapper systemConfigMapper;
@@ -67,7 +65,6 @@ public class OrderAutoCompleteChecker {
      * 单个订单处理异常仅记录日志不影响其他订单。
      */
     @Scheduled(fixedRate = 60000, initialDelay = 30000)
-    @Transactional
     public void autoCompleteOrders() {
         int autoConfirmHours = loadAutoConfirmHours();
         RLock lock = redissonClient.getLock(RedisConstant.ORDER_AUTO_COMPLETE_LOCK_KEY);
@@ -99,29 +96,7 @@ public class OrderAutoCompleteChecker {
                         continue;
                     }
 
-                    LocalDateTime now = LocalDateTime.now();
-                    order.setConfirmTime(now);
-                    order.setStatus(StatusConstant.ORDER_COMPLETED);
-                    orderMapper.updateById(order);
-
-                    task.setStatus(StatusConstant.TASK_COMPLETED);
-                    task.setUpdatedAt(now);
-                    taskMapper.updateById(task);
-
-                    runnerProfileMapper.decrementCurrentOrders(order.getRunnerId());
-
-                    if (paymentService.payToRunner(order.getRunnerId(), order.getTaskId(), task.getReward())) {
-                        runnerProfileMapper.incrementCompletedStats(order.getRunnerId());
-                    }
-
-                    notificationService.sendNotification(task.getPublisherId(),
-                            StatusConstant.NOTICE_ORDER, "订单已自动确认",
-                            "您的任务 " + task.getTaskNo() + " 已超过" + autoConfirmHours + "小时自动确认完成", order.getId());
-                    notificationService.sendNotification(order.getRunnerId(),
-                            StatusConstant.NOTICE_ORDER, "订单已自动完成",
-                            "您配送的任务 " + task.getTaskNo() + " 已自动确认完成", order.getId());
-
-                    log.info("订单 {} {}h自动结算完成，报酬 {} 支付给跑腿员 {}", order.getId(), autoConfirmHours, task.getReward(), order.getRunnerId());
+                    taskOrderService.autoCompleteOrder(order, task, autoConfirmHours);
                     processed = true;
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();

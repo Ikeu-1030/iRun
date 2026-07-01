@@ -188,7 +188,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
      */
     @Override
     @Transactional
-    public String publishTask(Long userId, TaskPublishDTO taskPublishDTO) {
+    public Task publishTask(Long userId, TaskPublishDTO taskPublishDTO) {
         // 校验支付密码
         paymentService.verifyPayPassword(userId, taskPublishDTO.getPayPassword());
         // 校验用户状态
@@ -306,7 +306,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             }
         });
 
-        return task.getTaskNo();
+        return task;
     }
 
     /**
@@ -367,10 +367,14 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                                                   BigDecimal minReward, BigDecimal maxReward,
                                                   int page, int size) {
         LambdaQueryWrapper<Task> wrapper = new LambdaQueryWrapper<>();
+        Integer subTypeInt = null;
+        if (subType != null && !subType.isEmpty()) {
+            try { subTypeInt = Integer.parseInt(subType); } catch (NumberFormatException ignored) {}
+        }
         wrapper.eq(Task::getStatus, StatusConstant.TASK_WAITING)
                 .gt(Task::getExpireTime, LocalDateTime.now())
                 .eq(type != null && !type.isEmpty(), Task::getType, type)
-                .eq(subType != null && !subType.isEmpty(), Task::getSubType, subType)
+                .eq(subTypeInt != null, Task::getSubType, subTypeInt)
                 .ge(minReward != null, Task::getReward, minReward)
                 .le(maxReward != null, Task::getReward, maxReward)
                 .orderByDesc(Task::getCreatedAt);

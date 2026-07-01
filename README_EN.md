@@ -53,7 +53,7 @@ A campus errand-running service platform. Students publish tasks (package pickup
 | GSAP | 3 | Animation engine |
 | Axios | — | HTTP client |
 | Iconfont | — | Icon library (Alibaba Vector Icon Library) |
-| uni-app | - | Mobile cross-platform framework |
+| uni-app | — | Mobile cross-platform framework |
 | STOMP | 1.2 | Mobile WebSocket real-time messaging |
 
 ---

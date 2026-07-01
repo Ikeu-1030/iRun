@@ -5,6 +5,12 @@
 <h1 align="center">小i跑腿 · runningerrands</h1>
 
 <p align="center">
+  <a href="README.md">中文</a>
+  ·
+  <a href="README_EN.md">English</a>
+</p>
+
+<p align="center">
   <img src="https://img.shields.io/badge/release-v1.0.0-blue?style=plastic" alt="release" />
   <img src="https://img.shields.io/badge/springboot-3.2.0-brightgreen?style=plastic&logo=springboot" alt="springboot" />
   <img src="https://img.shields.io/badge/Vue3-grey?style=plastic&logo=vue.js" alt="vue" />
@@ -47,7 +53,7 @@
 | GSAP | 3 | 动画引擎 |
 | Axios | — | HTTP 客户端 |
 | Iconfont | — | 图标库（阿里巴巴矢量图标库） |
-| uni-app | - | 移动端跨端框架 |
+| uni-app | — | 移动端跨端框架 |
 | STOMP | 1.2 | 移动端 WebSocket 即时通讯 |
 
 ---
@@ -567,8 +573,9 @@ bash e2e/scripts/run.sh --quick
 | [docs/changelogs/CHANGELOG.md](docs/changelogs/CHANGELOG.md) | 版本修复日志 |
 | [docs/plans/v1.1-plan.md](docs/plans/v1.1-plan.md) | 后续迭代计划 |
 | [docs/test_guide.md](docs/test_guide.md) | 测试环境部署 + E2E 测试指南 |
-| [docs/nginx-config.md](docs/nginx-config.md) | Nginx 部署配置参考 |
-| [docker/nginx/nginx.conf](docker/nginx/nginx.conf) | 可用的 Nginx 配置文件 |
+| [docs/触发路径设计图.md](docs/触发路径设计图.md) | 8 张控制层 → 服务层触发路径图 |
+| [docs/项目架构设计图.md](docs/项目架构设计图.md) | Maven 模块 + 前后端 + 技术栈架构图 |
+| [nginx.conf](nginx.conf) | 根目录 Nginx 部署配置，开箱即用 |
 | [docker/README.md](docker/README.md) | Docker 部署指南 + 预置账号 + SMS 注入 |
 | `http://localhost:8080/api/doc.html` | Swagger API 文档（启动后端后访问） |
 

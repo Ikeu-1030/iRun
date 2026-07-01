@@ -1,6 +1,8 @@
 package com.ikeu.server.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.ikeu.common.exception.BusinessException;
+import com.ikeu.common.exception.NotFoundException;
 import com.ikeu.common.result.PageResult;
 import com.ikeu.model.dto.AdminCreateDTO;
 import com.ikeu.model.dto.AdminPasswordResetDTO;

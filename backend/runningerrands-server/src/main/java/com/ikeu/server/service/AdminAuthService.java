@@ -1,5 +1,7 @@
 package com.ikeu.server.service;
 
+import com.ikeu.common.exception.BusinessException;
+import com.ikeu.common.exception.UnauthorizedException;
 import com.ikeu.model.dto.AdminLoginDTO;
 import com.ikeu.model.vo.AdminLoginVO;
 

@@ -1,8 +1,11 @@
 package com.ikeu.server.service;
 
+import com.ikeu.common.exception.BusinessException;
 import com.ikeu.common.result.PageResult;
 import com.ikeu.model.dto.CancelOrderDTO;
 import com.ikeu.model.dto.ProofImageDTO;
+import com.ikeu.model.entity.Task;
+import com.ikeu.model.entity.TaskOrder;
 import com.ikeu.model.vo.OrderDetailVO;
 import com.ikeu.model.vo.OrderListVO;
 
@@ -56,6 +59,16 @@ public interface TaskOrderService {
      * @param orderId 订单ID
      */
     void confirmComplete(Long publisherId, Long orderId);
+
+    /**
+     * 定时任务触发自动完成订单（发布者超时未确认）。
+     * 独立事务，单条失败不影响其他订单批量处理。
+     *
+     * @param order 待完成的订单
+     * @param task  关联的任务
+     * @param autoConfirmHours 自动确认超时小时数
+     */
+    void autoCompleteOrder(TaskOrder order, Task task, int autoConfirmHours);
 
     /**
      * 通过订单ID查询订单详情，校验查看权限。

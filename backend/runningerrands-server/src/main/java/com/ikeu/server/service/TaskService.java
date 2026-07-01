@@ -2,6 +2,7 @@ package com.ikeu.server.service;
 
 import com.ikeu.model.dto.CancelTaskDTO;
 import com.ikeu.model.dto.TaskPublishDTO;
+import com.ikeu.model.entity.Task;
 import com.ikeu.model.vo.TaskDetailVO;
 import com.ikeu.model.vo.TaskListVO;
 import com.ikeu.model.vo.TaskStatisticsVO;
@@ -22,9 +23,9 @@ public interface TaskService {
      *
      * @param userId 当前登录用户ID
      * @param dto 任务发布请求参数（类型、报酬、地址、描述、图片等）
-     * @return 新建任务的任务编号
+     * @return 新建的任务实体（含 taskId 和 taskNo）
      */
-    String publishTask(Long userId, TaskPublishDTO dto);
+    Task publishTask(Long userId, TaskPublishDTO dto);
 
     /**
      * 分页查询任务大厅列表。

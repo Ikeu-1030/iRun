@@ -14,7 +14,7 @@ function securityPlugin(): Plugin {
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
         "font-src 'self' https://fonts.gstatic.com",
         "img-src 'self' data: blob: https://*.aliyuncs.com",
-        "connect-src 'self'",
+        "connect-src 'self' ws: wss:",
         "frame-ancestors 'none'",
         "base-uri 'self'",
         "form-action 'self'",
