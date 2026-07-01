@@ -23,7 +23,7 @@ import static org.mockito.Mockito.*;
 
 /**
  * CreditServiceImpl 单元测试。
- * 覆盖 processCreditOnComplete、deductCredit、addCredit 的全部决策分支。
+ * 覆盖 processCreditOnDelivered、deductCredit、addCredit 的全部决策分支。
  */
 @ExtendWith(MockitoExtension.class)
 class CreditServiceImplTest {
@@ -44,31 +44,31 @@ class CreditServiceImplTest {
         creditService = new CreditServiceImpl(taskOrderMapper, runnerProfileMapper, creditLogMapper);
     }
 
-    // ========== processCreditOnComplete — 空值 / 边界 ==========
+    // ========== processCreditOnDelivered — 空值 / 边界 ==========
 
     @Test
-    void processCreditOnComplete_orderIsNull_shouldReturnWithoutAction() {
+    void processCreditOnDelivered_orderIsNull_shouldReturnWithoutAction() {
         when(taskOrderMapper.selectById(anyLong())).thenReturn(null);
 
-        creditService.processCreditOnComplete(1L);
+        creditService.processCreditOnDelivered(1L);
 
         verify(taskOrderMapper).selectById(1L);
         verifyNoInteractions(runnerProfileMapper, creditLogMapper);
     }
 
     @Test
-    void processCreditOnComplete_expectFinishTimeIsNull_shouldReturnWithoutAction() {
+    void processCreditOnDelivered_expectFinishTimeIsNull_shouldReturnWithoutAction() {
         TaskOrder order = TaskOrder.builder().id(1L).build();
         when(taskOrderMapper.selectById(1L)).thenReturn(order);
 
-        creditService.processCreditOnComplete(1L);
+        creditService.processCreditOnDelivered(1L);
 
         verify(taskOrderMapper).selectById(1L);
         verifyNoInteractions(runnerProfileMapper, creditLogMapper);
     }
 
     @Test
-    void processCreditOnComplete_runnerProfileNotFound_shouldLogWarningAndSkip() {
+    void processCreditOnDelivered_runnerProfileNotFound_shouldLogWarningAndSkip() {
         TaskOrder order = TaskOrder.builder()
                 .id(1L).runnerId(100L)
                 .expectFinishTime(LocalDateTime.now().minusMinutes(15))
@@ -77,16 +77,16 @@ class CreditServiceImplTest {
         when(taskOrderMapper.selectById(1L)).thenReturn(order);
         when(runnerProfileMapper.selectOne(any(LambdaQueryWrapper.class))).thenReturn(null);
 
-        creditService.processCreditOnComplete(1L);
+        creditService.processCreditOnDelivered(1L);
 
         verify(creditLogMapper, never()).insert(any());
         verify(runnerProfileMapper, never()).updateCreditScoreAndFreeze(anyLong(), anyInt(), anyInt(), anyInt(), anyInt());
     }
 
-    // ========== processCreditOnComplete — 各时段 ==========
+    // ========== processCreditOnDelivered — 各时段 ==========
 
     @Test
-    void processCreditOnComplete_early_shouldReward5() {
+    void processCreditOnDelivered_early_shouldReward5() {
         TaskOrder order = TaskOrder.builder()
                 .id(1L).runnerId(100L)
                 .expectFinishTime(LocalDateTime.now().plusHours(1))
@@ -97,7 +97,7 @@ class CreditServiceImplTest {
         when(taskOrderMapper.selectById(1L)).thenReturn(order);
         when(runnerProfileMapper.selectOne(any(LambdaQueryWrapper.class))).thenReturn(profile);
 
-        creditService.processCreditOnComplete(1L);
+        creditService.processCreditOnDelivered(1L);
 
         ArgumentCaptor<CreditLog> logCaptor = ArgumentCaptor.forClass(CreditLog.class);
         verify(creditLogMapper).insert(logCaptor.capture());
@@ -118,7 +118,7 @@ class CreditServiceImplTest {
     }
 
     @Test
-    void processCreditOnComplete_onTime_shouldReward1() {
+    void processCreditOnDelivered_onTime_shouldReward1() {
         TaskOrder order = TaskOrder.builder()
                 .id(1L).runnerId(100L)
                 .expectFinishTime(LocalDateTime.now().minusSeconds(30))
@@ -129,7 +129,7 @@ class CreditServiceImplTest {
         when(taskOrderMapper.selectById(1L)).thenReturn(order);
         when(runnerProfileMapper.selectOne(any(LambdaQueryWrapper.class))).thenReturn(profile);
 
-        creditService.processCreditOnComplete(1L);
+        creditService.processCreditOnDelivered(1L);
 
         ArgumentCaptor<CreditLog> logCaptor = ArgumentCaptor.forClass(CreditLog.class);
         verify(creditLogMapper).insert(logCaptor.capture());
@@ -145,7 +145,7 @@ class CreditServiceImplTest {
     }
 
     @Test
-    void processCreditOnComplete_late15min_shouldDeduct2() {
+    void processCreditOnDelivered_late15min_shouldDeduct2() {
         TaskOrder order = TaskOrder.builder()
                 .id(1L).runnerId(100L)
                 .expectFinishTime(LocalDateTime.now().minusMinutes(15))
@@ -156,7 +156,7 @@ class CreditServiceImplTest {
         when(taskOrderMapper.selectById(1L)).thenReturn(order);
         when(runnerProfileMapper.selectOne(any(LambdaQueryWrapper.class))).thenReturn(profile);
 
-        creditService.processCreditOnComplete(1L);
+        creditService.processCreditOnDelivered(1L);
 
         ArgumentCaptor<CreditLog> logCaptor = ArgumentCaptor.forClass(CreditLog.class);
         verify(creditLogMapper).insert(logCaptor.capture());
@@ -171,7 +171,7 @@ class CreditServiceImplTest {
     }
 
     @Test
-    void processCreditOnComplete_late45min_shouldDeduct5() {
+    void processCreditOnDelivered_late45min_shouldDeduct5() {
         TaskOrder order = TaskOrder.builder()
                 .id(1L).runnerId(100L)
                 .expectFinishTime(LocalDateTime.now().minusMinutes(45))
@@ -182,7 +182,7 @@ class CreditServiceImplTest {
         when(taskOrderMapper.selectById(1L)).thenReturn(order);
         when(runnerProfileMapper.selectOne(any(LambdaQueryWrapper.class))).thenReturn(profile);
 
-        creditService.processCreditOnComplete(1L);
+        creditService.processCreditOnDelivered(1L);
 
         ArgumentCaptor<CreditLog> logCaptor = ArgumentCaptor.forClass(CreditLog.class);
         verify(creditLogMapper).insert(logCaptor.capture());
@@ -195,7 +195,7 @@ class CreditServiceImplTest {
     }
 
     @Test
-    void processCreditOnComplete_late90min_shouldDeduct10() {
+    void processCreditOnDelivered_late90min_shouldDeduct10() {
         TaskOrder order = TaskOrder.builder()
                 .id(1L).runnerId(100L)
                 .expectFinishTime(LocalDateTime.now().minusMinutes(90))
@@ -206,7 +206,7 @@ class CreditServiceImplTest {
         when(taskOrderMapper.selectById(1L)).thenReturn(order);
         when(runnerProfileMapper.selectOne(any(LambdaQueryWrapper.class))).thenReturn(profile);
 
-        creditService.processCreditOnComplete(1L);
+        creditService.processCreditOnDelivered(1L);
 
         ArgumentCaptor<CreditLog> logCaptor = ArgumentCaptor.forClass(CreditLog.class);
         verify(creditLogMapper).insert(logCaptor.capture());

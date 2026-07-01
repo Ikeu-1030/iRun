@@ -44,7 +44,7 @@ public class CreditServiceImpl implements CreditService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void processCreditOnComplete(Long orderId) {
+    public void processCreditOnDelivered(Long orderId) {
         TaskOrder order = taskOrderMapper.selectById(orderId);
         if (order == null || order.getExpectFinishTime() == null) return;
 

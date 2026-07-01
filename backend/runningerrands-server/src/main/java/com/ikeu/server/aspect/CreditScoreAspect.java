@@ -32,7 +32,7 @@ public class CreditScoreAspect {
      *   <li>自动完成订单在送达时已完成清算，无需等待发布者确认</li>
      * </ul>
      * 通过 {@link TransactionSynchronizationManager#registerSynchronization} 注册 afterCommit 回调，
-     * 等外层事务提交释放 runner_profile 行锁后，由 {@link CreditService#processCreditOnComplete}
+     * 等外层事务提交释放 runner_profile 行锁后，由 {@link CreditService#processCreditOnDelivered}
      *（REQUIRES_NEW 事务）在独立事务中处理信用分变更。
      *
      * @param runnerId 跑腿员ID
@@ -43,7 +43,7 @@ public class CreditScoreAspect {
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
-                creditService.processCreditOnComplete(orderId);
+                creditService.processCreditOnDelivered(orderId);
             }
         });
     }

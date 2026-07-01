@@ -221,6 +221,26 @@ public class TaskOrderServiceImpl extends ServiceImpl<TaskOrderMapper, TaskOrder
                 throw new BusinessException(MessageConstant.ORDER_ACCEPTED_FAIL);
             }
 
+            // 3.5 锁内重检跑腿员最新状态（防止锁等待期间跑腿员离线/订单满）
+            RunnerProfile latestRunner = runnerProfileMapper.selectOne(
+                    new LambdaQueryWrapper<RunnerProfile>().eq(RunnerProfile::getUserId, runnerId));
+            if (latestRunner == null || !Objects.equals(latestRunner.getVerifyStatus(), StatusConstant.CERTIFY_APPROVED)) {
+                throw new BusinessException(MessageConstant.RUNNER_NOT_CERTIFIED);
+            }
+            if (!Objects.equals(latestRunner.getIsOnline(), StatusConstant.RUNNER_ONLINE)) {
+                throw new BusinessException(MessageConstant.RUNNER_OFFLINE);
+            }
+            if (latestRunner.getCurrentOrders() >= latestRunner.getMaxConcurrentOrders()) {
+                throw new BusinessException(MessageConstant.RUNNER_MAX_ORDERS);
+            }
+            if (latestRunner.getCreditScore() != null
+                    && latestRunner.getCreditScore() < CreditConstant.CREDIT_FREEZE_THRESHOLD) {
+                throw new BusinessException(MessageConstant.RUNNER_LOW_CREDIT);
+            }
+            if (Objects.equals(latestRunner.getIsBanned(), 1)) {
+                throw new BusinessException(MessageConstant.RUNNER_IS_BANNED);
+            }
+
             // 4. 创建订单
             TaskOrder order = TaskOrder.builder()
                     .taskId(taskId)

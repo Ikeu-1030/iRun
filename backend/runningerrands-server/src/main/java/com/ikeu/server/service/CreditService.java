@@ -12,7 +12,7 @@ public interface CreditService {
      *
      * @param orderId 订单 ID
      */
-    void processCreditOnComplete(Long orderId);
+    void processCreditOnDelivered(Long orderId);
 
     /**
      * 通用信用扣分（投诉、差评、违约或管理员手动操作），写入 CreditLog 并原子更新跑腿员档案，
