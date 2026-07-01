@@ -367,14 +367,10 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                                                   BigDecimal minReward, BigDecimal maxReward,
                                                   int page, int size) {
         LambdaQueryWrapper<Task> wrapper = new LambdaQueryWrapper<>();
-        Integer subTypeInt = null;
-        if (subType != null && !subType.isEmpty()) {
-            try { subTypeInt = Integer.parseInt(subType); } catch (NumberFormatException ignored) {}
-        }
         wrapper.eq(Task::getStatus, StatusConstant.TASK_WAITING)
                 .gt(Task::getExpireTime, LocalDateTime.now())
                 .eq(type != null && !type.isEmpty(), Task::getType, type)
-                .eq(subTypeInt != null, Task::getSubType, subTypeInt)
+                .eq(subType != null && !subType.isEmpty(), Task::getSubType, subType)
                 .ge(minReward != null, Task::getReward, minReward)
                 .le(maxReward != null, Task::getReward, maxReward)
                 .orderByDesc(Task::getCreatedAt);

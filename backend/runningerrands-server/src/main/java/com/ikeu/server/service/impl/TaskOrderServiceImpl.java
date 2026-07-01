@@ -230,7 +230,9 @@ public class TaskOrderServiceImpl extends ServiceImpl<TaskOrderMapper, TaskOrder
             if (!Objects.equals(latestRunner.getIsOnline(), StatusConstant.RUNNER_ONLINE)) {
                 throw new BusinessException(MessageConstant.RUNNER_OFFLINE);
             }
-            if (latestRunner.getCurrentOrders() >= latestRunner.getMaxConcurrentOrders()) {
+            int currentOrders = latestRunner.getCurrentOrders() != null ? latestRunner.getCurrentOrders() : 0;
+            int maxOrders = latestRunner.getMaxConcurrentOrders() != null ? latestRunner.getMaxConcurrentOrders() : 3;
+            if (currentOrders >= maxOrders) {
                 throw new BusinessException(MessageConstant.RUNNER_MAX_ORDERS);
             }
             if (latestRunner.getCreditScore() != null

@@ -196,7 +196,9 @@ public class AdminTaskServiceImpl implements AdminTaskService {
                     order.setConfirmTime(LocalDateTime.now());
                     taskOrderMapper.updateById(order);
                     runnerProfileMapper.decrementCurrentOrders(order.getRunnerId());
-                    paymentService.payToRunner(order.getRunnerId(), taskId, task.getReward());
+                    if (paymentService.payToRunner(order.getRunnerId(), taskId, task.getReward())) {
+                        runnerProfileMapper.incrementCompletedStats(order.getRunnerId());
+                    }
                     log.info("管理员完成任务 {}，同步订单 {} 状态并结算跑腿报酬 #{}", taskId, order.getId(), order.getRunnerId());
                 }
             }
