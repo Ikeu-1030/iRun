@@ -350,23 +350,29 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                     (long) RedisConstant.LOCK_WAIT_TIME, (long) RedisConstant.LOCK_EXPIRE,
                     typeRef.getType(),
                     () -> {
-                        PageResult<TaskListVO> r = queryHallTasks(page, size);
+                        PageResult<TaskListVO> r = queryHallTasks(null, null, null, null, page, size);
                         return r.getTotal() > 0 ? r : null;
                     }
             );
             return result != null ? result : new PageResult<>(0L, List.of());
         }
 
-        return queryHallTasks(page, size);
+        return queryHallTasks(type, subType, minReward, maxReward, page, size);
     }
 
     /**
      * 查询任务大厅列表（无缓存），可被带锁分支调用或作为非缓存请求的降级路径。
      */
-    private PageResult<TaskListVO> queryHallTasks(int page, int size) {
+    private PageResult<TaskListVO> queryHallTasks(String type, String subType,
+                                                  BigDecimal minReward, BigDecimal maxReward,
+                                                  int page, int size) {
         LambdaQueryWrapper<Task> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Task::getStatus, StatusConstant.TASK_WAITING)
                 .gt(Task::getExpireTime, LocalDateTime.now())
+                .eq(type != null && !type.isEmpty(), Task::getType, type)
+                .eq(subType != null && !subType.isEmpty(), Task::getSubType, subType)
+                .ge(minReward != null, Task::getReward, minReward)
+                .le(maxReward != null, Task::getReward, maxReward)
                 .orderByDesc(Task::getCreatedAt);
 
         Page<Task> pageObj = new Page<>(page, size);

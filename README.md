@@ -12,39 +12,87 @@
 
 ---
 
-校园跑腿服务平台。用户发布代取快递、代拿餐食、校内代办、代购物品等任务，跑腿员接单配送。含微信小程序端（uni-app）、管理后台（Vue 3）、Spring Boot 后端。
+本项目是一个校园跑腿服务平台。平台提供从用户发布代取快递、代拿餐食、校内代办、代购物品等任务，到跑腿员接单配送完成等完整业务流程。整体项目主要包含微信小程序端（uni-app）、管理后台端（Vue 3）、服务后端（SpringBoot）。
+
+---
+
+## 技术栈
+
+### 后端技术
+
+| 技术 | 版本 | 说明 |
+|------|------|------|
+| Spring Boot | 3.2.0 | 应用框架 |
+| Java | 21 | 开发语言 |
+| MyBatis-Plus | 3.5.5 | ORM 框架 |
+| MySQL | 8.0 | 关系型数据库 |
+| Redis | 7 | 缓存 · 分布式锁 · 登录保护 |
+| Redisson | 3.x | 分布式锁 |
+| Knife4j | 4.5.0 | 接口文档（Swagger） |
+| Maven | wrapper | 构建工具 |
+| Lombok | 1.18.34 | 对象映射 |
+| JWT | 0.12.6 | 双令牌认证（access + refresh） |
+
+### 前端技术
+
+| 技术 | 版本 | 说明 |
+|------|------|------|
+| Vue | 3.5 | UI 框架 |
+| TypeScript | 6.0 | 开发语言 |
+| Vite | 8 | 构建工具 |
+| Vue Router | 4 | 路由管理 |
+| Element Plus | 2.14 | UI 组件库 |
+| Pinia | 3 | 状态管理 |
+| ECharts | 6 | 数据图表 |
+| GSAP | 3 | 动画引擎 |
+| Axios | — | HTTP 客户端 |
+| Iconfont | — | 图标库（阿里巴巴矢量图标库） |
+| uni-app | - | 移动端跨端框架 |
+| STOMP | 1.2 | 移动端 WebSocket 即时通讯 |
 
 ---
 
 ## 页面概览
 
-<!-- 请在此处插入页面截图展示 -->
-
 ### 管理端
+
+<table>
+<tr>
 
 | 仪表盘 | 用户管理 | 认证审核 | 任务管理 |
 |:------:|:------:|:------:|:------:|
-| <!--screenshot--> | <!--screenshot--> | <!--screenshot--> | <!--screenshot--> |
+| ![](docs/imgs/admin-dashboard.png) | ![](docs/imgs/admin-usermanage.png) | ![](docs/imgs/admin-verifymanage.png) | ![](docs/imgs/admin-taskmanage.png) |
 
-| 订单管理 | 交易流水 | 系统设置 | 操作日志 |
+| 订单管理 | 交易流水 | 系统设置 | 消息设置 |
 |:------:|:------:|:------:|:------:|
-| <!--screenshot--> | <!--screenshot--> | <!--screenshot--> | <!--screenshot--> |
+| ![](docs/imgs/admin-ordermanage.png) | ![](docs/imgs/admin-transaction.png) | ![](docs/imgs/admin-systemmanage.png) | ![](docs/imgs/admin-notificationmanage.png) |
+
+</tr>
+</table>
 
 ### 移动端
 
-| 首页 | 任务大厅 | 发单页 | 订单详情 |
-|:------:|:------:|:------:|:------:|
-| <!--screenshot--> | <!--screenshot--> | <!--screenshot--> | <!--screenshot--> |
+<table>
+<tr>
 
-| 钱包 | 消息 | 个人中心 | 跑腿员面板 |
+| 首页 | 任务大厅 | 任务发布 | 订单详情 |
 |:------:|:------:|:------:|:------:|
-| <!--screenshot--> | <!--screenshot--> | <!--screenshot--> | <!--screenshot--> |
+| <img src="docs/imgs/index.jpg" width="180"> | <img src="docs/imgs/hall.jpg" width="180"> | <img src="docs/imgs/task-publish.jpg" width="180"> | <img src="docs/imgs/order-detail.jpg" width="180"> |
+
+| 订单列表 | 消息中心 | 个人中心 | 跑腿员面板 |
+|:------:|:------:|:------:|:------:|
+| <img src="docs/imgs/order-list.jpg" width="180"> | <img src="docs/imgs/message.jpg" width="180"> | <img src="docs/imgs/user-profile.jpg" width="180"> | <img src="docs/imgs/runner-dashboard.jpg" width="180"> |
+
+</tr>
+</table>
 
 ---
 
 ## 项目结构
 
 ### 系统架构
+
+<table><tr>
 
 ```mermaid
 graph TB
@@ -101,7 +149,11 @@ graph TB
     style L fill:#DC382D,color:#fff
 ```
 
+</tr></table>
+
 ### 后端分层
+
+<table><tr>
 
 ```mermaid
 flowchart LR
@@ -135,7 +187,11 @@ flowchart LR
     L1 --> L2 --> L3 --> L4 --> L5
 ```
 
+</tr></table>
+
 ### 订单状态机
+
+<table><tr>
 
 ```mermaid
 stateDiagram-v2
@@ -447,18 +503,6 @@ develop: {
 | 12 | `mobile/manifest.json` | `mp-weixin.appid` | 替换为你的微信小程序 AppID |
 | 13 | `mobile/manifest.json` | `appid` | 替换为你的 DCloud appid |
 | 14 | `mobile/utils/config.js` | `develop.trial.release` | 三环境后端地址 |
-
----
-
-## 技术栈
-
-| 层 | 技术 |
-|------|------|
-| **后端** | Spring Boot 3.2.0 · Java 21 · MyBatis-Plus 3.5.5 · MySQL 8 · Redis · Redisson |
-| **管理端** | Vue 3.5 · TypeScript 6.0 · Vite 8 · Element Plus 2.14 · ECharts 6 · Pinia 3 · GSAP 3 |
-| **移动端** | uni-app (Vue 3) · 微信小程序 · Pinia · 自制 STOMP 1.2 WebSocket 客户端 |
-| **认证** | JWT 双令牌（access + refresh），管理端与用户端密钥/拦截器隔离 |
-| **API 文档** | Knife4j (Swagger) · springdoc-openapi |
 
 ---
 

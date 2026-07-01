@@ -182,6 +182,18 @@ public class AdminTaskServiceImpl implements AdminTaskService {
                     log.info("同步取消关联订单 {} 并退款 (任务 {})", order.getId(), taskId);
                 }
             }
+
+            // 完成时结算跑腿报酬（与 AdminOrderService 行为对齐）
+            if (StatusConstant.TASK_COMPLETED.equals(status)) {
+                LambdaQueryWrapper<TaskOrder> wrapper = new LambdaQueryWrapper<TaskOrder>()
+                        .eq(TaskOrder::getTaskId, taskId)
+                        .ne(TaskOrder::getStatus, StatusConstant.ORDER_CANCELLED);
+                TaskOrder order = taskOrderMapper.selectOne(wrapper);
+                if (order != null) {
+                    paymentService.payToRunner(order.getRunnerId(), taskId, task.getReward());
+                    log.info("管理员完成任务 {}，结算跑腿报酬 #{}", taskId, order.getRunnerId());
+                }
+            }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new BusinessException(MessageConstant.ERROR);

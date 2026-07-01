@@ -29,7 +29,8 @@ const iconStyles = { 1: 'blue', 2: 'orange', 3: 'green', 4: 'teal' }
  * @param {boolean} opts.isOwner  当前用户是否为发布者
  */
 export function normalizeTaskCard(raw, opts = {}) {
-  const taskType = typeof raw.type === 'number' ? raw.type : (TYPE_FROM_API[raw.type] || 1)
+  const mapped = typeof raw.type === 'string' ? TYPE_FROM_API[raw.type] : null
+  const taskType = typeof raw.type === 'number' ? raw.type : (mapped != null ? mapped : 1)
   const typeMeta = TASK_TYPE_META[taskType] || TASK_TYPE_META[1]
   const specs = parseTaskSpecs(raw.taskSpecs || raw.task_specs)
 

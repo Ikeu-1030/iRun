@@ -18,7 +18,7 @@ export function useTaskSpecs(source) {
   const taskSpecs = computed(() => parseTaskSpecs(source.value.taskSpecs))
 
   const taskTypeCode = computed(() =>
-    typeof source.value.type === 'number' ? source.value.type : (TYPE_FROM_API[source.value.type] || 1))
+    typeof source.value.type === 'number' ? source.value.type : (TYPE_FROM_API[source.value.type] != null ? TYPE_FROM_API[source.value.type] : 1))
 
   const typeLabel = computed(() => TASK_TYPES[taskTypeCode.value] || '任务')
   const rewardText = computed(() => Number(source.value.reward || 0).toFixed(2))
