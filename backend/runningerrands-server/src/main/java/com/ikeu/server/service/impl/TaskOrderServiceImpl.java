@@ -550,6 +550,7 @@ public class TaskOrderServiceImpl extends ServiceImpl<TaskOrderMapper, TaskOrder
 
     /**
      * 定时任务触发自动完成订单，独立事务，单条失败不回滚其他订单。
+     * 信用分已在 confirmDeliver（送达）时清算，此处无需重复处理。
      */
     @Override
     @Transactional
