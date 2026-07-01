@@ -11,7 +11,13 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 通知消息表实体类
+ * 通知表实体类，映射 notification 表。
+ *
+ * <p>包含通知接收用户、通知类型（系统/订单状态/活动）、
+ * 标题、内容、已读状态、关联目标ID等字段。
+ *
+ * @author ikeu
+ * @since 2026/06/22
  */
 @Data
 @Builder

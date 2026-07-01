@@ -2,7 +2,11 @@ package com.ikeu.common.context;
 
 /**
  * ThreadLocal 上下文工具类，保存当前请求的用户/管理员 ID 和角色。
- * 拦截器在请求开始时设值，afterCompletion 时清理，防止线程池泄漏。
+ *
+ * <p>拦截器在请求开始时设值，afterCompletion 时清理，防止线程池泄漏。
+ *
+ * @author ikeu
+ * @since 2026/06/22
  */
 public class BaseContext {
 

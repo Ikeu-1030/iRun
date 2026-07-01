@@ -10,11 +10,6 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 
-/**
- * 管理端仪表盘汇总 VO，包含统计卡片数据和图表数据。
- * @author ikeu
- * @since 2025/06/01
- */
 @Data
 @Builder
 @NoArgsConstructor

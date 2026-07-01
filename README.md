@@ -16,49 +16,149 @@
 
 ---
 
+## 页面概览
+
+<!-- 请在此处插入页面截图展示 -->
+
+### 管理端
+
+| 仪表盘 | 用户管理 | 认证审核 | 任务管理 |
+|:------:|:------:|:------:|:------:|
+| <!--screenshot--> | <!--screenshot--> | <!--screenshot--> | <!--screenshot--> |
+
+| 订单管理 | 交易流水 | 系统设置 | 操作日志 |
+|:------:|:------:|:------:|:------:|
+| <!--screenshot--> | <!--screenshot--> | <!--screenshot--> | <!--screenshot--> |
+
+### 移动端
+
+| 首页 | 任务大厅 | 发单页 | 订单详情 |
+|:------:|:------:|:------:|:------:|
+| <!--screenshot--> | <!--screenshot--> | <!--screenshot--> | <!--screenshot--> |
+
+| 钱包 | 消息 | 个人中心 | 跑腿员面板 |
+|:------:|:------:|:------:|:------:|
+| <!--screenshot--> | <!--screenshot--> | <!--screenshot--> | <!--screenshot--> |
+
+---
+
 ## 项目结构
 
+### 系统架构
+
+```mermaid
+graph TB
+    subgraph 客户端
+        A[微信小程序<br/>uni-app Vue 3]
+        B[管理后台<br/>Vue 3 + Element Plus]
+    end
+
+    subgraph 网关
+        C[Nginx<br/>反向代理 + 静态资源]
+    end
+
+    subgraph 服务层["Spring Boot 3.2.0 / Java 21"]
+        D[管理端拦截器<br/>JwtTokenAdminInterceptor]
+        E[用户端拦截器<br/>JwtTokenUserInterceptor]
+        F[Controller]
+        G[Service]
+        H[Mapper]
+        I[定时任务]
+        J[STOMP WebSocket<br/>聊天 + 通知推送]
+    end
+
+    subgraph 中间件
+        K[(MySQL 8<br/>持久化存储)]
+        L[(Redis 7<br/>缓存 / 锁 / 限流)]
+    end
+
+    subgraph 云服务
+        M[阿里云 OSS<br/>文件存储]
+        N[阿里云 SMS<br/>短信验证码]
+        O[腾讯地图 API<br/>LBS 服务]
+    end
+
+    A -->|HTTP + WebSocket| C
+    B -->|HTTP| C
+    C --> D
+    C --> E
+    D --> F
+    E --> F
+    F --> G
+    G --> H
+    H --> K
+    G --> L
+    G --> M
+    G --> N
+    G --> O
+    I --> G
+    J --> L
+
+    style A fill:#FF6B4A,color:#fff
+    style B fill:#2EC4B6,color:#fff
+    style C fill:#8E8E93,color:#fff
+    style K fill:#00758F,color:#fff
+    style L fill:#DC382D,color:#fff
 ```
-runningerrands/
-├── backend/
-│   ├── pom.xml                          # Maven 父 POM（多模块）
-│   ├── runningerrands-common/           # 共享：常量、异常、工具类、JWT、properties
-│   ├── runningerrands-model/            # 实体（Entity）、DTO、VO
-│   ├── runningerrands-server/           # Spring Boot 应用
-│   │   └── src/main/java/com/ikeu/server/
-│   │       ├── controller/              # Common + admin/（管理端） + user/（用户端）
-│   │       ├── service/ + impl/         # 业务接口与实现
-│   │       ├── mapper/                  # MyBatis-Plus Mapper + XML
-│   │       ├── config/                  # 配置类 + AdminInitializer（超管初始化）
-│   │       ├── interceptor/             # JWT 双拦截器（admin + user）
-│   │       ├── aspect/                  # 切面：通知、操作日志、角色检查
-│   │       ├── annotation/              # @SendNotification, @OperationLog, @RequireRole
-│   │       ├── task/                    # 定时任务
-│   │       └── websocket/               # STOMP WebSocket
-│   └── runningerrands.sql              # 建库建表脚本
-├── admin/                               # Vue 3 + TypeScript + Element Plus 管理端
-│   └── src/
-│       ├── api/                         # 10 模块按领域拆分
-│       ├── views/                       # 15 视图（用户/跑腿员/任务/订单/流水/通知/日志/员工）
-│       ├── router/                      # history /api/，beforeEach 守卫 + 角色过滤
-│       ├── stores/                      # Pinia：auth（token/adminInfo） + app（侧边栏）
-│       ├── composables/                 # useCountUp, usePageEnter（GSAP 动画）
-│       ├── utils/                       # request.ts（Axios + 双 token 刷新队列）
-│       └── styles/theme.css             # CSS 设计令牌
-├── mobile/                              # uni-app (Vue 3) 微信小程序
-│   ├── pages.json                       # 32 页面注册 + 5 标签毛玻璃 TabBar
-│   ├── api/index.js                     # 10 API 模块统一导出
-│   ├── store/                           # Pinia：主 Store + 聊天 Store + STOMP 管理
-│   ├── utils/
-│   │   ├── request.js                   # HTTP 封装（auth 参数控制认证类型）
-│   │   ├── stomp.js                     # 自制 STOMP 1.2 WebSocket 客户端
-│   │   ├── config.js                    # 动态环境检测（develop/trial/release）
-│   │   ├── draft-save.js                # 草稿保存 composable
-│   │   └── ...                          # 更多工具模块
-│   └── components/                      # custom-navbar, custom-tabbar, pay-password-dialog 等
-├── docs/                                # 开发文档 & 工作记录
-└── .agent/                              # AI 辅助代理定义（init, code-reviewer, security-auditor 等）
+
+### 后端分层
+
+```mermaid
+flowchart LR
+    subgraph L1["Controller"]
+        direction TB
+        C1["Admin<br/>(6 个)"] --- C2["User<br/>(10 个)"] --- C3["Common<br/>(1 个)"]
+    end
+
+    subgraph L2["拦截器"]
+        direction TB
+        I1["JwtTokenAdmin<br/>token 头"] --- I2["JwtTokenUser<br/>authentication 头"]
+    end
+
+    subgraph L3["AOP 切面 (8 个)"]
+        direction TB
+        A1["@RequireRole<br/>@RequireCertify"] --- A2["@SendNotification<br/>@OperationLog"]
+    end
+
+    subgraph L4["Service (21 接口)"]
+        direction TB
+        S1["认证 · 用户 · 跑腿员"] --- S2["任务 · 订单 · 支付"]
+        S2 --- S3["评价 · 通知 · 聊天"]
+        S3 --- S4["仪表盘 · 日志 · 配置"]
+    end
+
+    subgraph L5["数据层"]
+        direction TB
+        D1["MyBatis-Plus<br/>13 Mapper"] --- D2["Redisson<br/>分布式锁"] --- D3["Redis<br/>缓存 · 限流"]
+    end
+
+    L1 --> L2 --> L3 --> L4 --> L5
 ```
+
+### 订单状态机
+
+```mermaid
+stateDiagram-v2
+    [*] --> WAITING : 发布任务
+    WAITING --> ACCEPTED : 跑腿员接单<br/>(Redisson 分布式锁)
+    WAITING --> CANCELLED : 发布者取消 / 超时
+    ACCEPTED --> DELIVERING : 确认取货<br/>(上传凭证)
+    ACCEPTED --> CANCELLED : 管理端取消
+    DELIVERING --> WAIT_CONFIRM : 确认送达<br/>(上传凭证)
+    DELIVERING --> CANCELLED : 管理端取消
+    WAIT_CONFIRM --> COMPLETED : 确认完成 / 24h 自动完成
+    COMPLETED --> [*] : 结算 + 信用分更新 + 评价
+    CANCELLED --> [*] : 退款
+
+    note right of COMPLETED
+        触发连锁操作:
+        - 跑腿员收款 (幂等)
+        - 信用分更新
+        - 排行榜缓存清除
+    end note
+```
+
+详见 [CLAUDE.md](.claude/CLAUDE.md) 获取完整项目规范。
 
 ---
 
@@ -78,7 +178,19 @@ runningerrands/
 
 ## 快速开始
 
-### 1. 初始化数据库
+### 方式一：Docker（推荐，无需配置外部服务）
+
+```bash
+cd docker
+cp .env.example .env
+docker compose up -d        # MySQL 8 + Redis 7 + Spring Boot + Nginx
+```
+
+首次启动自动建表 + 创建超管。详见 [docker/README.md](docker/README.md)。
+
+### 方式二：本地开发
+
+#### 1. 初始化数据库
 
 ```bash
 mysql -u root -p < backend/runningerrands.sql
@@ -137,6 +249,35 @@ Vite 自动将 `/api` 开头的请求代理到 `http://localhost:8080`，本地�
 2. 修改 `mobile/manifest.json` 中的微信小程序 AppID（`mp-weixin.appid`）
 3. 修改 `mobile/utils/config.js` 中的后端地址（本地开发默认 `localhost:8080`）
 4. 运行 → 微信小程序
+
+### 5. 管理端 + Nginx 部署
+
+```bash
+# 1. 构建前端
+cd admin
+npm install
+npx vite build              # 输出到 dist/
+
+# 2. 将 dist/ 部署到 nginx 静态目录
+# 项目已提供开箱即用的 nginx 配置：docker/nginx/nginx.conf
+# 核心路由:
+#   /api/admin/    → proxy_pass 后端 :8080
+#   /api/user/     → proxy_pass 后端 :8080
+#   /api/common/   → proxy_pass 后端 :8080
+#   /api/ws/       → WebSocket 升级到后端
+#   /api/assets/   → dist/assets/ (1 年强缓存)
+#   /api/          → dist/index.html (SPA 兜底)
+
+# 3. 启动 nginx
+nginx -c F:/ikeu_runningerrands/docker/nginx/nginx.conf
+
+# 4. 访问 http://localhost
+# 管理端入口 → SPA 路由接管
+# API 请求 → nginx 反向代理到 Spring Boot
+```
+
+> 本地开发时推荐直接 `npm run dev`（Vite HMR 热更新），无需 nginx。
+> 构建部署用 nginx，生产配置见 [docker/nginx/nginx.conf](docker/nginx/nginx.conf)。
 
 ---
 
@@ -338,12 +479,60 @@ WebSocket：JwtHandshakeInterceptor → AuthChannelInterceptor
 
 ---
 
-## CI / CD
+## 测试
 
-CI/CD 配置待补充。
+```bash
+# E2E 快速验证（28 项 API 断言）
+bash e2e/scripts/quick-verify.sh
+
+# 订单全生命周期验证
+python e2e/scripts/full_flow.py
+
+# 完整流程编排
+bash e2e/scripts/run.sh --quick
+```
+
+## 文档索引
+
+| 文档 | 说明 |
+|------|------|
+| [CLAUDE.md](.claude/CLAUDE.md) | 项目规范 + 编码约定 + 常用命令 |
+| [docs/versions/v1.0.0.md](docs/versions/v1.0.0.md) | v1.0.0 发布说明（功能全景 + 安全体系 + 已知限制） |
+| [docs/changelogs/CHANGELOG.md](docs/changelogs/CHANGELOG.md) | 版本修复日志 |
+| [docs/plans/v1.1-plan.md](docs/plans/v1.1-plan.md) | 后续迭代计划 |
+| [docs/test_guide.md](docs/test_guide.md) | 测试环境部署 + E2E 测试指南 |
+| [docs/nginx-config.md](docs/nginx-config.md) | Nginx 部署配置参考 |
+| [docker/nginx/nginx.conf](docker/nginx/nginx.conf) | 可用的 Nginx 配置文件 |
+| [docker/README.md](docker/README.md) | Docker 部署指南 + 预置账号 + SMS 注入 |
+| `http://localhost:8080/api/doc.html` | Swagger API 文档（启动后端后访问） |
+
+## 注意事项
+
+> [!IMPORTANT]
+> 本项目当前处于 **个人开发者预览阶段**，以下功能受限于企业资质，已使用替代方案实现：
+
+| 受限项 | 原因 | 当前替代方案 |
+|--------|------|-------------|
+| **微信支付** | 需要企业认证的小程序才能接入微信支付 API | 钱包余额为模拟数据；充值/提现接口已就绪但未对接真实支付渠道 |
+| **支付 UI** | 支付接口未接入导致前端支付流程无法完整体验 | 支付密码弹窗、余额展示、流水记录等 UI 均已完成，仅缺后端对接收银台 |
+| **SMS 短信** | 阿里云 SMS 需要已备案的企业主体 | Docker 环境通过 Redis 直写验证码；开发环境可复用 `e2e/scripts/bootstrap.sh` 注入 |
+| **微信 OAuth** | 需要已上架的微信小程序 | 本地调试时可通过手机号验证码登录绕过；`DockerTestDataInitializer` 预置了测试账号 |
+
+> 上述限制不影响项目 **核心业务流程**（注册→认证→跑腿员→发布→接单→取货→送达→完成→评价）的完整跑通和验证。
+
+## 后续计划
+
+| 优先级 | 功能 | 计划版本 |
+|:--:|------|:--:|
+| P0 | 排行榜 UI、账户注销页、附近任务（LBS）、任务统计 | v1.1 |
+| P1 | 腾讯地图 SDK 接入（选点 + 路径规划） | v1.1 |
+| P2 | 任务发布页组件化、订单详情 VO 统一 | v1.2 |
+| P3 | 数据导出、仪表盘增强 | v1.2 |
+
+详见 [docs/plans/v1.1-plan.md](docs/plans/v1.1-plan.md)。
 
 ---
 
 ## License
 
-[MIT](LICENSE) © 2025 ikeu
+[MIT](LICENSE) © 2025–2026 ikeu

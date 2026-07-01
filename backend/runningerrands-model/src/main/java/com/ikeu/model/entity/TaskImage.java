@@ -11,7 +11,12 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 任务图片表实体类
+ * 任务图片表实体类，映射 task_image 表。
+ *
+ * <p>存储任务发布时上传的图片URL及排序，与 task 表多对一关联。
+ *
+ * @author ikeu
+ * @since 2026/06/22
  */
 @Data
 @Builder

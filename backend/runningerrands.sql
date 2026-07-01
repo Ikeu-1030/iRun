@@ -439,10 +439,10 @@ CREATE TABLE `system_config`
   DEFAULT CHARSET = utf8mb4 COMMENT ='系统配置表';
 
 INSERT INTO `system_config` (`config_key`, `config_value`, `config_group`, `value_type`, `description`)
-VALUES ('platform.hotline', '400-000-0000', '基础设置', 'string', '平台客服热线电话'),
+VALUES ('platform.hotline', '', '基础设置', 'string', '平台客服热线电话'),
        ('platform.announcement', '', '基础设置', 'string', '系统公告文本（显示在首页）'),
-       ('order.task_expiry_hours', '24', '订单规则', 'int', '任务发布后无人接单自动过期时间（小时）'),
-       ('order.auto_confirm_hours', '72', '订单规则', 'int', '配送员确认送达后自动确认收货时间（小时）'),
+       ('order.task_expiry_hours', '1', '订单规则', 'int', '任务发布后无人接单自动过期时间（小时）'),
+       ('order.auto_confirm_hours', '24', '订单规则', 'int', '配送员确认送达后自动确认收货时间（小时）'),
        ('order.min_withdrawal', '10.00', '订单规则', 'decimal', '用户最低提现金额（元）'),
        ('runner.max_concurrent', '5', '跑腿限制', 'int', '跑腿员最大同时接单数'),
        ('runner.min_credit_score', '60', '跑腿限制', 'int', '跑腿员最低接单信用分'),

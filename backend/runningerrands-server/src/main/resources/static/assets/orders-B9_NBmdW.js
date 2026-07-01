@@ -1,0 +1,1 @@
+import{r as e}from"./index-5brQF2cy.js";function t(t){return e({url:`/admin/orders`,method:`get`,params:t})}function n(t){return e({url:`/admin/orders/${t}`,method:`get`})}export{t as n,n as t};

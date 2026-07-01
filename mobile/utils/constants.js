@@ -109,10 +109,10 @@ export const TASK_STATUS_BADGE = {
 
 // ---------- 任务类型 → 图标/颜色映射 ----------
 export const TASK_TYPE_META = {
-  1: { icon: 'express', color: '#FF6B4A', bg: '#FFF0ED' },
-  2: { icon: 'fire', color: '#e67e22', bg: '#fff7ed' },
+  1: { icon: 'expressDelivery', color: '#FF6B4A', bg: '#FFF0ED' },
+  2: { icon: 'snacks', color: '#e67e22', bg: '#fff7ed' },
   3: { icon: 'campusErrand', color: '#4e5f82', bg: '#f0fdf4' },
-  4: { icon: 'shop', color: '#0891B2', bg: '#ecf2ff' },
+  4: { icon: 'shoppingBag', color: '#0891B2', bg: '#ecf2ff' },
   5: { icon: 'compose', color: '#7C3AED', bg: '#F5F3FF' }
 }
 
@@ -137,7 +137,13 @@ export function getTaskTypeLabel(type) {
 export const TYPE_TO_API = { 1: '代取快递', 2: '代拿餐食', 3: '校内代办', 4: '代购物品', 5: '通用代办' }
 
 /** 中文 type → Integer（API 响应解析用） */
-export const TYPE_FROM_API = { '代取快递': 1, '代拿餐食': 2, '校内代办': 3, '代购物品': 4, '通用代办': 5 }
+export const TYPE_FROM_API = {
+  '代取快递': 1, 'daiqukuaidi': 1,
+  '代拿餐食': 2, 'dana canshi': 2,
+  '校内代办': 3, 'xiaonei daiban': 3,
+  '代购物品': 4, 'daigou wupin': 4,
+  '通用代办': 5, 'tongyong daiban': 5
+}
 
 /** Integer → String subType（API 请求用） */
 export const SUBTYPE_TO_VALUE = {

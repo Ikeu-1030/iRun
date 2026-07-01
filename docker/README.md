@@ -31,6 +31,7 @@ docker compose logs -f backend
 
 | 服务 | 容器内 | 宿主机 | 说明 |
 |------|:-----:|:-----:|------|
+| Nginx | 80 | **80** | 反向代理 + 静态资源 + WebSocket |
 | MySQL 8 | 3306 | **3308** | root / `${MYSQL_ROOT_PASSWORD}` |
 | Redis 7 | 6379 | **6381** | 无密码，database=1 |
 | Spring Boot | 8080 | **8080** | context-path=/api |
@@ -144,9 +145,12 @@ docker compose down -v
 
 ```
 docker/
-├── docker-compose.yml    # 服务编排
+├── docker-compose.yml    # 服务编排（MySQL + Redis + Backend + Nginx）
 ├── .env.example          # 环境变量模板
-└── README.md             # 本文件
+├── README.md             # 本文件
+└── nginx/
+    ├── nginx.conf         # Nginx 反向代理配置
+    └── Dockerfile         # Nginx 镜像构建
 
 backend/
 ├── Dockerfile            # 多阶段构建定义

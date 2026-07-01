@@ -39,7 +39,7 @@
       <view class="info-card">
         <view class="card-header">
           <view class="type-badge" :class="'type-badge--' + typeColor">
-            <iconpark-icon :name="typeIcon" size="20" :color="typeIconColor" />
+            <custom-icon v-if="typeIcon === 'expressDelivery'" :name="typeIcon" size="32" /><iconpark-icon v-else :name="typeIcon" size="20" :color="typeIconColor" />
             <text>{{ typeLabel }}</text>
           </view>
           <view class="order-no-row"><text class="order-no">订单号：{{ order.taskNo || order.orderId || '--' }}</text><view class="copy-btn" v-if="order.taskNo || order.orderId" @click.stop="copyOrderNo(order.taskNo || order.orderId)"><iconpark-icon name="copy" size="16" color="#FF6B4A" /></view></view>

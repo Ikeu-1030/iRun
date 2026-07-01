@@ -1,5 +1,8 @@
 package com.ikeu.server.service;
 
+import com.ikeu.common.exception.BusinessException;
+import com.ikeu.common.exception.NotFoundException;
+
 import java.math.BigDecimal;
 
 /**
@@ -15,6 +18,8 @@ public interface PaymentService {
      *
      * @param userId      用户 ID
      * @param rawPassword 原始支付密码（明文）
+     * @throws BusinessException 密码为空、未设置支付密码或密码错误时抛出
+     * @throws NotFoundException 用户不存在时抛出
      */
     void verifyPayPassword(Long userId, String rawPassword);
 
@@ -24,6 +29,8 @@ public interface PaymentService {
      * @param userId 用户 ID
      * @param taskId 任务 ID
      * @param amount 支付金额
+     * @throws BusinessException 金额不合法或余额不足时抛出
+     * @throws NotFoundException 用户不存在时抛出
      */
     void payForTask(Long userId, Long taskId, BigDecimal amount);
 
@@ -33,6 +40,8 @@ public interface PaymentService {
      * @param userId 用户 ID
      * @param taskId 任务 ID
      * @param amount 退款金额
+     * @throws BusinessException 金额不合法时抛出
+     * @throws NotFoundException 用户不存在时抛出
      */
     void refundForTask(Long userId, Long taskId, BigDecimal amount);
 
@@ -44,6 +53,8 @@ public interface PaymentService {
      * @param taskId   任务 ID
      * @param amount   报酬金额
      * @return true 首次支付，false 幂等拦截（重复请求）
+     * @throws BusinessException 金额不合法时抛出
+     * @throws NotFoundException 跑腿员用户不存在时抛出
      */
     boolean payToRunner(Long runnerId, Long taskId, BigDecimal amount);
 
@@ -52,6 +63,8 @@ public interface PaymentService {
      *
      * @param userId 用户 ID
      * @param amount 充值金额
+     * @throws BusinessException 金额不合法时抛出
+     * @throws NotFoundException 用户不存在时抛出
      */
     void recharge(Long userId, BigDecimal amount);
 
@@ -60,6 +73,8 @@ public interface PaymentService {
      *
      * @param userId 用户 ID
      * @param amount 提现金额
+     * @throws BusinessException 金额不合法或余额不足时抛出
+     * @throws NotFoundException 用户不存在时抛出
      */
     void withdraw(Long userId, BigDecimal amount);
 }

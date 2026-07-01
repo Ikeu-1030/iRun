@@ -5,11 +5,14 @@ import com.ikeu.common.constant.StatusConstant;
 import com.ikeu.common.exception.BusinessException;
 import com.ikeu.common.exception.NotFoundException;
 import com.ikeu.model.entity.PaymentIdempotent;
+import com.ikeu.model.entity.SystemConfig;
 import com.ikeu.model.entity.User;
 import com.ikeu.server.mapper.PaymentIdempotentMapper;
+import com.ikeu.server.mapper.SystemConfigMapper;
 import com.ikeu.server.mapper.UserMapper;
 import com.ikeu.server.service.PaymentService;
 import com.ikeu.server.service.TransactionService;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
@@ -34,7 +37,9 @@ public class PaymentServiceImpl implements PaymentService {
     private final TransactionService transactionService;
     private final PaymentIdempotentMapper paymentIdempotentMapper;
     private final PasswordEncoder passwordEncoder;
+    private final SystemConfigMapper systemConfigMapper;
 
+    private static final String CONFIG_KEY_MIN_WITHDRAWAL = "order.min_withdrawal";
     private static final String PAY_TASK_KEY_PREFIX = "PAY:task:";
     private static final String REFUND_TASK_KEY_PREFIX = "REFUND:task:";
     private static final String INCOME_TASK_KEY_PREFIX = "INCOME:task:";
@@ -207,6 +212,10 @@ public class PaymentServiceImpl implements PaymentService {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new BusinessException(MessageConstant.AMOUNT_MUST_GREATER_THAN_ZERO);
         }
+        BigDecimal minWithdrawal = loadMinWithdrawal();
+        if (amount.compareTo(minWithdrawal) < 0) {
+            throw new BusinessException(MessageConstant.WITHDRAW_AMOUNT_TOO_LOW + "，最低提现" + minWithdrawal + "元");
+        }
         if (!checkIdempotent(WITHDRAW_USER_KEY_PREFIX + userId + ":" + (System.currentTimeMillis() / 1000))) return;
 
         User user = userMapper.selectByIdForUpdate(userId);
@@ -222,6 +231,24 @@ public class PaymentServiceImpl implements PaymentService {
         transactionService.recordTransaction(userId, null, amount.negate(),
                 StatusConstant.TRANSACTION_WITHDRAW, before, after);
         log.info("用户 {} 提现 {} 元", userId, amount);
+    }
+
+    /** 从系统配置表读取最低提现金额，读取失败或值 ≤ 0 时使用默认值 10。 */
+    private BigDecimal loadMinWithdrawal() {
+        try {
+            SystemConfig config = systemConfigMapper.selectOne(
+                    new LambdaQueryWrapper<SystemConfig>().eq(SystemConfig::getConfigKey, CONFIG_KEY_MIN_WITHDRAWAL));
+            if (config != null && config.getConfigValue() != null) {
+                BigDecimal min = new BigDecimal(config.getConfigValue());
+                if (min.compareTo(BigDecimal.ZERO) > 0) {
+                    return min;
+                }
+                log.warn("配置 order.min_withdrawal 值 {} 无效（必须 > 0），使用默认值 10 元", min);
+            }
+        } catch (Exception e) {
+            log.warn("读取 order.min_withdrawal 配置失败，使用默认值 10 元", e);
+        }
+        return BigDecimal.TEN;
     }
 
     /**

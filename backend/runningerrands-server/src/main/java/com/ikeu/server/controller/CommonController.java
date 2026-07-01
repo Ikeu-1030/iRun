@@ -12,10 +12,10 @@ import com.ikeu.server.mapper.SystemConfigMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
@@ -24,7 +24,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -37,14 +41,24 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @RestController
 @Tag(name = "通用接口", description = "文件上传、默认头像、平台公告等通用接口")
-@RequiredArgsConstructor
 public class CommonController {
+    /** 可选依赖，OSS 未配置时 {@link Optional#empty()} → {@code orElse(null)} */
     private final AliOssUtil aliOssUtil;
     private final SystemConfigMapper systemConfigMapper;
     private final JwtUtil jwtUtil;
     private final StringRedisTemplate stringRedisTemplate;
 
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    public CommonController(Optional<AliOssUtil> aliOssUtil, SystemConfigMapper systemConfigMapper,
+                            JwtUtil jwtUtil, StringRedisTemplate stringRedisTemplate) {
+        this.aliOssUtil = aliOssUtil.orElse(null);
+        this.systemConfigMapper = systemConfigMapper;
+        this.jwtUtil = jwtUtil;
+        this.stringRedisTemplate = stringRedisTemplate;
+    }
+
     private static final String DEFAULT_AVATAR_PATH = "static/imgs/default_avatar.jpg";
+    private static final Path LOCAL_UPLOAD_DIR = Paths.get("uploads").toAbsolutePath().normalize();
 
     private static final String CONFIG_KEY_UPLOAD_DAILY = "upload.max_daily";
     private static final String CONFIG_KEY_PLATFORM_ANNOUNCEMENT = "platform.announcement";
@@ -62,10 +76,10 @@ public class CommonController {
     );
 
     /**
-     * 文件上传至阿里云OSS。
+     * 文件上传至阿里云OSS；OSS 未配置时回退本地文件存储。
      *
      * <p>接收 MultipartFile，提取原始文件名后缀，使用 UUID 生成本地唯一文件名，
-     * 调用 {@link AliOssUtil#upload} 将文件字节流上传至 OSS，返回文件的公网访问URL。
+     * 调用 {@link AliOssUtil#upload} 将文件字节流上传至 OSS 或本地存储，返回文件的公网访问URL。
      * 文件为空或上传过程中发生 IO 异常时返回错误消息。
      *
      * @param file 上传的文件
@@ -129,13 +143,54 @@ public class CommonController {
         String fileName = UUID.randomUUID() + suffix;
 
         try {
-            String filePath = aliOssUtil.upload(file.getBytes(), fileName);
-            return Result.successData(filePath);
+            if (aliOssUtil != null && aliOssUtil.getEndpoint() != null && !aliOssUtil.getEndpoint().isBlank()) {
+                // OSS 已配置 → 上传到阿里云
+                String filePath = aliOssUtil.upload(file.getBytes(), fileName);
+                return Result.successData(filePath);
+            } else {
+                // OSS 未配置 → 本地存储（测试环境）
+                Files.createDirectories(LOCAL_UPLOAD_DIR);
+                Path targetPath = LOCAL_UPLOAD_DIR.resolve(fileName);
+                file.transferTo(targetPath.toFile());
+                String fileUrl = "/common/local-upload/" + fileName;
+                log.info("本地文件上传到: {}", targetPath);
+                return Result.successData(fileUrl);
+            }
         } catch (IOException e) {
             log.error("文件上传失败：{}", e.getMessage());
         }
 
         return Result.error(MessageConstant.UPLOAD_FAILED);
+    }
+
+    /**
+     * 提供本地存储的上传文件访问（测试环境无 OSS 时使用）。
+     *
+     * @param fileName 文件名（含扩展名）
+     * @return 文件资源
+     */
+    @GetMapping("/common/local-upload/{fileName}")
+    @Operation(summary = "获取本地上传文件")
+    public ResponseEntity<Resource> getLocalUpload(@PathVariable String fileName) {
+        Path filePath = LOCAL_UPLOAD_DIR.resolve(fileName).normalize();
+        // 路径穿越防护
+        if (!filePath.startsWith(LOCAL_UPLOAD_DIR)) {
+            return ResponseEntity.badRequest().build();
+        }
+        if (!Files.exists(filePath)) {
+            return ResponseEntity.notFound().build();
+        }
+        try {
+            Resource resource = new UrlResource(filePath.toUri());
+            String contentType = Files.probeContentType(filePath);
+            return ResponseEntity.ok()
+                    .contentType(contentType != null ? MediaType.parseMediaType(contentType) : MediaType.APPLICATION_OCTET_STREAM)
+                    .cacheControl(CacheControl.maxAge(7, TimeUnit.DAYS).cachePublic())
+                    .body(resource);
+        } catch (IOException e) {
+            log.error("本地文件读取失败: {}", e.getMessage());
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     /**

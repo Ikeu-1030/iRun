@@ -26,6 +26,7 @@ public interface AdminRunnerService {
      *
      * @param profileId 跑腿员档案 ID
      * @return 跑腿员详情 VO
+     * @throws NotFoundException 跑腿员不存在时抛出
      */
     RunnerManageVO getRunnerDetail(Long profileId);
 
@@ -35,6 +36,8 @@ public interface AdminRunnerService {
      * @param runnerProfileId 跑腿员档案 ID
      * @param verifyStatus    审核目标状态（如通过/拒绝）
      * @param remark          审核备注说明
+     * @throws NotFoundException 跑腿员档案不存在时抛出
+     * @throws BusinessException 跑腿员不在审核中状态时抛出
      */
     void reviewRunnerCertification(Long runnerProfileId, Integer verifyStatus, String remark);
 
@@ -43,6 +46,7 @@ public interface AdminRunnerService {
      *
      * @param profileId 跑腿员档案 ID
      * @param banned    true 禁止接单，false 恢复接单
+     * @throws NotFoundException 跑腿员档案不存在时抛出
      */
     void toggleRunnerBan(Long profileId, boolean banned);
 }

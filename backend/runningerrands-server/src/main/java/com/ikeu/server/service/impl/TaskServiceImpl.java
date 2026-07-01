@@ -114,14 +114,6 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         return taskListVO;
     }
 
-    /**
-     * 执行分页查询并构建TaskListVO结果
-     *
-     * @param page 页码
-     * @param size 每页条数
-     * @param wrapper 查询条件包装器
-     * @return PageResult<TaskListVO> 分页任务列表结果
-     */
     /** 将分页 Task 结果批量转换为 TaskListVO */
     private PageResult<TaskListVO> buildTaskListResult(Page<Task> taskPage) {
         if (taskPage.getRecords().isEmpty()) {
@@ -196,13 +188,17 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
      */
     @Override
     @Transactional
-    public void publishTask(Long userId, TaskPublishDTO taskPublishDTO) {
+    public String publishTask(Long userId, TaskPublishDTO taskPublishDTO) {
         // 校验支付密码
         paymentService.verifyPayPassword(userId, taskPublishDTO.getPayPassword());
         // 校验用户状态
         User user = userMapper.selectById(userId);
         if (user == null || Objects.equals(user.getStatus(), StatusConstant.DISABLE)) {
             throw new BusinessException(MessageConstant.USER_NOT_EXIST);
+        }
+        // 校验任务类型
+        if (taskPublishDTO.getType() == null || !TaskTypeConstant.ALL_TYPES.contains(taskPublishDTO.getType())) {
+            throw new ParamErrorException(MessageConstant.TASK_TYPE_INVALID);
         }
         // 计算合计支付金额（小费 + 配送费 + 预估商品费）
         BigDecimal deliveryFee = taskPublishDTO.getDeliveryFee() != null ? taskPublishDTO.getDeliveryFee() : BigDecimal.ZERO;
@@ -309,6 +305,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                 if (nullKeys != null && !nullKeys.isEmpty()) stringRedisTemplate.delete(nullKeys);
             }
         });
+
+        return task.getTaskNo();
     }
 
     /**
@@ -649,7 +647,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         Map<Integer, Long> statusCountMap = new HashMap<>();
         long total = 0;
         for (Map<String, Object> row : rows) {
-            Integer status = (Integer) row.get("COALESCE(status, 0)");
+            Integer status = ((Number) row.get("COALESCE(status, 0)")).intValue();
             Long cnt = ((Number) row.get("COUNT(*)")).longValue();
             statusCountMap.put(status, cnt);
             total += cnt;

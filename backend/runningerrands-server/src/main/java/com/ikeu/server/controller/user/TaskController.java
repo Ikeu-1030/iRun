@@ -8,6 +8,7 @@ import com.ikeu.model.dto.CancelTaskDTO;
 import com.ikeu.model.dto.TaskPublishDTO;
 import com.ikeu.model.vo.TaskDetailVO;
 import com.ikeu.model.vo.TaskListVO;
+import com.ikeu.model.vo.TaskPublishVO;
 import com.ikeu.model.vo.TaskStatisticsVO;
 import com.ikeu.server.annotation.RequireCertify;
 import com.ikeu.server.service.TaskService;
@@ -47,10 +48,12 @@ public class TaskController {
     @RequireCertify
     @Operation(summary = "发布新任务")
     @PostMapping("/publish")
-    public Result<Void> publish(@Valid @RequestBody TaskPublishDTO taskPublishDTO) {
+    public Result<TaskPublishVO> publish(@Valid @RequestBody TaskPublishDTO taskPublishDTO) {
         Long userId = BaseContext.getCurrentId();
-        taskService.publishTask(userId, taskPublishDTO);
-        return Result.success(MessageConstant.TASK_PUBLISH_SUCCESS);
+        String taskNo = taskService.publishTask(userId, taskPublishDTO);
+        return Result.success(TaskPublishVO.builder()
+                .taskNo(taskNo)
+                .build());
     }
 
     /**

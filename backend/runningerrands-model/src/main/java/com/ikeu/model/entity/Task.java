@@ -12,7 +12,13 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * 任务表实体类
+ * 任务表实体类，映射 task 表。
+ *
+ * <p>包含任务基本信息（类型、报酬、地址）、状态流转、超时/过期时间、
+ * 发布者及联系人信息等字段。
+ *
+ * @author ikeu
+ * @since 2026/06/22
  */
 @Data
 @Builder

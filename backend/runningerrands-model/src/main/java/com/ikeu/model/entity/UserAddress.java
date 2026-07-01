@@ -12,7 +12,13 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * 用户地址簿实体类
+ * 用户地址表实体类，映射 user_address 表。
+ *
+ * <p>包含联系人姓名/电话/性别、地址详情、经纬度、
+ * 是否默认地址等字段，与 user 表多对一关联。
+ *
+ * @author ikeu
+ * @since 2026/06/22
  */
 @Data
 @Builder

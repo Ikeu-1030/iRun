@@ -43,6 +43,13 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
     private final TaskOrderMapper taskOrderMapper;
     private final RunnerProfileMapper runnerProfileMapper;
 
+    private static final Map<String, String> TYPE_LABEL_MAP = Map.ofEntries(
+            Map.entry("代取快递", "代取快递"), Map.entry("daiqukuaidi", "代取快递"),
+            Map.entry("代拿餐食", "代拿餐食"), Map.entry("dana canshi", "代拿餐食"),
+            Map.entry("校内代办", "校内代办"), Map.entry("xiaonei daiban", "校内代办"),
+            Map.entry("代购物品", "代购物品"), Map.entry("daigou wupin", "代购物品"),
+            Map.entry("通用代办", "通用代办"), Map.entry("tongyong daiban", "通用代办"));
+
     /**
      * 统计卡片摘要：用户/任务/订单总数、认证/在线跑腿员数、今日新增/完成量、今日交易额。
      *
@@ -155,11 +162,20 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
     @Cacheable(value = RedisConstant.CACHE_DASHBOARD, key = "'taskCategories'")
     public List<CategoryPieVO> getTaskCategories() {
         List<Map<String, Object>> rows = taskMapper.countTasksByType();
-        return rows.stream().map(row -> {
-            String name = row.get("name") != null ? row.get("name").toString() : "";
+        // 按中文标签聚合，兜底未识别 type 避免英文 code 暴露到前端
+        Map<String, Long> grouped = new LinkedHashMap<>();
+        for (String label : List.of("代取快递", "代拿餐食", "校内代办", "代购物品", "通用代办")) {
+            grouped.put(label, 0L);
+        }
+        for (Map<String, Object> row : rows) {
+            String raw = row.get("name") != null ? row.get("name").toString() : "";
             Long value = row.get("value") != null ? Long.parseLong(row.get("value").toString()) : 0L;
-            return CategoryPieVO.builder().name(name).value(value).build();
-        }).collect(Collectors.toList());
+            String label = TYPE_LABEL_MAP.getOrDefault(raw, raw);
+            grouped.merge(label, value, Long::sum);
+        }
+        return grouped.entrySet().stream()
+                .map(e -> CategoryPieVO.builder().name(e.getKey()).value(e.getValue()).build())
+                .collect(Collectors.toList());
     }
 
     /**
