@@ -95,96 +95,118 @@
 <table><tr>
 
 ```mermaid
-graph TB
-    subgraph 客户端
-        A[微信小程序<br/>uni-app Vue 3]
-        B[管理后台<br/>Vue 3 + Element Plus]
+flowchart TD
+    subgraph PRESENTATION["展示层 (Presentation)"]
+        direction LR
+        MOBILE["📱 移动端<br/>uni-app 微信小程序<br/>34个页面 · 5 Tab"]
+        ADMIN["🖥️ 管理端<br/>Vue 3 + Element Plus<br/>15个视图"]
     end
 
-    subgraph 网关
-        C[Nginx<br/>反向代理 + 静态资源]
+    GATEWAY["API 网关层 (Nginx)<br/>路由分发 · 静态资源 · WebSocket 代理<br/>端口 80/443 → 后端 8080"]
+
+    subgraph BUSINESS["业务层 (Business) · Spring Boot 3.2.0"]
+        direction TB
+
+        subgraph CONTROLLER["Controller 控制层 (21个)"]
+            direction LR
+            CTRL_ADMIN["admin 包<br/>AdminController<br/>UserManageController..."]
+            CTRL_USER["user 包<br/>UserController<br/>TaskController..."]
+            CTRL_COMMON["通用接口<br/>CommonController<br/>文件上传/下载"]
+        end
+
+        INTERCEPTOR["拦截器层<br/>JwtTokenAdminInterceptor (token 头)<br/>JwtTokenUserInterceptor (authentication 头)"]
+
+        subgraph SERVICE["Service 服务层 (21个)"]
+            direction LR
+            SVC_CORE["核心业务<br/>UserServiceImpl/TaskServiceImpl/TaskOrderServiceImpl/RunnerProfileServiceImpl/PaymentServiceImpl"]
+            SVC_SUPPORT["支撑业务<br/>ChatMessageServiceImpl/ReviewServiceImpl/NotificationServiceImpl/TransactionServiceImpl/AddressServiceImpl/CreditLogServiceImpl"]
+            SVC_ADMIN["管理业务<br/>AdminDashboardServiceImpl/OperationLogServiceImpl/SystemConfigServiceImpl/AdminServiceImpl"]
+        end
+
+        AOP["AOP 切面层 (7个)<br/>@OperationLog 操作日志记录<br/>@SendNotification 通知推送<br/>@RedisDefend 防缓存穿透/击穿"]
+
+        MAPPER["Mapper 数据访问层 (15个)<br/>MyBatis-Plus BaseMapper<br/>LambdaWrapper 参数化查询"]
     end
 
-    subgraph 服务层["Spring Boot 3.2.0 / Java 21"]
-        D[管理端拦截器<br/>JwtTokenAdminInterceptor]
-        E[用户端拦截器<br/>JwtTokenUserInterceptor]
-        F[Controller]
-        G[Service]
-        H[Mapper]
-        I[定时任务]
-        J[STOMP WebSocket<br/>聊天 + 通知推送]
+    subgraph DATA["数据层 (Data)"]
+        direction LR
+        MYSQL[("MySQL 8<br/>runningerrands<br/>15张表")]
+        REDIS[("Redis 7<br/>缓存 · 分布式锁<br/>登录保护 · 验证码")]
+        OSS["阿里云 OSS<br/>图片/文件存储"]
     end
 
-    subgraph 中间件
-        K[(MySQL 8<br/>持久化存储)]
-        L[(Redis 7<br/>缓存 / 锁 / 限流)]
+    subgraph CROSS["跨切面基础设施"]
+        direction LR
+        JWT["JWT 双令牌<br/>access(2h) + refresh(7d)"]
+        REDISSON["Redisson<br/>分布式锁"]
+        STOMP["STOMP WebSocket<br/>即时通讯"]
+        SWAGGER["Knife4j<br/>API 文档"]
     end
 
-    subgraph 云服务
-        M[阿里云 OSS<br/>文件存储]
-        N[阿里云 SMS<br/>短信验证码]
-        O[腾讯地图 API<br/>LBS 服务]
-    end
+    PRESENTATION -->|"HTTPS /api"| GATEWAY
+    GATEWAY -->|"反向代理"| CONTROLLER
+    CONTROLLER --> INTERCEPTOR
+    INTERCEPTOR --> SERVICE
+    SERVICE --> MAPPER
+    MAPPER --> MYSQL
+    MAPPER --> REDIS
+    SERVICE --> OSS
+    AOP -.-> CONTROLLER
+    AOP -.-> SERVICE
+    INTERCEPTOR -.-> JWT
+    SERVICE -.-> REDISSON
+    SERVICE -.-> STOMP
+    CONTROLLER -.-> SWAGGER
 
-    A -->|HTTP + WebSocket| C
-    B -->|HTTP| C
-    C --> D
-    C --> E
-    D --> F
-    E --> F
-    F --> G
-    G --> H
-    H --> K
-    G --> L
-    G --> M
-    G --> N
-    G --> O
-    I --> G
-    J --> L
-
-    style A fill:#FF6B4A,color:#fff
-    style B fill:#2EC4B6,color:#fff
-    style C fill:#8E8E93,color:#fff
-    style K fill:#00758F,color:#fff
-    style L fill:#DC382D,color:#fff
+    style PRESENTATION fill:#FFF0ED,stroke:#FF6B4A,stroke-width:3px
+    style BUSINESS fill:#D4F5F0,stroke:#2EC4B6,stroke-width:3px
+    style DATA fill:#EEF2FB,stroke:#5B9BD5,stroke-width:3px
+    style CROSS fill:#FFF7ED,stroke:#C8925D,stroke-width:2px
+    style GATEWAY fill:#F5F5F0,stroke:#8F8D88,stroke-width:2px
+    style CONTROLLER fill:#FFFFFF,stroke:#D4D2CC,stroke-width:1px
+    style SERVICE fill:#FFFFFF,stroke:#D4D2CC,stroke-width:1px
+    style MAPPER fill:#FFFFFF,stroke:#D4D2CC,stroke-width:1px
+    style INTERCEPTOR fill:#FEF3C7,stroke:#F59E0B,stroke-width:2px
+    style AOP fill:#EDE9FE,stroke:#8B5CF6,stroke-width:2px
+    style MOBILE fill:#FF6B4A,color:#FFFFFF
+    style ADMIN fill:#FF6B4A,color:#FFFFFF
 ```
 
 </tr></table>
 
-### 后端分层
+### 请求生命周期
 
 <table><tr>
 
 ```mermaid
-flowchart LR
-    subgraph L1["Controller"]
-        direction TB
-        C1["Admin<br/>(6 个)"] --- C2["User<br/>(10 个)"] --- C3["Common<br/>(1 个)"]
-    end
+sequenceDiagram
+    participant Client as 客户端 (Mobile/Admin)
+    participant Nginx as Nginx 网关
+    participant Interceptor as JWT 拦截器
+    participant Controller as Controller
+    participant Service as Service
+    participant AOP as AOP 切面
+    participant Mapper as Mapper
+    participant DB as MySQL/Redis
 
-    subgraph L2["拦截器"]
-        direction TB
-        I1["JwtTokenAdmin<br/>token 头"] --- I2["JwtTokenUser<br/>authentication 头"]
-    end
-
-    subgraph L3["AOP 切面 (8 个)"]
-        direction TB
-        A1["@RequireRole<br/>@RequireCertify"] --- A2["@SendNotification<br/>@OperationLog"]
-    end
-
-    subgraph L4["Service (21 接口)"]
-        direction TB
-        S1["认证 · 用户 · 跑腿员"] --- S2["任务 · 订单 · 支付"]
-        S2 --- S3["评价 · 通知 · 聊天"]
-        S3 --- S4["仪表盘 · 日志 · 配置"]
-    end
-
-    subgraph L5["数据层"]
-        direction TB
-        D1["MyBatis-Plus<br/>13 Mapper"] --- D2["Redisson<br/>分布式锁"] --- D3["Redis<br/>缓存 · 限流"]
-    end
-
-    L1 --> L2 --> L3 --> L4 --> L5
+    Client->>Nginx: HTTPS /api/xxx
+    Nginx->>Interceptor: 转发请求
+    Interceptor->>Interceptor: 解析 Token · 校验签名 · 提取 userId
+    Interceptor->>Interceptor: 写入 ThreadLocal (BaseContext)
+    Interceptor->>Controller: 放行
+    Controller->>Controller: @Valid 参数校验
+    Controller->>Service: 调用业务方法
+    Service->>AOP: @RedisDefend 防缓存穿透
+    AOP->>DB: 查 Redis 缓存
+    DB-->>AOP: 未命中
+    AOP->>Mapper: 查数据库
+    Service->>AOP: @OperationLog 记录操作
+    Service->>AOP: @SendNotification 推送通知
+    Mapper->>DB: MyBatis-Plus SQL
+    DB-->>Mapper: 结果集
+    Mapper-->>Service: Entity
+    Service-->>Controller: VO/DTO
+    Controller-->>Client: Result<T> JSON
 ```
 
 </tr></table>
