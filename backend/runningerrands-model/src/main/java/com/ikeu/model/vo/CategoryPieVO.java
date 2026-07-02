@@ -8,16 +8,11 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
-/**
- * 分类占比 VO，用于仪表盘饼图/柱状图的分类数据。
- * @author ikeu
- * @since 2026/06/11
- */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "分类占比")
+@Schema(description = "分类占比VO")
 public class CategoryPieVO implements Serializable {
 
     @Schema(description = "分类名称")

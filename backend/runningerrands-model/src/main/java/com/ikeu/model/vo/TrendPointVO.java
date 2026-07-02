@@ -8,16 +8,11 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
-/**
- * 趋势数据点 VO，用于仪表盘折线图/柱状图的数据序列。
- * @author ikeu
- * @since 2026/06/11
- */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "趋势数据点")
+@Schema(description = "趋势数据点VO")
 public class TrendPointVO implements Serializable {
 
     @Schema(description = "日期")

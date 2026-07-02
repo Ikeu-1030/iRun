@@ -1,0 +1,1 @@
+import{r as e}from"./index-C9InanXw.js";function t(t){return e({url:`/admin/logs`,method:`get`,params:t})}export{t};

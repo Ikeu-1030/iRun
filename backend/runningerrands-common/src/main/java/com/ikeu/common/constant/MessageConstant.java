@@ -86,9 +86,11 @@ public final class MessageConstant {
     public static final String TASK_WAIT_CONFIRM_CANNOT_CANCEL = "任务正在等待确认收货，暂无法取消";
     public static final String TASK_COMPLETED_CANNOT_CANCEL = "任务已完成，无法取消";
     public static final String TASK_ALREADY_CANCELLED = "任务已取消，请勿重复操作";
+    public static final String TASK_ALREADY_ACCEPTED = "任务已被其他配送员抢先接取";
     public static final String TASK_TIMEOUT_CANCEL = "任务超时无人接单，已自动取消";
     public static final String TASK_CANCEL_SUCCESS = "任务取消成功";
     public static final String NEED_SELECT_DELIVERY_ADDRESS = "该任务类型必须选择送达地址";
+    public static final String TASK_TYPE_INVALID = "无效的任务类型";
 
 
     // ========== 订单相关 ==========
@@ -130,6 +132,7 @@ public final class MessageConstant {
     // ========== 余额相关 ==========
     public static final String AMOUNT_MUST_GREATER_THAN_ZERO = "操作金额必须大于0";
     public static final String BALANCE_NOT_ENOUGH = "账户余额不足，请先充值";
+    public static final String WITHDRAW_AMOUNT_TOO_LOW = "提现金额不满足最低要求";
     public static final String RECHARGE_SUCCESS = "充值成功";
     public static final String WITHDRAW_SUCCESS = "提现申请已提交";
 

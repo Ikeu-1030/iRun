@@ -11,7 +11,13 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 聊天消息表实体类
+ * 聊天消息表实体类，映射 chat_message 表。
+ *
+ * <p>包含消息发送者/接收者、消息内容、消息类型（文本/图片）、
+ * 已读状态、删除/撤回标记等字段。
+ *
+ * @author ikeu
+ * @since 2026/06/22
  */
 @Data
 @Builder

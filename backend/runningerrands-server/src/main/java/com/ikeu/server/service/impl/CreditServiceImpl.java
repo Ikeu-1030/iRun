@@ -33,29 +33,32 @@ public class CreditServiceImpl implements CreditService {
     private final CreditLogMapper creditLogMapper;
 
     /**
-     * 根据订单完成情况自动处理跑腿员信用分，使用 REQUIRES_NEW 事务隔离。
+     * 根据送达时效自动清算跑腿员履约信用分，在 confirmDeliver 事务提交后触发。
      *
-     * <p>评分规则：提前完成 +5，按时完成 +1，超时 0-30min -2，30-60min -5，60min+ -10。
+     * <p>以 {@code deliverTime}（跑腿员点击送达的实际时刻）vs {@code expectFinishTime}（预计送达）判定，
+     * 不受发布者确认时间延迟影响。使用 REQUIRES_NEW 事务隔离避免行锁冲突。
+     *
+     * <p>评分规则：提前 +5，按时 +1，超时 0-30min -2，30-60min -5，60min+ -10。
      *
      * @param orderId 订单ID
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void processCreditOnComplete(Long orderId) {
+    public void processCreditOnDelivered(Long orderId) {
         TaskOrder order = taskOrderMapper.selectById(orderId);
         if (order == null || order.getExpectFinishTime() == null) return;
 
-        // 使用实际确认时间而非当前时间，避免 afterCommit 回调延迟导致误判
-        LocalDateTime now = order.getConfirmTime() != null ? order.getConfirmTime() : LocalDateTime.now();
+        // 使用送达时间清算履约信用分，不受发布者确认延迟影响
+        LocalDateTime deliverTime = order.getDeliverTime() != null ? order.getDeliverTime() : LocalDateTime.now();
         Long runnerId = order.getRunnerId();
 
-        if (now.isBefore(order.getExpectFinishTime())) {
+        if (deliverTime.isBefore(order.getExpectFinishTime())) {
             recordAndApply(runnerId, CreditConstant.REWARD_EARLY,
                     CreditConstant.ReasonType.REWARD, CreditConstant.ReasonDetail.EARLY, orderId);
             return;
         }
 
-        long minutesLate = Duration.between(order.getExpectFinishTime(), now).toMinutes();
+        long minutesLate = Duration.between(order.getExpectFinishTime(), deliverTime).toMinutes();
         if (minutesLate <= 0) {
             recordAndApply(runnerId, CreditConstant.REWARD_ON_TIME,
                     CreditConstant.ReasonType.REWARD, CreditConstant.ReasonDetail.ON_TIME, orderId);

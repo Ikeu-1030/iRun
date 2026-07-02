@@ -74,7 +74,7 @@
         <template v-else-if="runnerState === 'pending'">
           <view class="status-card">
             <view class="status-icon status-icon--pending">
-              <iconpark-icon name="clock-filled" size="48" color="#F59E0B" />
+              <iconpark-icon name="hourglass" size="48" color="#F59E0B" />
             </view>
             <text class="status-title">配送员申请审核中</text>
             <text class="status-desc">你的配送员申请正在审核中，通常1-3个工作日内完成，请留意通知</text>

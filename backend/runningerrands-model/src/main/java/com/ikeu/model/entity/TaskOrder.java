@@ -11,7 +11,13 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 任务执行订单表实体类
+ * 任务执行订单表实体类，映射 task_order 表。
+ *
+ * <p>包含订单状态流转（待取货、配送中、待确认、已完成、已取消）、
+ * 各阶段时间戳、取货/送达凭证图片、取消原因等字段。
+ *
+ * @author ikeu
+ * @since 2026/06/22
  */
 @Data
 @Builder

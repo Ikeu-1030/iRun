@@ -6,6 +6,7 @@ import com.ikeu.common.result.PageResult;
 import com.ikeu.common.result.Result;
 import com.ikeu.model.dto.CancelOrderDTO;
 import com.ikeu.model.dto.ProofImageDTO;
+import com.ikeu.model.vo.OrderAcceptVO;
 import com.ikeu.model.vo.OrderDetailVO;
 import com.ikeu.model.vo.OrderListVO;
 import com.ikeu.server.annotation.RequireCertify;
@@ -48,10 +49,10 @@ public class TaskOrderController {
     @RequireCertify
     @Operation(summary = "配送员接单")
     @PostMapping("/accept/{taskId}")
-    public Result<Void> accept(@PathVariable Long taskId) {
+    public Result<OrderAcceptVO> accept(@PathVariable Long taskId) {
         Long runnerId = BaseContext.getCurrentId();
-        taskOrderService.acceptOrder(runnerId, taskId);
-        return Result.success(MessageConstant.ORDER_ACCEPT_SUCCESS);
+        Long orderId = taskOrderService.acceptOrder(runnerId, taskId);
+        return Result.success(OrderAcceptVO.builder().orderId(orderId).build());
     }
 
     /**

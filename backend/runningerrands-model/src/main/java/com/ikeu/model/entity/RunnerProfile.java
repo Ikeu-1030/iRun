@@ -9,7 +9,13 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * 配送员档案表实体类
+ * 配送员档案表实体类，映射 runner_profile 表。
+ *
+ * <p>包含配送员认证状态、信用分、接单统计（总单数/成功数/平均评分）、
+ * 在线状态、最大接单数、当前接单数、封禁信息等字段。
+ *
+ * @author ikeu
+ * @since 2026/06/22
  */
 @Data
 @Builder

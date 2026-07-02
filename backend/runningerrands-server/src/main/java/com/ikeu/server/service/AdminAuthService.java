@@ -1,5 +1,7 @@
 package com.ikeu.server.service;
 
+import com.ikeu.common.exception.BusinessException;
+import com.ikeu.common.exception.UnauthorizedException;
 import com.ikeu.model.dto.AdminLoginDTO;
 import com.ikeu.model.vo.AdminLoginVO;
 
@@ -16,6 +18,7 @@ public interface AdminAuthService {
      *
      * @param dto 登录请求，包含用户名和密码
      * @return 登录成功后的管理员信息及双令牌
+     * @throws BusinessException 登录失败次数过多锁定、密码错误或账号已禁用时抛出
      */
     AdminLoginVO login(AdminLoginDTO dto);
 
@@ -25,6 +28,7 @@ public interface AdminAuthService {
      *
      * @param refreshToken 旧 refresh token
      * @return 新的管理员信息及双令牌
+     * @throws UnauthorizedException refresh token 无效、已过期或管理员被禁用时抛出
      */
     AdminLoginVO refreshAccessToken(String refreshToken);
 
@@ -32,6 +36,7 @@ public interface AdminAuthService {
      * 获取当前登录管理员信息（不含令牌），内部从请求上下文提取 adminId。
      *
      * @return 当前管理员基本信息
+     * @throws UnauthorizedException 管理员不存在或已被禁用时抛出
      */
     AdminLoginVO getAdminInfo();
 
@@ -39,7 +44,7 @@ public interface AdminAuthService {
      * 管理员退出登录，通配清除 Redis 中该管理员的所有 refresh token，
      * 使所有终端同时失效。
      *
-     * @param adminId 管理员 ID
+     * @param adminId 管理员 ID；为 null 时直接返回不执行任何操作
      */
     void logout(Long adminId);
 }

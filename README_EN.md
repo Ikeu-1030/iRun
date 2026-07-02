@@ -22,6 +22,78 @@ A campus errand-running service platform. Students publish tasks (package pickup
 
 ---
 
+## Tech Stack
+
+### Backend
+
+| Technology | Version | Description |
+|------|------|------|
+| Spring Boot | 3.2.0 | Application framework |
+| Java | 21 | Programming language |
+| MyBatis-Plus | 3.5.5 | ORM framework |
+| MySQL | 8.0 | Relational database |
+| Redis | 7 | Cache · distributed lock · login protection |
+| Redisson | 3.x | Distributed lock |
+| Knife4j | 4.5.0 | API documentation (Swagger) |
+| Maven | wrapper | Build tool |
+| Lombok | 1.18.34 | Object mapping |
+| JWT | 0.12.6 | Dual-token auth (access + refresh) |
+
+### Frontend
+
+| Technology | Version | Description |
+|------|------|------|
+| Vue | 3.5 | UI framework |
+| TypeScript | 6.0 | Programming language |
+| Vite | 8 | Build tool |
+| Vue Router | 4 | Routing |
+| Element Plus | 2.14 | UI component library |
+| Pinia | 3 | State management |
+| ECharts | 6 | Data charts |
+| GSAP | 3 | Animation engine |
+| Axios | — | HTTP client |
+| Iconfont | — | Icon library (Alibaba Vector Icon Library) |
+| uni-app | — | Mobile cross-platform framework |
+| STOMP | 1.2 | Mobile WebSocket real-time messaging |
+
+---
+
+## Screenshots
+
+### Admin Dashboard
+
+<table>
+<tr>
+
+| Dashboard | User Management | Verification | Task Management |
+|:------:|:------:|:------:|:------:|
+| ![](docs/imgs/admin-dashboard.png) | ![](docs/imgs/admin-usermanage.png) | ![](docs/imgs/admin-verifymanage.png) | ![](docs/imgs/admin-taskmanage.png) |
+
+| Order Management | Transactions | System Settings | Notifications |
+|:------:|:------:|:------:|:------:|
+| ![](docs/imgs/admin-ordermanage.png) | ![](docs/imgs/admin-transaction.png) | ![](docs/imgs/admin-systemmanage.png) | ![](docs/imgs/admin-notificationmanage.png) |
+
+</tr>
+</table>
+
+### Mobile
+
+<table>
+<tr>
+
+| Home | Task Hall | Publish Task | Order Detail |
+|:------:|:------:|:------:|:------:|
+| <img src="docs/imgs/index.jpg" width="180"> | <img src="docs/imgs/hall.jpg" width="180"> | <img src="docs/imgs/task-publish.jpg" width="180"> | <img src="docs/imgs/order-detail.jpg" width="180"> |
+
+| Order List | Messages | Profile | Runner Dashboard |
+|:------:|:------:|:------:|:------:|
+| <img src="docs/imgs/order-list.jpg" width="180"> | <img src="docs/imgs/message.jpg" width="180"> | <img src="docs/imgs/user-profile.jpg" width="180"> | <img src="docs/imgs/runner-dashboard.jpg" width="180"> |
+
+</tr>
+</table>
+
+---
+
 ## Project Structure
 
 ```
@@ -234,18 +306,6 @@ Each developer must use their **own AppID**:
 | 12 | `mobile/manifest.json` | `mp-weixin.appid` | Your WeChat AppID |
 | 13 | `mobile/manifest.json` | `appid` | Your DCloud app ID |
 | 14 | `mobile/utils/config.js` | `develop.trial.release` | Backend URL per env |
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|------|------------|
-| **Backend** | Spring Boot 3.2.0 · Java 21 · MyBatis-Plus 3.5.5 · MySQL 8 · Redis · Redisson |
-| **Admin** | Vue 3.5 · TypeScript 6.0 · Vite 8 · Element Plus 2.14 · ECharts 6 · Pinia 3 · GSAP 3 |
-| **Mobile** | uni-app (Vue 3) · WeChat Mini Program · Pinia · Custom STOMP 1.2 WebSocket client |
-| **Auth** | JWT dual-token (access + refresh), separate keys & interceptors for admin and user |
-| **API Docs** | Knife4j (Swagger) · springdoc-openapi |
 
 ---
 

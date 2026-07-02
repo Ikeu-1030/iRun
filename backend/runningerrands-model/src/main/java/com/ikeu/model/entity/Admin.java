@@ -11,7 +11,13 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 管理员表实体类
+ * 管理员表实体类，映射 admin 表。
+ *
+ * <p>包含管理员基本信息（用户名、密码、手机号）、角色（1-超管/2-普通）、
+ * 状态（启用/禁用）、最后登录时间等字段。
+ *
+ * @author ikeu
+ * @since 2026/06/22
  */
 @Data
 @Builder

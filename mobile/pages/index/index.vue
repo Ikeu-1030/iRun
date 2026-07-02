@@ -23,7 +23,7 @@
       <view v-if="store.isLoggedIn && store.userInfo.isCertify !== 2" class="cert-banner" :class="'cert-banner--' + store.userInfo.isCertify" @click="goCertify">
         <view class="cert-banner-icon">
           <iconpark-icon v-if="store.userInfo.isCertify === 0" name="locked-filled" size="20" color="#e67e22" />
-          <iconpark-icon v-else-if="store.userInfo.isCertify === 1" name="clock-filled" size="20" color="#FF6B4A" />
+          <iconpark-icon v-else-if="store.userInfo.isCertify === 1" name="hourglass" size="20" color="#FF6B4A" />
           <iconpark-icon v-else name="closeempty" size="20" color="#ba1a1a" />
         </view>
         <view class="cert-banner-body">
@@ -77,14 +77,15 @@
         </view>
       </view>
 
-      <uni-notice-bar
-        class="mt-24"
-        showIcon
-        scrollable
-        :text="announcement"
-        backgroundColor="transparent"
-        color="#FF6B4A"
-      />
+      <view class="notice-wrap">
+        <uni-notice-bar
+          showIcon
+          scrollable
+          :text="announcement"
+          backgroundColor="transparent"
+          color="#FF6B4A"
+        />
+      </view>
 
       <!-- 四大服务入口 -->
       <view class="service-grid">
@@ -194,7 +195,7 @@ const sysInfo = uni.getSystemInfoSync()
 const scrollHeight = sysInfo.windowHeight - sysInfo.statusBarHeight - 44
 const searchValue = ref('')
 const unreadCount = ref(0)
-const announcement = ref('🎉 代购物品新上线！前100单免配送费，快来体验吧～')
+const announcement = ref('欢迎使用小i跑腿！')
 
 const banner = getBannerSnapshot()
 const bannerImages = ref(banner.images)
@@ -221,9 +222,9 @@ function nextBanner() {
 
 const services = [
   { typeValue: 1, title: '代取快递', desc: '驿站包裹极速达', iconName: 'express', color: 'blue' },
-  { typeValue: 2, title: '代取餐食', desc: '食堂外卖送到寝', icon: 'fire', color: 'orange', iconColor: '#e67e22' },
+  { typeValue: 2, title: '代取餐食', desc: '食堂外卖送到寝', icon: 'snacks', color: 'orange', iconColor: '#e67e22' },
   { typeValue: 3, title: '校内代办', desc: '急送跑腿帮办事', icon: 'campusErrand', color: 'green', iconColor: '#4c5e86' },
-  { typeValue: 4, title: '代购物品', desc: '超市代购送到寝', icon: 'shop', color: 'teal', iconColor: '#0891B2' }
+  { typeValue: 4, title: '代购物品', desc: '超市代购送到寝', icon: 'shoppingBag', color: 'teal', iconColor: '#0891B2' }
 ]
 
 // 加载通知未读数
@@ -344,6 +345,9 @@ onShow(() => {
 .cert-banner-arrow text { font-size: var(--text-sm); font-weight: 500; color: var(--primary); }
 .search-section :deep(.uni-searchbar__box) { border-radius: 48rpx !important; box-shadow: var(--shadow-sm); border: 1rpx solid var(--outline-light); height: 88rpx !important; }
 .search-section :deep(.uni-searchbar) { padding: 0 !important; }
+
+/* 公告滚动条 */
+.notice-wrap { margin-top: 24rpx; background: var(--surface); border-radius: 18rpx; border-left: 5rpx solid var(--primary); }
 
 /* Banner 轮播图 */
 .banner-swiper-wrap { margin-top: 24rpx; position: relative; }

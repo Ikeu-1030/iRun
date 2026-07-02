@@ -227,7 +227,7 @@ public class RunnerProfileServiceImpl extends ServiceImpl<RunnerProfileMapper, R
         Map<Long, BigDecimal> incomeMap = transactionRecordMapper.sumIncomeByUserIds(userIds)
                 .stream()
                 .collect(Collectors.toMap(
-                        row -> (Long) row.get("user_id"),
+                        row -> ((Number) row.get("user_id")).longValue(),
                         row -> (BigDecimal) row.get("total_income")));
 
         List<RunnerRankingVO> list = new ArrayList<>();

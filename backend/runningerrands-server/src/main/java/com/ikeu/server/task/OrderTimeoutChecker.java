@@ -96,20 +96,33 @@ public class OrderTimeoutChecker {
                         continue;
                     }
 
-                    Task task = taskMapper.selectById(order.getTaskId());
-                    if (task != null && Objects.equals(task.getStatus(), StatusConstant.TASK_ACCEPTED)) {
-                        task.setStatus(StatusConstant.TASK_WAITING);
-                        task.setUpdatedAt(now);
-                        taskMapper.updateById(task);
+                    // 持任务锁防止与 cancelOrder/cancelTask/adminCancel 竞态覆盖任务状态
+                    RLock taskLock = redissonClient.getLock(RedisConstant.ORDER_LOCK_KEY + order.getTaskId());
+                    try {
+                        if (!taskLock.tryLock(RedisConstant.LOCK_WAIT_TIME, RedisConstant.LOCK_EXPIRE, TimeUnit.SECONDS)) {
+                            log.warn("获取任务锁失败，跳过订单 {} 超时取消", order.getId());
+                            continue;
+                        }
+                        Task task = taskMapper.selectById(order.getTaskId());
+                        if (task != null && Objects.equals(task.getStatus(), StatusConstant.TASK_ACCEPTED)) {
+                            task.setStatus(StatusConstant.TASK_WAITING);
+                            task.setUpdatedAt(now);
+                            taskMapper.updateById(task);
+                        }
+
+                        if (task != null) {
+                            paymentService.refundForTask(task.getPublisherId(), task.getId(), task.getReward());
+                            notificationService.sendNotification(task.getPublisherId(),
+                                    StatusConstant.NOTICE_SYSTEM, "订单超时取消",
+                                    "您的任务 " + task.getTaskNo() + " 因配送员未按时取货自动取消，已退款",
+                                    task.getId());
+                        }
+                    } finally {
+                        if (taskLock.isHeldByCurrentThread()) {
+                            taskLock.unlock();
+                        }
                     }
 
-                    if (task != null) {
-                        paymentService.refundForTask(task.getPublisherId(), task.getId(), task.getReward());
-                        notificationService.sendNotification(task.getPublisherId(),
-                                StatusConstant.NOTICE_SYSTEM, "订单超时取消",
-                                "您的任务 " + task.getTaskNo() + " 因配送员未按时取货自动取消，已退款",
-                                task.getId());
-                    }
                     notificationService.sendNotification(order.getRunnerId(),
                             StatusConstant.NOTICE_SYSTEM, "订单超时取消",
                             "您接取的订单因未按时取货已被自动取消",

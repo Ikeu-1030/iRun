@@ -46,7 +46,7 @@
         <view class="info-card animate-fade-up delay-2">
           <view class="card-header">
             <view class="type-badge" :class="'type-badge--' + typeColor">
-              <iconpark-icon :name="typeIcon" size="22" :color="typeIconColor" />
+              <custom-icon v-if="typeIcon === 'expressDelivery'" :name="typeIcon" size="35" /><iconpark-icon v-else :name="typeIcon" size="22" :color="typeIconColor" />
               <text>{{ typeLabel }}</text>
             </view>
             <view class="order-no-row">
@@ -168,7 +168,7 @@
         <view class="info-card">
           <view class="card-header">
             <view class="type-badge" :class="'type-badge--' + typeColor">
-              <iconpark-icon :name="typeIcon" size="22" :color="typeIconColor" />
+              <custom-icon v-if="typeIcon === 'expressDelivery'" :name="typeIcon" size="35" /><iconpark-icon v-else :name="typeIcon" size="22" :color="typeIconColor" />
               <text>{{ typeLabel }}</text>
             </view>
             <view class="order-no-row">

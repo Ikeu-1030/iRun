@@ -16,11 +16,11 @@ export const CERTIFY_STATUS: Record<number, string> = {
 }
 
 export const TASK_TYPES: Record<string, string> = {
-  '代取快递': '代取快递',
-  '代拿餐食': '代拿餐食',
-  '校内代办': '校内代办',
-  '代购物品': '代购物品',
-  '通用代办': '通用代办'
+  '代取快递': '代取快递',   'daiqukuaidi': '代取快递',
+  '代拿餐食': '代拿餐食',   'dana canshi': '代拿餐食',
+  '校内代办': '校内代办',   'xiaonei daiban': '校内代办',
+  '代购物品': '代购物品',   'daigou wupin': '代购物品',
+  '通用代办': '通用代办',   'tongyong daiban': '通用代办'
 }
 
 export const TASK_SUB_TYPES: Record<string, string> = {

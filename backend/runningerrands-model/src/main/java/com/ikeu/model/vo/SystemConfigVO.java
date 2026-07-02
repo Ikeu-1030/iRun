@@ -9,11 +9,6 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-/**
- * 系统配置项 VO
- * @author ikeu
- * @since 2026/06/18
- */
 @Data
 @Builder
 @NoArgsConstructor

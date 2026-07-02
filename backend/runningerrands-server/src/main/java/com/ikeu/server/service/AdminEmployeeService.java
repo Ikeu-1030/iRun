@@ -1,6 +1,8 @@
 package com.ikeu.server.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.ikeu.common.exception.BusinessException;
+import com.ikeu.common.exception.NotFoundException;
 import com.ikeu.common.result.PageResult;
 import com.ikeu.model.dto.AdminCreateDTO;
 import com.ikeu.model.dto.AdminPasswordResetDTO;
@@ -29,6 +31,7 @@ public interface AdminEmployeeService extends IService<Admin> {
      *
      * @param id 管理员员工 ID
      * @return 管理员员工详情 VO
+     * @throws NotFoundException 管理员员工不存在时抛出
      */
     AdminListVO getEmployee(Long id);
 
@@ -36,6 +39,7 @@ public interface AdminEmployeeService extends IService<Admin> {
      * 创建普通管理员，强制设置 role=2，禁止创建超级管理员。
      *
      * @param dto 管理员创建请求 DTO
+     * @throws BusinessException 用户名已存在或未指定角色为普通管理员时抛出
      */
     void createEmployee(AdminCreateDTO dto);
 
@@ -44,6 +48,7 @@ public interface AdminEmployeeService extends IService<Admin> {
      *
      * @param id  管理员员工 ID
      * @param dto 管理员信息更新 DTO
+     * @throws NotFoundException 管理员员工不存在时抛出
      */
     void updateEmployee(Long id, AdminUpdateDTO dto);
 
@@ -52,6 +57,8 @@ public interface AdminEmployeeService extends IService<Admin> {
      *
      * @param id      管理员员工 ID
      * @param enabled true 启用，false 停用
+     * @throws NotFoundException 管理员员工不存在时抛出
+     * @throws BusinessException 停用自己的账号时抛出
      */
     void toggleStatus(Long id, Boolean enabled);
 
@@ -60,6 +67,7 @@ public interface AdminEmployeeService extends IService<Admin> {
      *
      * @param id  管理员员工 ID
      * @param dto 密码重置请求 DTO（含新密码）
+     * @throws NotFoundException 管理员员工不存在时抛出
      */
     void resetPassword(Long id, AdminPasswordResetDTO dto);
 
@@ -67,6 +75,8 @@ public interface AdminEmployeeService extends IService<Admin> {
      * 删除管理员员工。禁止删除超级管理员，禁止删除自己的账号。
      *
      * @param id 管理员员工 ID
+     * @throws NotFoundException 管理员员工不存在时抛出
+     * @throws BusinessException 删除自己的账号或删除超级管理员时抛出
      */
     void deleteEmployee(Long id);
 }

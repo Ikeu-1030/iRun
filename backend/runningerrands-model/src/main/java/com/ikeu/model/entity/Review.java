@@ -11,7 +11,13 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 评价表实体类
+ * 评价表实体类，映射 review 表。
+ *
+ * <p>包含评价者/被评价者、关联任务、评分（1-5）、评价内容、
+ * 标签（JSON数组）、父评价ID（支持追评嵌套）等字段。
+ *
+ * @author ikeu
+ * @since 2026/06/22
  */
 @Data
 @Builder

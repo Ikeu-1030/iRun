@@ -15,6 +15,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -47,7 +48,7 @@ class SecurityHardeningTest {
         when(request.getHeader("token")).thenReturn(null);
         when(request.getHeader("authentication")).thenReturn(null);
 
-        CommonController controller = new CommonController(aliOssUtil, systemConfigMapper, jwtUtil, redisTemplate);
+        CommonController controller = new CommonController(Optional.ofNullable(aliOssUtil), systemConfigMapper, jwtUtil, redisTemplate);
         Result<String> result = controller.upload(mock(MultipartFile.class), request);
 
         assertNotNull(result);
@@ -59,7 +60,7 @@ class SecurityHardeningTest {
         when(request.getHeader("token")).thenReturn("");
         when(request.getHeader("authentication")).thenReturn("");
 
-        CommonController controller = new CommonController(aliOssUtil, systemConfigMapper, jwtUtil, redisTemplate);
+        CommonController controller = new CommonController(Optional.ofNullable(aliOssUtil), systemConfigMapper, jwtUtil, redisTemplate);
         Result<String> result = controller.upload(mock(MultipartFile.class), request);
 
         assertNotNull(result);
@@ -71,7 +72,7 @@ class SecurityHardeningTest {
         when(request.getHeader("token")).thenReturn("   ");
         when(request.getHeader("authentication")).thenReturn(null);
 
-        CommonController controller = new CommonController(aliOssUtil, systemConfigMapper, jwtUtil, redisTemplate);
+        CommonController controller = new CommonController(Optional.ofNullable(aliOssUtil), systemConfigMapper, jwtUtil, redisTemplate);
         Result<String> result = controller.upload(mock(MultipartFile.class), request);
 
         assertNotNull(result);
@@ -83,7 +84,7 @@ class SecurityHardeningTest {
         when(request.getHeader("token")).thenReturn("invalid-token");
         when(jwtUtil.parseAdminAccessToken("invalid-token")).thenThrow(new RuntimeException("bad key"));
 
-        CommonController controller = new CommonController(aliOssUtil, systemConfigMapper, jwtUtil, redisTemplate);
+        CommonController controller = new CommonController(Optional.ofNullable(aliOssUtil), systemConfigMapper, jwtUtil, redisTemplate);
         Result<String> result = controller.upload(mock(MultipartFile.class), request);
 
         assertNotNull(result);
@@ -96,7 +97,7 @@ class SecurityHardeningTest {
         when(request.getHeader("authentication")).thenReturn("expired-token");
         when(jwtUtil.parseUserAccessToken("expired-token")).thenThrow(new RuntimeException("JWT expired"));
 
-        CommonController controller = new CommonController(aliOssUtil, systemConfigMapper, jwtUtil, redisTemplate);
+        CommonController controller = new CommonController(Optional.ofNullable(aliOssUtil), systemConfigMapper, jwtUtil, redisTemplate);
         Result<String> result = controller.upload(mock(MultipartFile.class), request);
 
         assertNotNull(result);

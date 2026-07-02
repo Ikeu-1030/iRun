@@ -21,17 +21,37 @@ F:/ikeu_runningerrands/
 │   ├── runningerrands-common/            # 共享工具：constant, context, enums, exception, properties, result, utils
 │   ├── runningerrands-model/             # 数据模型：entity, dto, vo
 │   ├── runningerrands-server/            # Spring Boot 应用：controller, service, mapper, config, interceptor, aspect
-│   ├── runningerrands.sql               # 数据库建表脚本
+│   ├── runningerrands.sql               # 数据库建表脚本（14 表 + ALTER）
 │   ├── Dockerfile                        # 多阶段 Docker 构建
 │   └── .dockerignore
 ├── admin/                                # 管理端（Vue 3 + TS + Element Plus）
+│   └── src/
+│       ├── api/                          # 10 模块按领域拆分
+│       ├── views/                        # 13 视图（用户/跑腿员/任务/订单/流水/通知/日志/员工/审核/仪表盘/登录/404/设置）
+│       ├── router/                       # history /api/，beforeEach 守卫 + 角色过滤
+│       ├── stores/                       # Pinia：auth（token/adminInfo） + app（侧边栏）
+│       ├── utils/                        # request.ts（Axios + 双 token 刷新队列）、constants.ts、tokenStore.ts
+│       └── styles/theme.css              # CSS 设计令牌
 ├── mobile/                               # 移动端（uni-app 微信小程序）
+│   ├── pages.json                        # 34 页面注册 + 5 标签自定义 TabBar
+│   ├── api/index.js                      # 10 API 模块统一导出
+│   ├── store/                            # Pinia：主 Store + 聊天 Store（STOMP 管理）
+│   ├── utils/                            # request.js, stomp.js, config.js, draft-save.js, campus-data.js 等
+│   └── components/                       # custom-navbar, custom-tabbar, pay-password-dialog 等
 ├── docker/                               # Docker 部署配置
 │   ├── docker-compose.yml               # MySQL 8 + Redis 7 + Backend
-│   ├── .env.example                     # 环境变量模板
-│   └── README.md                        # Docker 部署指南
-├── docs/                                 # 开发文档 & 工作记录
-├── .agent/                               # 子代理定义（13 个）
+│   └── .env.example                     # 环境变量模板
+├── docs/
+│   ├── pre-1.0.0/                       # 1.0 发布前工作记录（按日期）
+│   ├── changelogs/                      # 发布后修复日志
+│   ├── versions/                        # 版本发布日志（v1.0.0 →）
+│   ├── plans/                           # 后续迭代计划
+│   ├── test_guide.md                    # 测试指南（含 E2E 全链路测试）
+│   └── nginx-config.md                  # Nginx 部署配置
+├── e2e/                                  # E2E 全链路测试
+│   ├── .env.e2e                          # 测试环境变量
+│   └── scripts/                         # setup, bootstrap, run, teardown, quick-verify, full-flow
+├── .agent/                               # 子代理定义（16 个）
 └── .claude/
     ├── CLAUDE.md                         # ← 本文件
     └── settings.local.json               # 本地命令自动批准
@@ -64,11 +84,10 @@ F:/ikeu_runningerrands/
 
 - **技术**: Vue 3.5 Composition API (`<script setup>`), TypeScript 6.0, Vite 8, Pinia 3, Vue Router 4, Element Plus 2.14, ECharts 6 + vue-echarts 8, GSAP 3
 - **目录结构**:
-  - `api/` — 10 模块按领域拆分（auth, dashboard, employees, logs, notifications, orders, runners, tasks, transactions, users）
-  - `views/` — 15 视图按模块分目录，列表页统一 `el-table` + `el-pagination` 模式，详情页 v2 块式布局（`el-card` + `--anim-order` CSS 序列动画）
+  - `api/` — 11 模块按领域拆分（auth, dashboard, employees, logs, notifications, orders, runners, tasks, transactions, users, settings）
+  - `views/` — 13 视图按模块分目录，列表页统一 `el-table` + `el-pagination` 模式，详情页 v2 块式布局（`el-card` + `--anim-order` CSS 序列动画）
   - `stores/` — `app.ts`（侧边栏折叠）+ `auth.ts`（token/adminInfo/login/logout），组合式 API 风格
-  - `composables/` — `useCountUp.ts`（GSAP 数字递增）、`usePageEnter.ts`（GSAP 页面入场动画）
-  - `utils/` — `request.ts`（Axios 实例）、`constants.ts`（状态枚举映射）、`task-specs-parser.ts`（任务规格 JSON → 可读摘要）
+  - `utils/` — `request.ts`（Axios + 双 token 刷新队列）、`constants.ts`（状态枚举映射）、`task-specs-parser.ts`（任务规格 JSON → 可读摘要）、`tokenStore.ts`
   - `styles/theme.css` — CSS 自定义属性设计系统，覆盖 Element Plus 变量
   - `components/` — 目录存在但为空，所有 UI 直接用 Element Plus 组件
 - **路由**: history base `/api/`，`meta.role: [1]` 限制超管路由，全局 `beforeEach` 守卫检查 token（无 token → `/login`，有 token → `/dashboard`），角色过滤在 `AdminLayout` 侧边栏 `visibleMenu` 中完成
@@ -80,7 +99,7 @@ F:/ikeu_runningerrands/
 ### uni-app 移动端
 
 - **技术**: uni-app (Vue 3), 微信小程序, Pinia, 自制 STOMP 1.2 WebSocket 客户端
-- **页面**: 33 个页面（`pages.json` 注册），全 `navigationStyle: "custom"`，5 标签自定义 TabBar（毛玻璃效果 `backdrop-filter: blur(20px)`），`uni.switchTab` / `uni.navigateTo` 导航
+- **页面**: 34 个页面（`pages.json` 注册），全 `navigationStyle: "custom"`，5 标签自定义 TabBar（毛玻璃效果 `backdrop-filter: blur(20px)`），`uni.switchTab` / `uni.navigateTo` 导航
 - **API 层**:
   - `api/index.js` — 统一命名空间导出 10 个模块（user, task, order, chat, runner, address, transaction, notification, review, common）
   - `utils/request.js` — 导出 `get/post/put/del` 便捷方法，`auth` 参数控制认证类型（`'user'`/`'admin'`/`'none'`）
@@ -119,6 +138,7 @@ F:/ikeu_runningerrands/
 | Java 注释规范化 | `java-comment-enforcer` | Alibaba 规范 Javadoc |
 | 测试生成 | `autonomous-test-generator` | 自动生成 + 迭代调试 |
 | Docker API 自动化测试 | `docker-test-agent` | 启动容器 → 注入数据 → 跑测试 → 报告 |
+| 业务流程全链路跟踪 | `e2e-business-flow-tracker` | 注册→认证→发布→接单→完成 全流程验证 |
 | 错误排查 | `sre-debugger` | 堆栈跟踪分析、根因定位 |
 | 多文件重构 | `Plan` agent | 先设计方案再编码 |
 | 文档同步 | `doc-sync-monitor` | 接口变更后自动更新文档 |
@@ -159,6 +179,14 @@ docker compose down -v      # 停止并清理数据
 # 注入验证码测试（Docker 环境无阿里云 SMS）
 docker exec rr-redis redis-cli -n 1 SET "user:code:reset_password:13800000001" "888888" EX 300
 
+# ===== E2E 测试 =====
+cd F:/ikeu_runningerrands
+
+bash e2e/scripts/quick-verify.sh       # 28 项 API 快速验证（~1min）
+python e2e/scripts/full_flow.py        # 订单全生命周期验证
+bash e2e/scripts/run.sh --quick        # 编排入口（setup → bootstrap → 执行 → teardown）
+bash e2e/scripts/teardown.sh           # 清理测试数据
+
 # ===== 移动端 =====
 # 在 HBuilderX 中打开 mobile/，运行 → 微信小程序
 ```
@@ -169,6 +197,10 @@ docker exec rr-redis redis-cli -n 1 SET "user:code:reset_password:13800000001" "
 - 初始化: 执行 `runningerrands.sql`，`AdminInitializer` 启动时自动创建超管
 - 超管默认: `admin` / `admin`（可通过 `runningerrands.admin.init.*` 配置覆盖）
 - 密码存储: BCrypt（`PasswordConfiguration` → `BCryptPasswordEncoder`）
+
+## 注意事项
+
+> 项目未企业认证，以下功能受限：**微信支付** 接口已就绪但未对接真实渠道（余额为模拟数据）；**SMS 短信** 无阿里云服务（Docker 通过 Redis 直写验证码，开发环境复用 `e2e/scripts/bootstrap.sh` 注入）；**微信 OAuth** 需已上架小程序（本地通过手机验证码登录绕过）。核心业务流程不受影响。
 
 ## 关键约定
 

@@ -1,5 +1,7 @@
 package com.ikeu.server.service;
 
+import com.ikeu.common.exception.BusinessException;
+import com.ikeu.common.exception.NotFoundException;
 import com.ikeu.common.result.PageResult;
 import com.ikeu.model.vo.OrderDetailVO;
 import com.ikeu.model.vo.OrderManageVO;
@@ -11,7 +13,14 @@ import com.ikeu.model.vo.OrderManageVO;
  */
 public interface AdminOrderService {
 
-    /** 分页查询所有订单列表，支持按状态筛选。 */
+    /**
+     * 分页查询所有订单列表，支持按状态筛选。
+     *
+     * @param status 订单状态（null 表示查询全部状态）
+     * @param page   页码（从 1 开始）
+     * @param size   每页条数
+     * @return 订单管理列表分页结果
+     */
     PageResult<OrderManageVO> listAllOrders(Integer status, int page, int size);
 
     /**
@@ -20,6 +29,7 @@ public interface AdminOrderService {
      *
      * @param orderId 订单 ID
      * @return 完整订单详情 VO
+     * @throws NotFoundException 订单不存在时抛出
      */
     OrderDetailVO getOrderDetail(Long orderId);
 
@@ -29,6 +39,8 @@ public interface AdminOrderService {
      *
      * @param orderId 订单 ID
      * @param status  目标状态码（见 StatusConstant）
+     * @throws NotFoundException 订单不存在时抛出
+     * @throws BusinessException 系统繁忙（分布式锁获取失败）或状态变更不合法时抛出
      */
     void updateOrderStatus(Long orderId, Integer status);
 }

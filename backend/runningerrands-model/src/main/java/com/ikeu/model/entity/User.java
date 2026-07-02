@@ -12,7 +12,14 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * 用户表实体类
+ * 用户表实体类，映射 user 表。
+ *
+ * <p>包含用户基本信息（用户名、密码、手机号、头像、昵称）、
+ * 实名认证信息（真实姓名、学号、学生证照片）、账户余额、
+ * 注册类型（手机/微信）、状态、最后登录时间等字段。
+ *
+ * @author ikeu
+ * @since 2026/06/22
  */
 @Data
 @Builder

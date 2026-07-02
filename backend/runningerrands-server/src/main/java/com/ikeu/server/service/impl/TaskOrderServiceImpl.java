@@ -24,6 +24,7 @@ import com.ikeu.model.vo.OrderListVO;
 import com.ikeu.server.annotation.RedisDefend;
 import com.ikeu.server.annotation.SendNotification;
 import com.ikeu.server.mapper.*;
+import com.ikeu.server.service.NotificationService;
 import com.ikeu.server.service.PaymentService;
 import com.ikeu.server.service.TaskOrderService;
 import com.ikeu.server.util.RedisDefendUtil;
@@ -61,6 +62,7 @@ public class TaskOrderServiceImpl extends ServiceImpl<TaskOrderMapper, TaskOrder
     private final RunnerProfileMapper runnerProfileMapper;
     private final ReviewMapper reviewMapper;
     private final PaymentService paymentService;
+    private final NotificationService notificationService;
     private final RedissonClient redissonClient;
     private final CacheManager cacheManager;
     private final StringRedisTemplate stringRedisTemplate;
@@ -146,7 +148,7 @@ public class TaskOrderServiceImpl extends ServiceImpl<TaskOrderMapper, TaskOrder
             title = "订单已被接取",
             content = "您的任务 #taskNo 已被接单"
     )
-    public void acceptOrder(Long runnerId, Long taskId) {
+    public Long acceptOrder(Long runnerId, Long taskId) {
         // 1. 获取任务，校验任务状态
         Task task = taskMapper.selectById(taskId);
         if (task == null) throw new BusinessException(MessageConstant.TASK_NOT_EXIST);
@@ -193,10 +195,18 @@ public class TaskOrderServiceImpl extends ServiceImpl<TaskOrderMapper, TaskOrder
             if (!lock.tryLock(RedisConstant.LOCK_WAIT_TIME, RedisConstant.LOCK_EXPIRE, TimeUnit.SECONDS)) {
                 throw new BusinessException(MessageConstant.SYSTEM_BUSY);
             }
-            // 二次校验任务状态与过期时间
+            // 二次校验任务状态与过期时间（锁内 Double-Check，消除 TOCTOU 窗口）
             Task latestTask = taskMapper.selectById(taskId);
-            if (latestTask == null || !Objects.equals(latestTask.getStatus(), StatusConstant.TASK_WAITING)) {
-                throw new BusinessException(MessageConstant.ORDER_STATUS_CHANGED);
+            if (latestTask == null) {
+                throw new BusinessException(MessageConstant.TASK_NOT_EXIST);
+            }
+            if (Objects.equals(latestTask.getStatus(), StatusConstant.TASK_CANCELLED)) {
+                // 场景：锁等待期间任务被发布者取消/管理员取消/超时自动取消
+                throw new BusinessException(MessageConstant.TASK_ALREADY_CANCELLED);
+            }
+            if (!Objects.equals(latestTask.getStatus(), StatusConstant.TASK_WAITING)) {
+                // 场景：锁等待期间另一个跑腿员抢先获取锁并接单成功，任务状态已变为 ACCEPTED
+                throw new BusinessException(MessageConstant.TASK_ALREADY_ACCEPTED);
             }
             if (latestTask.getExpireTime().isBefore(LocalDateTime.now())) {
                 throw new BusinessException(MessageConstant.TASK_EXPIRED);
@@ -209,6 +219,28 @@ public class TaskOrderServiceImpl extends ServiceImpl<TaskOrderMapper, TaskOrder
                             .ne(TaskOrder::getStatus, StatusConstant.ORDER_CANCELLED));
             if (existingOrder != null) {
                 throw new BusinessException(MessageConstant.ORDER_ACCEPTED_FAIL);
+            }
+
+            // 3.5 锁内重检跑腿员最新状态（防止锁等待期间跑腿员离线/订单满）
+            RunnerProfile latestRunner = runnerProfileMapper.selectOne(
+                    new LambdaQueryWrapper<RunnerProfile>().eq(RunnerProfile::getUserId, runnerId));
+            if (latestRunner == null || !Objects.equals(latestRunner.getVerifyStatus(), StatusConstant.CERTIFY_APPROVED)) {
+                throw new BusinessException(MessageConstant.RUNNER_NOT_CERTIFIED);
+            }
+            if (!Objects.equals(latestRunner.getIsOnline(), StatusConstant.RUNNER_ONLINE)) {
+                throw new BusinessException(MessageConstant.RUNNER_OFFLINE);
+            }
+            int currentOrders = latestRunner.getCurrentOrders() != null ? latestRunner.getCurrentOrders() : 0;
+            int maxOrders = latestRunner.getMaxConcurrentOrders() != null ? latestRunner.getMaxConcurrentOrders() : 3;
+            if (currentOrders >= maxOrders) {
+                throw new BusinessException(MessageConstant.RUNNER_MAX_ORDERS);
+            }
+            if (latestRunner.getCreditScore() != null
+                    && latestRunner.getCreditScore() < CreditConstant.CREDIT_FREEZE_THRESHOLD) {
+                throw new BusinessException(MessageConstant.RUNNER_LOW_CREDIT);
+            }
+            if (Objects.equals(latestRunner.getIsBanned(), 1)) {
+                throw new BusinessException(MessageConstant.RUNNER_IS_BANNED);
             }
 
             // 4. 创建订单
@@ -238,6 +270,8 @@ public class TaskOrderServiceImpl extends ServiceImpl<TaskOrderMapper, TaskOrder
             Objects.requireNonNull(cacheManager.getCache(RedisConstant.CACHE_TASK_DETAIL)).clear();
             var nullKeys = stringRedisTemplate.keys(RedisConstant.TASK_HALL_NULL_PREFIX + "*");
             if (nullKeys != null && !nullKeys.isEmpty()) stringRedisTemplate.delete(nullKeys);
+
+            return order.getId();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new BusinessException(MessageConstant.ERROR);
@@ -537,6 +571,37 @@ public class TaskOrderServiceImpl extends ServiceImpl<TaskOrderMapper, TaskOrder
     }
 
     /**
+     * 定时任务触发自动完成订单，独立事务，单条失败不回滚其他订单。
+     * 信用分已在 confirmDeliver（送达）时清算，此处无需重复处理。
+     */
+    @Override
+    @Transactional
+    public void autoCompleteOrder(TaskOrder order, Task task, int autoConfirmHours) {
+        order.setConfirmTime(LocalDateTime.now());
+        order.setStatus(StatusConstant.ORDER_COMPLETED);
+        taskOrderMapper.updateById(order);
+
+        task.setStatus(StatusConstant.TASK_COMPLETED);
+        task.setUpdatedAt(LocalDateTime.now());
+        taskMapper.updateById(task);
+
+        runnerProfileMapper.decrementCurrentOrders(order.getRunnerId());
+
+        if (paymentService.payToRunner(order.getRunnerId(), order.getTaskId(), task.getReward())) {
+            runnerProfileMapper.incrementCompletedStats(order.getRunnerId());
+        }
+
+        notificationService.sendNotification(task.getPublisherId(),
+                StatusConstant.NOTICE_ORDER, "订单已自动确认",
+                "您的任务 " + task.getTaskNo() + " 已超过" + autoConfirmHours + "小时自动确认完成", order.getId());
+        notificationService.sendNotification(order.getRunnerId(),
+                StatusConstant.NOTICE_ORDER, "订单已自动完成",
+                "您配送的任务 " + task.getTaskNo() + " 已自动确认完成", order.getId());
+
+        log.info("订单 {} {}h自动结算完成，报酬 {} 支付给跑腿员 {}", order.getId(), autoConfirmHours, task.getReward(), order.getRunnerId());
+    }
+
+    /**
      * 根据订单ID查询订单详情方法
      *  逻辑：根据订单ID查询订单及关联任务、用户信息，
      *  构建OrderDetailVO返回完整的订单详情，包括发布者/配送员信息、地址、凭证图片等
@@ -622,6 +687,14 @@ public class TaskOrderServiceImpl extends ServiceImpl<TaskOrderMapper, TaskOrder
         return vo;
     }
 
+    /**
+     * 对手机号进行脱敏处理，保留后4位，其余用*替换。
+     *
+     * <p>示例：13812345678 -> ****5678
+     *
+     * @param phone 原始手机号（可为null）
+     * @return 脱敏后的手机号；若为null或长度不足4则原样返回
+     */
     private String maskPhone(String phone) {
         if (phone == null || phone.length() <= 4) return phone;
         return "*".repeat(phone.length() - 4) + phone.substring(phone.length() - 4);
@@ -726,7 +799,16 @@ public class TaskOrderServiceImpl extends ServiceImpl<TaskOrderMapper, TaskOrder
     }
 
     /**
-     * 软删除订单，仅允许发布者或配送员删除已完成且完成时间超过7天的订单
+     * 软删除订单，仅允许发布者或配送员删除已完成且完成时间超过7天的订单。
+     *
+     * <p>校验逻辑：
+     * <ol>
+     *   <li>订单存在且未删除</li>
+     *   <li>当前用户为发布者或配送员</li>
+     *   <li>订单状态为"已完成"</li>
+     *   <li>完成时间距当前超过7天</li>
+     *   <li>订单未被标记为删除</li>
+     * </ol>
      *
      * @param userId 当前用户ID
      * @param orderId 订单ID

@@ -114,14 +114,6 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         return taskListVO;
     }
 
-    /**
-     * 执行分页查询并构建TaskListVO结果
-     *
-     * @param page 页码
-     * @param size 每页条数
-     * @param wrapper 查询条件包装器
-     * @return PageResult<TaskListVO> 分页任务列表结果
-     */
     /** 将分页 Task 结果批量转换为 TaskListVO */
     private PageResult<TaskListVO> buildTaskListResult(Page<Task> taskPage) {
         if (taskPage.getRecords().isEmpty()) {
@@ -196,13 +188,17 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
      */
     @Override
     @Transactional
-    public void publishTask(Long userId, TaskPublishDTO taskPublishDTO) {
+    public Task publishTask(Long userId, TaskPublishDTO taskPublishDTO) {
         // 校验支付密码
         paymentService.verifyPayPassword(userId, taskPublishDTO.getPayPassword());
         // 校验用户状态
         User user = userMapper.selectById(userId);
         if (user == null || Objects.equals(user.getStatus(), StatusConstant.DISABLE)) {
             throw new BusinessException(MessageConstant.USER_NOT_EXIST);
+        }
+        // 校验任务类型
+        if (taskPublishDTO.getType() == null || !TaskTypeConstant.ALL_TYPES.contains(taskPublishDTO.getType())) {
+            throw new ParamErrorException(MessageConstant.TASK_TYPE_INVALID);
         }
         // 计算合计支付金额（小费 + 配送费 + 预估商品费）
         BigDecimal deliveryFee = taskPublishDTO.getDeliveryFee() != null ? taskPublishDTO.getDeliveryFee() : BigDecimal.ZERO;
@@ -309,6 +305,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                 if (nullKeys != null && !nullKeys.isEmpty()) stringRedisTemplate.delete(nullKeys);
             }
         });
+
+        return task;
     }
 
     /**
@@ -352,23 +350,29 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                     (long) RedisConstant.LOCK_WAIT_TIME, (long) RedisConstant.LOCK_EXPIRE,
                     typeRef.getType(),
                     () -> {
-                        PageResult<TaskListVO> r = queryHallTasks(page, size);
+                        PageResult<TaskListVO> r = queryHallTasks(null, null, null, null, page, size);
                         return r.getTotal() > 0 ? r : null;
                     }
             );
             return result != null ? result : new PageResult<>(0L, List.of());
         }
 
-        return queryHallTasks(page, size);
+        return queryHallTasks(type, subType, minReward, maxReward, page, size);
     }
 
     /**
      * 查询任务大厅列表（无缓存），可被带锁分支调用或作为非缓存请求的降级路径。
      */
-    private PageResult<TaskListVO> queryHallTasks(int page, int size) {
+    private PageResult<TaskListVO> queryHallTasks(String type, String subType,
+                                                  BigDecimal minReward, BigDecimal maxReward,
+                                                  int page, int size) {
         LambdaQueryWrapper<Task> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Task::getStatus, StatusConstant.TASK_WAITING)
                 .gt(Task::getExpireTime, LocalDateTime.now())
+                .eq(type != null && !type.isEmpty(), Task::getType, type)
+                .eq(subType != null && !subType.isEmpty(), Task::getSubType, subType)
+                .ge(minReward != null, Task::getReward, minReward)
+                .le(maxReward != null, Task::getReward, maxReward)
                 .orderByDesc(Task::getCreatedAt);
 
         Page<Task> pageObj = new Page<>(page, size);
@@ -649,7 +653,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         Map<Integer, Long> statusCountMap = new HashMap<>();
         long total = 0;
         for (Map<String, Object> row : rows) {
-            Integer status = (Integer) row.get("COALESCE(status, 0)");
+            Integer status = ((Number) row.get("COALESCE(status, 0)")).intValue();
             Long cnt = ((Number) row.get("COUNT(*)")).longValue();
             statusCountMap.put(status, cnt);
             total += cnt;

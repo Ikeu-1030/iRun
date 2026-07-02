@@ -1,5 +1,7 @@
 package com.ikeu.server.service;
 
+import com.ikeu.common.exception.BusinessException;
+import com.ikeu.common.exception.NotFoundException;
 import com.ikeu.common.result.PageResult;
 import com.ikeu.model.vo.TaskDetailVO;
 import com.ikeu.model.vo.TaskListVO;
@@ -26,6 +28,7 @@ public interface AdminTaskService {
      *
      * @param taskId 任务 ID
      * @return 任务详情 VO
+     * @throws NotFoundException 任务不存在时抛出
      */
     TaskDetailVO getTaskDetail(Long taskId);
 
@@ -34,6 +37,8 @@ public interface AdminTaskService {
      *
      * @param taskId 任务 ID
      * @param status 目标任务状态值
+     * @throws NotFoundException 任务不存在时抛出
+     * @throws BusinessException 系统繁忙（分布式锁获取失败）或状态变更不合法时抛出
      */
     void updateTaskStatus(Long taskId, Integer status);
 }

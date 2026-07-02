@@ -8,6 +8,15 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 
+/**
+ * 任务发布请求 DTO，承载用户发布任务的全部业务参数。
+ *
+ * <p>包括任务类型、报酬明细（小费+配送费+预估商品费）、
+ * 地址信息、联系人信息、图片列表和支付密码等。
+ *
+ * @author ikeu
+ * @since 2026/06/22
+ */
 @Data
 @Schema(description = "任务发布请求DTO")
 public class TaskPublishDTO implements Serializable {

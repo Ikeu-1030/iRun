@@ -3,13 +3,13 @@ package com.ikeu.server.task;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.ikeu.common.constant.RedisConstant;
 import com.ikeu.common.constant.StatusConstant;
+import com.ikeu.model.entity.SystemConfig;
 import com.ikeu.model.entity.Task;
 import com.ikeu.model.entity.TaskOrder;
-import com.ikeu.server.mapper.RunnerProfileMapper;
+import com.ikeu.server.mapper.SystemConfigMapper;
 import com.ikeu.server.mapper.TaskMapper;
 import com.ikeu.server.mapper.TaskOrderMapper;
-import com.ikeu.server.service.NotificationService;
-import com.ikeu.server.service.PaymentService;
+import com.ikeu.server.service.TaskOrderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
@@ -25,7 +25,8 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 订单自动完成定时任务，发布者24小时未确认时自动结算并支付报酬给跑腿员。
+ * 订单自动完成定时任务，发布者超时未确认时自动结算并支付报酬给跑腿员。
+ * 超时时间由系统配置 order.auto_confirm_hours 决定，默认 24 小时。
  * @author ikeu
  * @since 2026/05/14
  */
@@ -34,21 +35,24 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class OrderAutoCompleteChecker {
 
+    private final TaskOrderService taskOrderService;
     private final TaskOrderMapper orderMapper;
     private final TaskMapper taskMapper;
-    private final RunnerProfileMapper runnerProfileMapper;
-    private final PaymentService paymentService;
-    private final NotificationService notificationService;
     private final RedissonClient redissonClient;
     private final CacheManager cacheManager;
+    private final SystemConfigMapper systemConfigMapper;
+
+    private static final String CONFIG_KEY_AUTO_CONFIRM_HOURS = "order.auto_confirm_hours";
+    private static final int DEFAULT_AUTO_CONFIRM_HOURS = 24;
 
     /**
      * 每分钟检查超时未确认的订单，自动完成并支付跑腿员报酬。
      *
      * <p>执行流程：
      * <ol>
+     *   <li>从系统配置读取 auto_confirm_hours（默认 24 小时）</li>
      *   <li>获取分布式锁 ORDER_AUTO_COMPLETE_LOCK_KEY</li>
-     *   <li>查询 status=待确认 且 deliver_time ≤ 当前时间-24小时 的订单列表</li>
+     *   <li>查询 status=待确认 且 deliver_time ≤ 当前时间-auto_confirm_hours 的订单列表</li>
      *   <li>逐个处理：校验关联任务状态为待确认</li>
      *   <li>更新订单状态为已完成，任务状态为已完成</li>
      *   <li>原子递减跑腿员当前接单数</li>
@@ -59,15 +63,15 @@ public class OrderAutoCompleteChecker {
      * 单个订单处理异常仅记录日志不影响其他订单。
      */
     @Scheduled(fixedRate = 60000, initialDelay = 30000)
-    @Transactional
     public void autoCompleteOrders() {
+        int autoConfirmHours = loadAutoConfirmHours();
         RLock lock = redissonClient.getLock(RedisConstant.ORDER_AUTO_COMPLETE_LOCK_KEY);
         boolean processed = false;
         try {
             if (!lock.tryLock(0, 30, TimeUnit.SECONDS)) {
                 return;
             }
-            LocalDateTime deadline = LocalDateTime.now().minusHours(24);
+            LocalDateTime deadline = LocalDateTime.now().minusHours(autoConfirmHours);
             List<TaskOrder> staleOrders = orderMapper.selectList(
                     new LambdaQueryWrapper<TaskOrder>()
                             .eq(TaskOrder::getStatus, StatusConstant.ORDER_WAIT_CONFIRM)
@@ -76,13 +80,11 @@ public class OrderAutoCompleteChecker {
             );
 
             for (TaskOrder order : staleOrders) {
-                // 逐订单加锁，防止与手动 confirmComplete 并发
                 RLock orderLock = redissonClient.getLock(RedisConstant.ORDER_LOCK_KEY + order.getTaskId());
                 try {
                     if (!orderLock.tryLock(0, 10, TimeUnit.SECONDS)) {
                         continue;
                     }
-                    // 锁内重查订单状态
                     order = orderMapper.selectById(order.getId());
                     if (order == null || !order.getStatus().equals(StatusConstant.ORDER_WAIT_CONFIRM)) {
                         continue;
@@ -92,29 +94,7 @@ public class OrderAutoCompleteChecker {
                         continue;
                     }
 
-                    LocalDateTime now = LocalDateTime.now();
-                    order.setConfirmTime(now);
-                    order.setStatus(StatusConstant.ORDER_COMPLETED);
-                    orderMapper.updateById(order);
-
-                    task.setStatus(StatusConstant.TASK_COMPLETED);
-                    task.setUpdatedAt(now);
-                    taskMapper.updateById(task);
-
-                    runnerProfileMapper.decrementCurrentOrders(order.getRunnerId());
-
-                    if (paymentService.payToRunner(order.getRunnerId(), order.getTaskId(), task.getReward())) {
-                        runnerProfileMapper.incrementCompletedStats(order.getRunnerId());
-                    }
-
-                    notificationService.sendNotification(task.getPublisherId(),
-                            StatusConstant.NOTICE_ORDER, "订单已自动确认",
-                            "您的任务 " + task.getTaskNo() + " 已超过24小时自动确认完成", order.getId());
-                    notificationService.sendNotification(order.getRunnerId(),
-                            StatusConstant.NOTICE_ORDER, "订单已自动完成",
-                            "您配送的任务 " + task.getTaskNo() + " 已自动确认完成", order.getId());
-
-                    log.info("订单 {} 24h自动结算完成，报酬 {} 支付给跑腿员 {}", order.getId(), task.getReward(), order.getRunnerId());
+                    taskOrderService.autoCompleteOrder(order, task, autoConfirmHours);
                     processed = true;
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -134,6 +114,24 @@ public class OrderAutoCompleteChecker {
             }
         }
         if (processed) evictCaches();
+    }
+
+    /** 从系统配置表读取自动确认小时数，读取失败或未配置时使用默认值 24。 */
+    private int loadAutoConfirmHours() {
+        try {
+            SystemConfig config = systemConfigMapper.selectOne(
+                    new LambdaQueryWrapper<SystemConfig>().eq(SystemConfig::getConfigKey, CONFIG_KEY_AUTO_CONFIRM_HOURS));
+            if (config != null && config.getConfigValue() != null) {
+                int hours = Integer.parseInt(config.getConfigValue());
+                if (hours > 0) {
+                    return hours;
+                }
+                log.warn("配置 order.auto_confirm_hours 值 {} 无效（必须 > 0），使用默认值 {}h", hours, DEFAULT_AUTO_CONFIRM_HOURS);
+            }
+        } catch (Exception e) {
+            log.warn("读取 order.auto_confirm_hours 配置失败，使用默认值 {}h", DEFAULT_AUTO_CONFIRM_HOURS, e);
+        }
+        return DEFAULT_AUTO_CONFIRM_HOURS;
     }
 
     private void evictCaches() {

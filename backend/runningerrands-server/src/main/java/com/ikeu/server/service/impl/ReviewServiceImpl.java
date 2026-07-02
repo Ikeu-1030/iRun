@@ -361,6 +361,7 @@ public class ReviewServiceImpl extends ServiceImpl<ReviewMapper, Review> impleme
      * @param content 追加评价内容
      */
     @Override
+    @Transactional
     public void createFollowUp(Long reviewerId, Long parentReviewId, String content) {
         ReviewCreateDTO dto = new ReviewCreateDTO();
         dto.setParentId(parentReviewId);

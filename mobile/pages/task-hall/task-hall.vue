@@ -67,7 +67,7 @@
         <view class="task-header">
           <view class="task-type">
             <view class="type-icon" :class="'type-icon--' + item.iconStyle">
-              <iconpark-icon :name="item.iconType" size="20" :color="item.iconColor" />
+              <custom-icon v-if="item.iconType === 'expressDelivery'" :name="item.iconType" size="32" /><iconpark-icon v-else :name="item.iconType" size="20" :color="item.iconColor" />
             </view>
             <view class="type-info">
               <text class="type-label">{{ item.title }}</text>

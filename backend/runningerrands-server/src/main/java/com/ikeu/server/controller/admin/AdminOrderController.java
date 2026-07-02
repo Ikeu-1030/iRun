@@ -48,7 +48,7 @@ public class AdminOrderController {
     }
 
     @OperationLog(module = "订单管理", action = "修改", description = "订单 #id → #orderStatus")
-    @RequireRole({1, 2})
+    @RequireRole({1})
     @Operation(summary = "强制修改订单状态")
     @PutMapping("/orders/{id}/status")
     public Result<Void> updateOrderStatus(@PathVariable Long id, @RequestParam("status") Integer orderStatus) {

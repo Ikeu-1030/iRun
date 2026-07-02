@@ -62,6 +62,19 @@ services:
     networks:
       - rr-net
 
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: rr-nginx
+    restart: unless-stopped
+    ports:
+      - "${NGINX_PORT:-80}:80"
+    depends_on:
+      - backend
+    networks:
+      - rr-net
+
 volumes:
   mysql_data:
   redis_data:

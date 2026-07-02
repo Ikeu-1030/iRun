@@ -16,6 +16,7 @@ import com.ikeu.model.entity.TaskOrder;
 import com.ikeu.model.entity.User;
 import com.ikeu.model.vo.TaskDetailVO;
 import com.ikeu.model.vo.TaskListVO;
+import com.ikeu.server.mapper.RunnerProfileMapper;
 import com.ikeu.server.mapper.TaskMapper;
 import com.ikeu.server.mapper.TaskOrderMapper;
 import com.ikeu.server.mapper.UserMapper;
@@ -50,6 +51,7 @@ public class AdminTaskServiceImpl implements AdminTaskService {
 
     private final TaskMapper taskMapper;
     private final TaskOrderMapper taskOrderMapper;
+    private final RunnerProfileMapper runnerProfileMapper;
     private final UserMapper userMapper;
     private final CacheManager cacheManager;
     private final StringRedisTemplate stringRedisTemplate;
@@ -180,6 +182,24 @@ public class AdminTaskServiceImpl implements AdminTaskService {
                     taskOrderMapper.updateById(order);
                     paymentService.refundForTask(task.getPublisherId(), taskId, task.getReward());
                     log.info("同步取消关联订单 {} 并退款 (任务 {})", order.getId(), taskId);
+                }
+            }
+
+            // 完成时结算跑腿报酬 + 同步订单状态（与 AdminOrderService 行为对齐）
+            if (StatusConstant.TASK_COMPLETED.equals(status)) {
+                LambdaQueryWrapper<TaskOrder> wrapper = new LambdaQueryWrapper<TaskOrder>()
+                        .eq(TaskOrder::getTaskId, taskId)
+                        .ne(TaskOrder::getStatus, StatusConstant.ORDER_CANCELLED);
+                TaskOrder order = taskOrderMapper.selectOne(wrapper);
+                if (order != null) {
+                    order.setStatus(StatusConstant.ORDER_COMPLETED);
+                    order.setConfirmTime(LocalDateTime.now());
+                    taskOrderMapper.updateById(order);
+                    runnerProfileMapper.decrementCurrentOrders(order.getRunnerId());
+                    if (paymentService.payToRunner(order.getRunnerId(), taskId, task.getReward())) {
+                        runnerProfileMapper.incrementCompletedStats(order.getRunnerId());
+                    }
+                    log.info("管理员完成任务 {}，同步订单 {} 状态并结算跑腿报酬 #{}", taskId, order.getId(), order.getRunnerId());
                 }
             }
         } catch (InterruptedException e) {

@@ -41,7 +41,7 @@
           <el-descriptions-item label="任务大类">
             <span class="type-tag" :style="{ color: taskTypeConfig.color, background: taskTypeConfig.bgColor }">
               <el-icon class="type-tag-icon"><component :is="taskTypeConfig.icon" /></el-icon>
-              {{ detail.type || '-' }}
+              {{ taskTypeConfig.label }}
             </span>
           </el-descriptions-item>
           <el-descriptions-item label="任务小类">
@@ -193,11 +193,11 @@ const taskSpecsDisplay = computed(() => parseTaskSpecsForAdmin(detail.taskSpecs)
 
 const taskTypeConfig = computed(() => {
   const map: Record<string, { color: string; bgColor: string; icon: any; label: string }> = {
-    '代取快递': { color: '#E8734A', bgColor: '#FFF2ED', icon: Box, label: '代取快递' },
-    '代拿餐食': { color: '#2EB89E', bgColor: '#EDFAF7', icon: KnifeFork, label: '代拿餐食' },
-    '校内代办': { color: '#5B9BD5', bgColor: '#EFF5FB', icon: Document, label: '校内代办' },
-    '代购物品': { color: '#8B6BAE', bgColor: '#F6F1FA', icon: ShoppingCart, label: '代购物品' },
-    '通用代办': { color: '#C8925D', bgColor: '#FDF3EB', icon: MoreFilled, label: '通用代办' },
+    '代取快递': { color: '#E8734A', bgColor: '#FFF2ED', icon: Box, label: '代取快递' }, 'daiqukuaidi': { color: '#E8734A', bgColor: '#FFF2ED', icon: Box, label: '代取快递' },
+    '代拿餐食': { color: '#2EB89E', bgColor: '#EDFAF7', icon: KnifeFork, label: '代拿餐食' }, 'dana canshi': { color: '#2EB89E', bgColor: '#EDFAF7', icon: KnifeFork, label: '代拿餐食' },
+    '校内代办': { color: '#5B9BD5', bgColor: '#EFF5FB', icon: Document, label: '校内代办' }, 'xiaonei daiban': { color: '#5B9BD5', bgColor: '#EFF5FB', icon: Document, label: '校内代办' },
+    '代购物品': { color: '#8B6BAE', bgColor: '#F6F1FA', icon: ShoppingCart, label: '代购物品' }, 'daigou wupin': { color: '#8B6BAE', bgColor: '#F6F1FA', icon: ShoppingCart, label: '代购物品' },
+    '通用代办': { color: '#C8925D', bgColor: '#FDF3EB', icon: MoreFilled, label: '通用代办' }, 'tongyong daiban': { color: '#C8925D', bgColor: '#FDF3EB', icon: MoreFilled, label: '通用代办' },
   }
   return map[detail.type] ?? { color: '#909399', bgColor: '#F5F5F5', icon: Document, label: detail.type || '未知' }
 })

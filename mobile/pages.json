@@ -1,245 +1,77 @@
 {
   "pages": [
+    { "path": "pages/login/login", "style": { "navigationStyle": "custom" } },
+    { "path": "pages/account-login/account-login", "style": { "navigationStyle": "custom", "navigationBarTitleText": "账户登录" } },
+    { "path": "pages/index/index", "style": { "navigationStyle": "custom" } },
+    { "path": "pages/task-hall/task-hall", "style": { "navigationStyle": "custom", "navigationBarTitleText": "任务大厅" } },
+    { "path": "pages/orders/orders", "style": { "navigationStyle": "custom", "navigationBarTitleText": "订单" } },
+    { "path": "pages/message/message", "style": { "navigationStyle": "custom", "navigationBarTitleText": "消息" } },
+    { "path": "pages/user-profile/user-profile", "style": { "navigationStyle": "custom", "navigationBarTitleText": "我的" } }
+  ],
+  "subPackages": [
     {
-      "path": "pages/login/login",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": ""
-      }
+      "root": "pages-order",
+      "name": "order",
+      "pages": [
+        { "path": "order-waiting/order-waiting", "style": { "navigationStyle": "custom", "navigationBarTitleText": "订单详情" } },
+        { "path": "order-success/order-success", "style": { "navigationStyle": "custom", "navigationBarTitleText": "下单成功" } },
+        { "path": "order-completed/order-completed", "style": { "navigationStyle": "custom", "navigationBarTitleText": "订单详情" } },
+        { "path": "order-delivering/order-delivering", "style": { "navigationStyle": "custom", "navigationBarTitleText": "订单详情" } },
+        { "path": "general-publish/general-publish", "style": { "navigationStyle": "custom", "navigationBarTitleText": "通用任务" } },
+        { "path": "cancel-reason/cancel-reason", "style": { "navigationStyle": "custom", "navigationBarTitleText": "取消原因" } },
+        { "path": "station-select/station-select", "style": { "navigationStyle": "custom", "navigationBarTitleText": "选择取件驿站" } }
+      ]
     },
     {
-      "path": "pages/account-login/account-login",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "账户登录"
-      }
+      "root": "pages-service",
+      "name": "service",
+      "pages": [
+        { "path": "coffee-order/coffee-order", "style": { "navigationStyle": "custom", "navigationBarTitleText": "奶茶咖啡代取" } },
+        { "path": "print-order/print-order", "style": { "navigationStyle": "custom", "navigationBarTitleText": "资料打印" } },
+        { "path": "paper-express/paper-express", "style": { "navigationStyle": "custom", "navigationBarTitleText": "纸品速达" } },
+        { "path": "service-publish/service-publish", "style": { "navigationStyle": "custom", "navigationBarTitleText": "需求发布" } }
+      ]
     },
     {
-      "path": "pages/index/index",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "首页"
-      }
+      "root": "pages-user",
+      "name": "user",
+      "pages": [
+        { "path": "wallet/wallet", "style": { "navigationStyle": "custom", "navigationBarTitleText": "钱包" } },
+        { "path": "bills/bills", "style": { "navigationStyle": "custom", "navigationBarTitleText": "我的账单" } },
+        { "path": "runner-cert/runner-cert", "style": { "navigationStyle": "custom", "navigationBarTitleText": "跑腿员认证" } },
+        { "path": "phone-edit/phone-edit", "style": { "navigationStyle": "custom", "navigationBarTitleText": "修改手机号" } },
+        { "path": "identity-verify/identity-verify", "style": { "navigationStyle": "custom", "navigationBarTitleText": "身份认证" } },
+        { "path": "password-manage/password-manage", "style": { "navigationStyle": "custom", "navigationBarTitleText": "密码管理" } },
+        { "path": "privacy-security/privacy-security", "style": { "navigationStyle": "custom", "navigationBarTitleText": "隐私与安全" } },
+        { "path": "profile-settings/profile-settings", "style": { "navigationStyle": "custom", "navigationBarTitleText": "个人信息设置" } },
+        { "path": "certify/certify", "style": { "navigationStyle": "custom", "navigationBarTitleText": "实名认证" } }
+      ]
     },
     {
-      "path": "pages/coffee-order/coffee-order",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "奶茶咖啡代取"
-      }
+      "root": "pages-social",
+      "name": "social",
+      "pages": [
+        { "path": "chat-detail/chat-detail", "style": { "navigationStyle": "custom", "navigationBarTitleText": "聊天" } },
+        { "path": "notifications/notifications", "style": { "navigationStyle": "custom", "navigationBarTitleText": "通知中心" } },
+        { "path": "runner-dashboard/runner-dashboard", "style": { "navigationStyle": "custom", "navigationBarTitleText": "数据概览" } },
+        { "path": "runner-reviews/runner-reviews", "style": { "navigationStyle": "custom", "navigationBarTitleText": "我的评价" } },
+        { "path": "runner-profile/runner-profile", "style": { "navigationStyle": "custom", "navigationBarTitleText": "跑腿员主页" } }
+      ]
     },
     {
-      "path": "pages/print-order/print-order",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "资料打印"
-      }
-    },
-    {
-      "path": "pages/paper-express/paper-express",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "纸品速达"
-      }
-    },
-    {
-      "path": "pages/orders/orders",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "订单"
-      }
-    },
-    {
-      "path": "pages/message/message",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "消息"
-      }
-    },
-    {
-      "path": "pages/user-profile/user-profile",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "我的"
-      }
-    },
-    {
-      "path": "pages/service-publish/service-publish",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "需求发布"
-      }
-    },
-    {
-      "path": "pages/general-publish/general-publish",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "通用任务"
-      }
-    },
-    {
-      "path": "pages/order-waiting/order-waiting",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "订单详情"
-      }
-    },
-    {
-      "path": "pages/order-success/order-success",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "下单成功"
-      }
-    },
-    {
-      "path": "pages/order-completed/order-completed",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "订单详情"
-      }
-    },
-    {
-      "path": "pages/order-delivering/order-delivering",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "订单详情"
-      }
-    },
-    {
-      "path": "pages/station-select/station-select",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "选择取件驿站"
-      }
-    },
-    {
-      "path": "pages/address-list/address-list",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "收货地址"
-      }
-    },
-    {
-      "path": "pages/address-edit/address-edit",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "编辑地址"
-      }
-    },
-    {
-      "path": "pages/privacy-security/privacy-security",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "隐私与安全"
-      }
-    },
-    {
-      "path": "pages/profile-settings/profile-settings",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "个人信息设置"
-      }
-    },
-    {
-      "path": "pages/wallet/wallet",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "钱包"
-      }
-    },
-    {
-      "path": "pages/bills/bills",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "我的账单"
-      }
-    },
-    {
-      "path": "pages/runner-cert/runner-cert",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "跑腿员认证"
-      }
-    },
-    {
-      "path": "pages/phone-edit/phone-edit",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "修改手机号"
-      }
-    },
-    {
-      "path": "pages/identity-verify/identity-verify",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "身份认证"
-      }
-    },
-    {
-      "path": "pages/password-manage/password-manage",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "密码管理"
-      }
-    },
-
-    {
-      "path": "pages/chat-detail/chat-detail",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "聊天"
-      }
-    },
-    {
-      "path": "pages/notifications/notifications",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "通知中心"
-      }
-    },
-    {
-      "path": "pages/task-hall/task-hall",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "任务大厅"
-      }
-    },
-    {
-      "path": "pages/runner-dashboard/runner-dashboard",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "数据概览"
-      }
-    },
-    {
-      "path": "pages/runner-reviews/runner-reviews",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "我的评价"
-      }
-    },
-    {
-      "path": "pages/runner-profile/runner-profile",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "跑腿员主页"
-      }
-    },
-    {
-      "path": "pages/certify/certify",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "实名认证"
-      }
-    },
-    {
-      "path": "pages/cancel-reason/cancel-reason",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "取消原因"
-      }
+      "root": "pages-address",
+      "name": "address",
+      "pages": [
+        { "path": "address-list/address-list", "style": { "navigationStyle": "custom", "navigationBarTitleText": "收货地址" } },
+        { "path": "address-edit/address-edit", "style": { "navigationStyle": "custom", "navigationBarTitleText": "编辑地址" } }
+      ]
     }
   ],
+  "preloadRule": {
+    "pages/index/index": { "network": "all", "packages": ["order", "service"] },
+    "pages/orders/orders": { "network": "all", "packages": ["order"] },
+    "pages/user-profile/user-profile": { "network": "wifi", "packages": ["user"] }
+  },
   "globalStyle": {
     "pageOrientation": "portrait",
     "navigationBarTextStyle": "black",
