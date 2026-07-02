@@ -216,10 +216,12 @@ public class AdminOrderServiceImpl implements AdminOrderService {
 
                 // 终态触发资金结算，paymentService 内已有幂等保护
                 if (status.equals(StatusConstant.ORDER_COMPLETED)) {
+                    runnerProfileMapper.decrementCurrentOrders(order.getRunnerId());
                     if (paymentService.payToRunner(order.getRunnerId(), taskId, task.getReward())) {
                         runnerProfileMapper.incrementCompletedStats(order.getRunnerId());
                     }
                 } else if (status.equals(StatusConstant.ORDER_CANCELLED)) {
+                    runnerProfileMapper.decrementCurrentOrders(order.getRunnerId());
                     paymentService.refundForTask(task.getPublisherId(), task.getId(), task.getReward());
                 }
             }
